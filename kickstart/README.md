@@ -3,12 +3,13 @@
 
 ## Build NFS Server
 
+### Preparing OS Environment as setting hostname, disabling firewalld and selinux including yum update
 ~~~
-[root@localhost ~]#  hostnamectl set-hostname rk9-pxe
+[root@localhost ~]# hostnamectl set-hostname rk9-pxe
 [root@localhost ~]# systemctl stop firewalld
-[root@localhost ~]#  systemctl disable firewalld
+[root@localhost ~]# systemctl disable firewalld
 
-[root@localhost ~]#  vi /etc/sysconfig/selinux
+[root@localhost ~]# vi /etc/sysconfig/selinux
 ~~ snip
 SELINUX=disabled
 SELINUXTYPE= can take one of these three values:
