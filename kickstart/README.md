@@ -1,3 +1,8 @@
+## Kickstart installation for Weka ISO
+~~~
+WIP
+~~~
+
 ## Environment
 * NFS Server
 ~~~
