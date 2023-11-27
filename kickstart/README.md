@@ -1,10 +1,14 @@
 ## Environment
-### NFS Server
-#### OS: Fedora 37
-#### IP: 192.168.0.101
-### TFTP,FTP,DHCP Server
-#### OS: Rocky Linux 9.3
-#### IP: 192.168.0.99
+* NFS Server
+~~~
+OS: Fedora 37
+IP: 192.168.0.101
+~~~
+* TFTP,FTP,DHCP Server
+~~~
+OS: Rocky Linux 9.3
+IP: 192.168.0.99
+~~~
 
 ## Build NFS Server
 
