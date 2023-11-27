@@ -1,6 +1,7 @@
 ## Build NFS Server
 
-OS : Rocky Linux 9.
+### Environment
+- OS : Rocky Linux 9.
 
 ~~~
 [root@localhost ~]#  hostnamectl set-hostname rk9-pxe
