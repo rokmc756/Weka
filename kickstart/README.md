@@ -23,6 +23,7 @@ mls - Multi Level Security protection.
 [root@rk9-pxe ~]#  reboot
 ~~~
 
+### Install and configure NFS Client including automount to connect NFS Server
 ~~~
 [root@rk9-pxe ~]#  yum install -y nfs-utils
 [root@rk9-pxe ~]# vi /etc/idmapd.conf
@@ -39,12 +40,15 @@ Domain = [jtest.pivotal.io](http://jtest.pivotal.io/)
 [root@rk9-pxe ~]# mount -a
 ~~~
 
+## Build TFTP Server for PXF Boot
+### Download ISO files for Rocky Linux
 ~~~
 [root@lab ISOs]# cd /extra-usb-storage/ISOs
 [root@lab ISOs]#  curl -vvv -O https://mirror.navercorp.com/rocky/9.3/isos/x86_64/Rocky-9-latest-x86_64-dvd.iso
 [root@lab ISOs]#  curl -vvv -O https://mirror.navercorp.com/rocky/8.9/isos/x86_64/Rocky-8.9-x86_64-dvd1.iso
 ~~~
 
+### Install and configure tftp-server with systemd unit
 ~~~
 [root@rk9-pxe ~]# dnf install tftp-server -y
 [root@rk9-pxe ~]# cp /usr/lib/systemd/system/tftp.service /etc/systemd/system/tftp-server.service
@@ -67,6 +71,7 @@ WantedBy=multi-user.target
 Also=tftp.socket
 ~~~
 
+### Configure tftp-server socket unit
 ~~~
 [root@rk9-pxe ~]# vi /etc/systemd/system/tftp-server.socket
 [Unit]
@@ -86,6 +91,7 @@ WantedBy=sockets.target
 [root@rk9-pxe ~]# systemctl enable tftp-server
 ~~~
 
+### Install syslinux for PXE boot
 ~~~
 [root@rk9-pxe ~]# dnf install syslinux -y
 [root@rk9-pxe ~]# cp /usr/share/syslinux/menu.c32 /var/lib/tftpboot/
@@ -114,6 +120,7 @@ KERNEL /Linux/Rocky/9.3/vmlinuz
 APPEND initrd=/Linux/Rocky/9.3/initrd.img inst.repo=ftp://192.168.0.99/pub/Linux/Rocky/9.3
 ~~~
 
+### Extract ISO to NFS and FTP Server
 ~~~
 [root@lab ISOs]# cd /extra-usb-storage/nfs-share
 
@@ -129,6 +136,7 @@ APPEND initrd=/Linux/Rocky/9.3/initrd.img inst.repo=ftp://192.168.0.99/pub/Linux
 [root@lab ISOs]# rsync -arv /mnt/* /extra-usb-storage/nfsshare/ftp-root/pub/Linux/8.9/
 ~~~
 
+### Install and configure FTP Server for Kickstart Installation
 ~~~
 [root@rk9-pxe ~]# dnf install vsftpd -y
 [root@rk9-pxe ~]# vi /etc/vsftpd/vsftpd.conf
@@ -151,13 +159,14 @@ local_root=/nfs-dir/nfsshare/ftp-root
 [root@rk9-pxe ftp-root]# systemctl start vsftpd
 ~~~
 
+### Copy boot images into TFTP directory for PXE boot
 ~~~
-[root@rk9-pxe ~]#  mkdir -p /var/lib/tftpboot/Linux/Rocky/8.9
-[root@rk9-pxe ~]#  mkdir -p /var/lib/tftpboot/Linux/Rocky/9.3
+[root@rk9-pxe ~]# mkdir -p /var/lib/tftpboot/Linux/Rocky/8.9
+[root@rk9-pxe ~]# mkdir -p /var/lib/tftpboot/Linux/Rocky/9.3
 [root@rk9-pxe ~]# cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/8.9/images/pxeboot/initrd.img /var/lib/tftpboot/Linux/Rocky/8.9/
 [root@rk9-pxe ~]# cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/8.9/images/pxeboot/vmlinuz /var/lib/tftpboot/Linux/Rocky/8.9/
-[root@rk9-pxe ~]#  cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/9.3/images/pxeboot/vmlinuz /var/lib/tftpboot/Linux/Rocky/9.3/
-[root@rk9-pxe ~]#  cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/9.3/images/pxeboot/initrd.img /var/lib/tftpboot/Linux/Rocky/9.3/
+[root@rk9-pxe ~]# cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/9.3/images/pxeboot/vmlinuz /var/lib/tftpboot/Linux/Rocky/9.3/
+[root@rk9-pxe ~]# cp /nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/9.3/images/pxeboot/initrd.img /var/lib/tftpboot/Linux/Rocky/9.3/
 
 [root@rk9-pxe ~]# systemctl restart vsftpd
 [root@rk9-pxe ~]# systemctl restart tftp-server
@@ -167,7 +176,7 @@ success
 [root@lab ~]# firewall-cmd --reload
 ~~~
 
-## Build DHCP Server for PXE Boot
+## Install and configure DHCP Server for PXE Boot
 ~~~
 [root@rk9-pxe ~]# dnf install dhcp-server -y
 
@@ -191,73 +200,16 @@ filename "pxelinux.0";
 [root@rk9-pxe ~]# systemctl start dhcpd
 
 ~~~
-# Configure Kickstart configuration file
+
+### Configure Kickstart configuration file
 ~~~
 [root@rk9-pxe ~]# openssl passwd -6 changeme
 $6$by53Zw0bD64htr69$cvYjYmALCSoSSVXw69PGyuCIzki6dqQ2sG7NaFSSGxkp/fEkykBxPU6NGcVG/ku9wVEbPeRRde.KT/0MZB2lE.
 
-[root@rk9-pxe 8.9]# vi/nfs-dir/nfsshare/ftp-root/pub/Linux/Rocky/8.9/ks.cfg
-#version=RHEL8
-#Use graphical install
-graphical
+Download ks.cfg here and modify as per your environment
 
-#Add a line
-url --url="[ftp://192.168.0.99/Linux/Rocky/8.9/BaseOS](ftp://192.168.0.99/Linux/Rocky/8.9/BaseOS)"
-
-#Modify
-repo --name="AppStream" --baseurl=ftp://192.168.0.99/Linux/Rocky/8.9/AppStream"
-%packages
-@^minimal-environment
-%end
-
-#Keyboard layouts
-keyboard --xlayouts='kr'
-
-#System language
-lang ko_KR.UTF-8
-
-#Network information
-#network --bootproto=dhcp --device=ens33 --ipv6=auto --activate
-#network --bootproto=dhcp --device=ens34 --onboot=off --ipv6=auto
-network  --hostname=installtest
-
-#Use CDROM installation media - It should be uncommented to prventing CD boot
-#cdrom
-#Run the Setup Agent on first boot
-firstboot --enable
-ignoredisk --only-use=sda
-
-#Partition clearing information
-clearpart --none --initlabel
-
-#Disk partitioning information
-part pv.111 --fstype="lvmpv" --ondisk=sda --size=50749
-part /boot --fstype="xfs" --ondisk=sda --size=450
-volgroup rl --pesize=4096 pv.111
-logvol / --fstype="xfs" --size=48700 --name=root --vgname=rl
-logvol swap --fstype="swap" --size=2048 --name=swap --vgname=rl
-
-#System timezone
-timezone Asia/Seoul --isUtc
-
-#Root password
-rootpw --iscrypted $6$by53Zw0bD64htr69$cvYjYmALCSoSSVXw69PGyuCIzki6dqQ2sG7NaFSSGxkp/fEkykBxPU6NGcVG/ku9wVEbPeRRde.KT/0MZB2lE.
-
-%addon com_redhat_kdump --disable --reserve-mb='auto'
-%end
-%anaconda
-pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
-pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-%end
-
-[root@rk9-pxe 8.9]# chmod 755 ks.cfg
 ~~~
 
-## Build PXE
-## Build TFTP Server
-## Build FTP Server
-## BUILD DHCP Server
 ## Network install Weka 4.2 by Kickstart
 
 ## References
