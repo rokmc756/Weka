@@ -112,7 +112,7 @@ KERNEL /Linux/Rocky/9.3/vmlinuz
 APPEND initrd=/Linux/Rocky/9.3/initrd.img inst.repo=ftp://192.168.0.99/pub/Linux/Rocky/9.3
 ~~~
 
-
+~~~
 [root@lab ISOs]# cd /extra-usb-storage/nfs-share
 
 [root@lab nfsshare]# mkdir -p /extra-usb-storage/nfsshare/ftp-root/pub/Linux/Rocky/8.9
