@@ -518,4 +518,5 @@ error: Can not provision /dev/vdd1: Expecting a disk and not a partition
 https://blog.christophersmart.com/2019/12/18/kvm-guests-with-emulated-ssd-and-nvme-drives/
 https://futurewei-cloud.github.io/ARM-Datacenter/qemu/nvme-of-tcp-vms/
 https://blog.frankenmichl.de/2018/02/13/add-nvme-device-to-vm/
+https://qemu-project.gitlab.io/qemu/system/devices/nvme.html
 
