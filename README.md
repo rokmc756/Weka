@@ -22,7 +22,6 @@ Nov 27 22:42:34 weka4-master systemd[1]: weka-firstboot.service: Main process ex
 Nov 27 22:42:34 weka4-master systemd[1]: weka-firstboot.service: Failed with result 'exit-code'.
 
 # Added chmod 755 /opt/wekabits/weka-install in ks.cfg
-
 ~~~
 
 
@@ -515,8 +514,27 @@ error: Can not provision /dev/vdd1: Expecting a disk and not a partition
 
 ~~~
 
+https://access.redhat.com/solutions/2777871
 https://blog.christophersmart.com/2019/12/18/kvm-guests-with-emulated-ssd-and-nvme-drives/
 https://futurewei-cloud.github.io/ARM-Datacenter/qemu/nvme-of-tcp-vms/
 https://blog.frankenmichl.de/2018/02/13/add-nvme-device-to-vm/
 https://qemu-project.gitlab.io/qemu/system/devices/nvme.html
+
+https://www.baeldung.com/linux/qemu-from-terminal
+
+https://www.cyberciti.biz/faq/how-to-add-disk-image-to-kvm-virtual-machine-with-virsh-command/
+
+https://blog.vmsplice.net/2011/04/how-to-pass-qemu-command-line-options.html
+
+https://unix.stackexchange.com/questions/495703/qemu-commandline-arguments-to-lib-virt-are-not-accepted-unable-to-save-xml-fil
+
+https://unix.stackexchange.com/questions/235414/libvirt-how-to-pass-qemu-command-line-args
+
+https://qemu-project.gitlab.io/qemu/system/devices/nvme.html
+
+https://forum.proxmox.com/threads/qemu-can-we-add-emulated-nvme-devices-to-guests.78752/
+
+https://github.com/manishrma/nvme-qemu
+
+https://zonedstorage.io/docs/getting-started/zns-device
 
