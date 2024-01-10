@@ -1,0 +1,14 @@
+---
+#
+weka_ports:
+  - "6789"
+  - "3300"
+
+drive_ports:
+  - "6800-7300"
+
+fe_ports:
+  - "6800-7300"
+
+compute_ports:
+  - "7480"

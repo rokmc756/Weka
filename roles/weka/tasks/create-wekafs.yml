@@ -1,0 +1,31 @@
+#
+- name: Create Custom WekaFS Group
+  shell: |
+    weka fs group create {{ wekafs.group }}
+  register: create_wekafs_group
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_wekafs_group }}
+
+#
+- name: Create Custom WekaFS with the specific capacity
+  shell: |
+    weka fs create {{ wekafs.group }} {{ wekafs.fs }} {{ wekafs.size }}
+  register: create_custom_wekafs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_custom_wekafs }}
+
+#
+- name: Check Custom WekaFS
+  shell: |
+    weka fs
+  register: check_custom_wekafs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_custom_wekafs }}
+
+#
+- name: Check WekaFS in the containers
+  shell: |
+    weka cluster container
+  register: check_wekafs_container
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_wekafs_container }}
