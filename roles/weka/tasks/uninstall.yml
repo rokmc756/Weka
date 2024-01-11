@@ -1,4 +1,5 @@
 #
+
 - name: Check the status of Weka cluster
   become: true
   become_user: root

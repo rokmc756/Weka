@@ -13,3 +13,12 @@ wekafs:
   group: default
   fs: default
   size: 5GiB
+cpu_cores:
+  container_max_id: "{{ groups['workers'] | length -1 }}"
+  container_num: 3
+  drives_num: 3
+  compute_num: 3
+  frontends_num: 0
+drives:
+  data: 3
+  parity: 2
