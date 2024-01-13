@@ -62,7 +62,6 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ~~ snip
 ```
 
-
 #### 2) Configure inventory
 ```
 $ vi ansible-hosts
@@ -82,7 +81,13 @@ weka4-node05 ansible_ssh_host=192.168.0.185
 weka4-node06 ansible_ssh_host=192.168.0.186
 weka4-node07 ansible_ssh_host=192.168.0.187
 ```
-#### 3) Configure variables for
+#### 3) Download Weka Data Platform binary
+```
+$ wget -P . --auth-no-challenge https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pkg/weka-4.2.7.64.tar
+$ mv weka-4.2.7.64.tar roles/weka/files
+```
+
+#### 4) Configure variables for
 ```
 $ vi roles/weka/vars/main.yml
 weka:
@@ -111,7 +116,7 @@ drives:
   parity: 2
 ~~ snip
 ```
-#### 4) Deploy Weka Data Platform 
+#### 5) Deploy Weka Data Platform 
 ```
 $ vi install-hosts.yml
 ---
@@ -129,7 +134,7 @@ $ vi install-hosts.yml
 
 $ make install
 ```
-#### 5) Destroy Weka Data Platform
+#### 6) Destroy Weka Data Platform
 ```
 $ vi uninstall-hosts.yml
 - hosts: all
