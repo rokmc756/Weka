@@ -6,11 +6,11 @@ WekaFS stands out with its unique architecture, overcoming legacy systems’ sca
 Benefits include high performance across all IO profiles, scalable capacity, robust security, hybrid cloud support, private/public cloud backup, and cost-effective flash-disk combination. WekaFS ensures a cloud-like experience, seamlessly transitioning between on-premises and cloud environments.
 ![alt text](https://raw.githubusercontent.com/rokmc756/Weka/main/roles/weka/images/weka_architecture.webp)
 WekaFS functionality running in its RTOS within the Linux container (LXC) is comprised of the following software components:
-File services (frontend): Manages multi-protocol connectivity.
-File system computing and clustering (backend): Manages data distribution, data protection, and file system metadata services.
-SSD drive agent: Transforms the SSD into an efficient networked device.
-Management process: Manages events, CLI, statistics, and call-home capability.
-Object connector: Read and write to the object store.
+* File services (frontend): Manages multi-protocol connectivity.
+* File system computing and clustering (backend): Manages data distribution, data protection, and file system metadata services.
+* SSD drive agent: Transforms the SSD into an efficient networked device.
+* Management process: Manages events, CLI, statistics, and call-home capability.
+* Object connector: Read and write to the object store.
 By bypassing the kernel, WekaFS achieves faster, lower-latency performance, portable across bare-metal, VM, containerized, and cloud environments. Efficient resource consumption minimizes latency and optimizes CPU usage, offering flexibility in shared or dedicated environments.
 ![alt text](https://raw.githubusercontent.com/rokmc756/Weka/main/roles/weka/images/wekafs_storage_architecture.webp)
 WekaFS design departs from traditional NAS solutions, introducing multiple filesystems within a global namespace that share the same physical resources. Each filesystem has its unique identity, allowing customization of snapshot policies, tiering, role-based access control (RBAC), quota management, and more. Unlike other solutions, filesystem capacity adjustments are dynamic, enhancing scalability without disrupting I/O.
@@ -52,6 +52,7 @@ $ sudo yum install ansible
 ## Prepareing OS
 * Configure Yum / Local & EPEL Repostiory
 ## Download / configure / run Weka Data Platform
+#### 1) Clone Ansible Playbook of Weka
 ```
 $ git clone https://github.com/rokmc756/Weka
 $ cd Weka
