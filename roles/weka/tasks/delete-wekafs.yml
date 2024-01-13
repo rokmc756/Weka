@@ -1,17 +1,18 @@
 #
-#
-- name: Delete Custom WekaFS with the specific capacity
+- name: Delete Custom WekaFS
   shell: |
-    weka fs delete {{ wekafs.fs }} -f
+    weka fs delete {{ item.name }} -f
   register: delete_custom_wekafs
+  with_items: "{{ wekafs.fs }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_custom_wekafs }}
 
-
+#
 - name: Delete Custom WekaFS Group
   shell: |
-    weka fs group delete {{ wekafs.group }}
+    weka fs group delete {{ item.name }}
   register: delete_wekafs_group
+  with_items: "{{ wekafs.group }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_wekafs_group }}
 

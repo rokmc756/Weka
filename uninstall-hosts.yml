@@ -4,7 +4,7 @@
     print_debug: true
     uninstall_pkgs: false
     unconfig_client: false
-    delete_wekafs: false
+    delete_wekafs: true
     destroy_weka: false
   roles:
     - { role: weka }

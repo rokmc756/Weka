@@ -37,8 +37,9 @@
   when: unconfig_client == true
 
 #
-- name: Uninstall Weka
+- name: Destroy Weka Data Platform Software
   import_tasks: uninstall.yml
   tags: uninstall
   when: destroy_weka == true
+
 

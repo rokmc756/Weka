@@ -9,17 +9,25 @@ weka:
   admin_default_pass: admin
   admin_change_pass: "Changeme12!@"
   download: false
-wekafs:
-  group: jtest-group01
-  fs: jtest-fs01
-  size: 7GiB
-  mount_dir: /mnt/jtest-weka-mnt01
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
   container_num: 3
   drives_num: 1
-  compute_num: 2
-  frontends_num: 0
+  compute_num: 1
+  frontends_num: 1
 drives:
   data: 3
   parity: 2
+wekafs:
+  group:
+    - { name: "jtest-default-grp01" }
+    - { name: "jtest-nfs-grp01" }
+    - { name: "jtest-s3-grp01" }
+    - { name: "jtest-smb-grp01" }
+    - { name: "jtest-wekafs-grp01" }
+  fs:
+    - { name: "jtest-default-fs01",  grp_name: "jtest-default-grp01", size : "6GiB", mount_dir : "/mnt/jtest-default-fs01" }
+    - { name: "jtest-nfs-fs01",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs01" }
+    - { name: "jtest-s3-fs01",  grp_name: "jtest-s3-grp01", size : "6GiB", mount_dir : "/mnt/jtest-s3-fs01" }
+    - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
+    - { name: "jtest-wekafs-fs01",  grp_name: "jtest-wekafs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-wekafs-fs01" }

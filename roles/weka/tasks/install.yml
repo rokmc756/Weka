@@ -149,7 +149,8 @@
 #
 - name: Assign number of cores into each compute/drives/frontends containers
   shell: |
-    weka cluster container cores {{ item }} {{ cpu_cores.container_num }} --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --no-frontends
+    weka cluster container cores {{ item }} {{ cpu_cores.container_num }} --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --frontend-dedicated-cores {{ cpu_cores.frontends_num }}
+    # weka cluster container cores {{ item }} {{ cpu_cores.container_num }} --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --no-frontends
   register: assign_cores_num
   with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -193,11 +194,11 @@
 - name: Add NVME drives into each containers
   shell: |
     weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
+    # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
     # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4 /dev/nvme0n5 /dev/nvme0n6
   register: add_nvme_drive
   with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # when: inventory_hostname in groups['workers']
 - debug: msg={{ add_nvme_drive }}
 
 #
@@ -214,5 +215,4 @@
     weka cluster start-io
   register: start_cluster_io
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # when: inventory_hostname in groups['workers']
 - debug: msg={{ start_cluster_io }}

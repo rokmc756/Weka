@@ -5,7 +5,7 @@
     print_debug: true
     install_pkgs: false
     deploy_weka: false
-    create_wekafs: false
+    create_wekafs: true
     config_client: false
   roles:
     - { role: weka }

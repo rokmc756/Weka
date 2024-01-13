@@ -27,7 +27,7 @@
 #
 - name: Create directory to mount WekaFS
   shell: |
-    mkdir {{ wekafs.mount_dir }}
+    mkdir {{ wekafs.fs[0].mount_dir }}
   register: create_wekafs_dir
   when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
@@ -37,7 +37,7 @@
 #
 - name: Mount WekaFS directory
   shell: |
-    mount -t wekafs -o net=udp {{ hostvars[groups['workers'][0]]['ansible_eth1']['ipv4']['address'] }}/{{ wekafs.fs }} {{ wekafs.mount_dir }}
+    mount -t wekafs -o net=udp {{ hostvars[groups['workers'][0]]['ansible_eth1']['ipv4']['address'] }}/{{ wekafs.fs[0].name }} {{ wekafs.fs[0].mount_dir }}
   register: mount_wekafs_dir
   when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
@@ -48,7 +48,7 @@
 - name: Check if WekaFS directory is mounted
   shell: |
     df -h
-    ls -al {{ wekafs.mount_dir }}
+    ls -al {{ wekafs.fs[0].mount_dir }}
   register: check_wekafs_mounted
   when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
@@ -58,9 +58,9 @@
 #
 - name: Creat text file with the content
   shell: |
-    touch {{ wekafs.mount_dir }}/test01.txt
-    echo "hello world" > {{ wekafs.mount_dir }}/test01.txt
-    cat {{ wekafs.mount_dir }}/test01.txt
+    touch {{ wekafs.fs[0].mount_dir }}/test01.txt
+    echo "hello world" >  {{ wekafs.fs[0].mount_dir }}/test01.txt
+    cat {{ wekafs.fs[0].mount_dir }}/test01.txt
   register: create_wekafs_file
   when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
