@@ -17,12 +17,12 @@ WekaFS design departs from traditional NAS solutions, introducing multiple files
 The WEKA system offers a robust, distributed, and highly scalable storage solution, allowing multiple application servers to access shared filesystems efficiently and with solid consistency and POSIX compliance.
 
 ## What is this ansible playbook for Weka Data Platform?
-It is ansible playbook to deploy Weka Data Platform conveniently and quickly on Baremetal, Virtual Machines and Cloud Infrastructure.\
-It provide also configure WekaFS and Client Software to connect from client to Weka Data Platform when deploying it.\
-The main purpose of this project is actually very simple. Because there are many jobs to install different kind of Weka Data Platform\
-versions and reproduce issues & test features as a support engineer. I just want to spend less time for it.\
+It is ansible playbook to deploy Weka Data Platform conveniently and quickly on Baremetal, Virtual Machines and Cloud Infrastructure.
+It provide also configure WekaFS and Client Software to connect from client to Weka Data Platform when deploying it.
+The main purpose of this project is actually very simple. Because there are many jobs to install different kind of Weka Data Platform
+versions and reproduce issues & test features as a support engineer. I just want to spend less time for it.
 
-If you are working with Weka Data Platfrom  such as Developer, Administrator, Field Engineer or Database Administrator\
+If you are working with Weka Data Platfrom  such as Developer, Administrator, Field Engineer or Database Administrator
 you could also utilize it very conviently as saving time.
 
 ## Where is this ansible playbook from and how is it changed?
