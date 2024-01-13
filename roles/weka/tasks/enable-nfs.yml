@@ -1,0 +1,14 @@
+
+# $ weka fs
+# FILESYSTEM ID  FILESYSTEM NAME  USED SSD  AVAILABLE SSD  USED TOTAL  AVAILABLE TOTAL  THIN PROVISIONED  THIN PROVISIONED MINIMUM SSD  THIN PROVISIONED MAXIMUM SSD
+# 8              jtest-fs01       4.09 KB   7.51 GB        4.09 KB     7.51 GB          False
+# $ weka nfs global-config set --config-fs  jtest-fs01
+
+# $ weka nfs interface-group add jtest-nfs01 nfs --subnet 255.255.255.0 --gateway 192.168.0.1
+# NAME         SUBNET MASK    GATEWAY      TYPE  STATUS    IPS  PORTS  ALLOW MANAGE GIDS
+# jtest-nfs01  255.255.255.0  192.168.0.1  NFS   Inactive       [  ]   True
+
+# weka nfs interface-group port add jtest-nfs01 0 eth0
+
+# [root@weka4-node01 ~]# weka nfs interface-group port add jtest-nfs01 0 eth0
+# error: The given host HostId<0> isn't suitable for the operation

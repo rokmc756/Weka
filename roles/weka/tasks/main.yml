@@ -13,16 +13,28 @@
   when: deploy_weka == true
 
 #
+- name: Create Weka File System
+  import_tasks: create-wekafs.yml
+  tags: install
+  when: create_wekafs == true
+
+#
 - name: Config Client
   import_tasks: config-client.yml
   tags: install
   when: config_client == true
 
 #
-- name: Create Weka File System
-  import_tasks: create-wekafs.yml
-  tags: install
-  when: create_wekafs == true
+- name: Delete Weka File System
+  import_tasks: delete-wekafs.yml
+  tags: uninstall
+  when: delete_wekafs == true
+
+#
+- name: Unconfig Client
+  import_tasks: unconfig-client.yml
+  tags: uninstall
+  when: unconfig_client == true
 
 #
 - name: Uninstall Weka

@@ -10,9 +10,10 @@ weka:
   admin_change_pass: "Changeme12!@"
   download: false
 wekafs:
-  group: default
-  fs: default
-  size: 5GiB
+  group: jtest-group01
+  fs: jtest-fs01
+  size: 7GiB
+  mount_dir: /mnt/jtest-weka-mnt01
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
   container_num: 3
