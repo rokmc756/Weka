@@ -1,0 +1,82 @@
+fs_grp_default:
+  name: 1
+  target_ssd_retention: 1
+  start_demote: 1
+
+fs:
+  name: 1
+  group_name: 1
+  total_capacity: 1
+  ssd_capacity: 1
+  thin_provision_min_ssd: 1
+  thin_provision_max_ssd: 1
+  max_files: 1
+  encrypted: 1
+  obs_name: 1
+  auth_required: 1
+  data_reduction: 1
+
+s3_attach_default:
+  fs_name: 1
+  obs_name: 1
+  mode: 1
+
+snapshot_default:
+  file_system: 1
+  name: 1
+  access_point: 1
+  source_snap: 1
+  is_writable: 1
+
+snap_to_object_default:
+  name: 1
+  group_name: 1
+  total_capacity: 1
+  ssd_capacity: 1
+  obs_bucket: 1
+  locator: 1
+  additional_obs: 1
+  snapshot_name: 1
+  access_point: 1
+
+quota_default:
+  path: 1
+  soft: 1
+  hard: 1
+  grace: 1
+  owner: 1
+  fs_name: 1
+  snap_name: 1
+  under: 1
+  over: 1
+  quick: 1
+  all: 1
+
+s3_default:
+  name: 1
+  site: 1
+  obs_name: 1
+  hostname: 1
+  port: 1
+  bucket: 1
+  auth_method: 1
+  region: 1
+  access_key_id: 1
+  secret_key: 1
+  protocol: 1
+  bandwidth: 1
+  download_bandwidth: 1
+  remove_bandwidth: 1
+  upload_bandwidth: 1
+  errors_timeout: 1
+  prefetch_mib: 1
+  enable_upload_tags: 1
+  max_concurrent_downloads: 1
+  max_concurrent_uploads: 1
+  max_concurrent_removals: 1
+  max_extents_in_data_blob: 1
+  max_data_blob_size: 1
+  sts_operation_type: 1
+  sts_role_arn: 1
+  sts_role_session_name: 1
+  sts_session_duration: 1

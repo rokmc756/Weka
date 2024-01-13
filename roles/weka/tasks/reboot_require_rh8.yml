@@ -14,5 +14,5 @@
   async: 1200
   poll: 0
   notify:
-    - Waiting for server to come back after restart
+    - Waiting for server to come back after reboot
   when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and reboot_required.rc == 1

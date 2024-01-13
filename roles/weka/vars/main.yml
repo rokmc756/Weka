@@ -16,8 +16,8 @@ wekafs:
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
   container_num: 3
-  drives_num: 3
-  compute_num: 3
+  drives_num: 1
+  compute_num: 2
   frontends_num: 0
 drives:
   data: 3

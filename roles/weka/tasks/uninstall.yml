@@ -1,11 +1,10 @@
 #
 
 - name: Check the status of Weka cluster
-  become: true
-  become_user: root
   shell: |
-    weka user login admin "Changeme12!@" && weka status
+    weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
   register: check_weka_cluster
+  ignore_errors: true
   when: inventory_hostname in groups['workers']
 
 - debug: msg={{ check_weka_cluster }}
@@ -18,23 +17,25 @@
 
 - debug: msg={{ all_nodes_hostname }}
 
-# - meta: end_play
-
 #
 - name: Destroy Weka Cluster
-  become: true
-  become_user: root
   shell: |
     cd /root/tools/install ; ./wekadestroy --yes --force --uninstall {{ all_nodes_hostname }}
   register: destroy_weka_cluster
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 - debug: msg={{ check_weka_cluster }}
   when: print_debug == true and  inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Import tasks of Reboot required in RHEL/CentOS/Rocky Linux 8 or higher versions
-  import_tasks: reboot_require_rh8.yml
-  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+- name: Reboot required
+  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
+  async: 1200
+  poll: 0
+  when: print_debug == true and inventory_hostname in groups['workers'] and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
+  notify:
+    - Waiting for server to come back after reboot
 
 - meta: flush_handlers
+  when: print_debug == true and inventory_hostname in groups['workers']

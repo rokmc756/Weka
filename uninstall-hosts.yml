@@ -3,6 +3,11 @@
   vars:
     print_debug: true
     uninstall_pkgs: true
+    delete_wekafs: true
+    unconfig_client: false
+    destroy_weka: false
   roles:
     - { role: weka }
-  #  - { role: init-hosts }
+
+#  - { role: init-hosts }
+

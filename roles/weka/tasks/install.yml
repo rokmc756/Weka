@@ -33,9 +33,11 @@
   register: weka_install_dir_exists
 
 #
-- name: Sanity check for existence of "{{ weka.base_path }}/{{ weka_file_name }}".tar file or "{{weka.base_path }}/{{ weka_file_name }}" directory
-  fail: msg="Either {{ weka.base_path }}/{{ weka_file_name }}.tar file or {{ weka.base_path }}/{{ weka_file_name }} directory already exists"
-  when: weka_tarball_exists.stat.exists == True or weka_install_dir_exists == True
+#- name: Sanity check for existence of "{{ weka.base_path }}/{{ weka_file_name }}".tar file or "{{weka.base_path }}/{{ weka_file_name }}" directory
+#  fail: msg="Either {{ weka.base_path }}/{{ weka_file_name }}.tar file or {{ weka.base_path }}/{{ weka_file_name }} directory already exists"
+#  when: weka_tarball_exists.stat.exists != True or weka_install_dir_exists.stat.exists == True
+  # fail: msg="Either {{ weka.base_path }}/{{ weka_file_name }}.tar file or {{ weka.base_path }}/{{ weka_file_name }} directory already exists"
+  # when: weka_tarball_exists.stat.exists == True or weka_install_dir_exists.stat.exists == True
 
 #
 - name: Copy weka tarball file from local directory, roles/weka/files
@@ -147,10 +149,11 @@
 #
 - name: Assign number of cores into each compute/drives/frontends containers
   shell: |
-    weka cluster container cores {{ item }} {{ cores.container_num }} --drives-dedicated-cores {{ cores.drives_num }} --compute-dedicated-cores {{ cores.compute_num }} --no-frontends
+    weka cluster container cores {{ item }} {{ cpu_cores.container_num }} --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --no-frontends
   register: assign_cores_num
-  with_sequence: start=0 end={{ core.container_max_id }}
-- debug: msg={{ assigns_core_num  }}
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ assign_cores_num  }}
 
 #
 - name: Apply changes of core numbers for containers
@@ -159,6 +162,11 @@
   register: apply_changes_core_num
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ apply_changes_core_num  }}
+
+#
+- name: Pause for 3 minutes to wait for applying changes of core numbers into containers
+  pause:
+    minutes: 3
 
 #
 - name: Check local conatiners and cluster hosts as well as status
@@ -181,13 +189,15 @@
 
 
 # Need to define variable of nvme device list after find each device name of NVME on each hosts
-#
+# 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
 - name: Add NVME drives into each containers
   shell: |
-    weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1 /dev/nvme3n1 /dev/nvme4n1 /dev/nvme5n1
+    weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
+    # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4 /dev/nvme0n5 /dev/nvme0n6
   register: add_nvme_drive
-  with_sequence: start=0 end={{ core.container_max_id }}
-  when: inventory_hostname in groups['workers']
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # when: inventory_hostname in groups['workers']
 - debug: msg={{ add_nvme_drive }}
 
 #
@@ -199,9 +209,10 @@
 - debug: msg={{ check_cluster_drives }}
 
 #
-- name: Start IP in the cluster
+- name: Start IO in the cluster
   shell: |
     weka cluster start-io
   register: start_cluster_io
-  when: inventory_hostname in groups['workers']
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # when: inventory_hostname in groups['workers']
 - debug: msg={{ start_cluster_io }}

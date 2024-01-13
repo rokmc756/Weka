@@ -1,14 +1,15 @@
 ---
 #
 weka_ports:
-  - "6789"
-  - "3300"
+  - "14000"
+  - "14100"
+  - "8501"
 
-drive_ports:
+drives_ports:
   - "6800-7300"
 
-fe_ports:
-  - "6800-7300"
+frontedns_ports:
+  - "7300"
 
 compute_ports:
   - "7480"

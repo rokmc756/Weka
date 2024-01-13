@@ -3,13 +3,13 @@
     name: firewalld
     enabled: yes
     state: started
-  when: inventory_hostname in groups['master'] or inventory_hostname in groups['standby'] or inventory_hostname in groups['workers']
+  when: inventory_hostname in groups['workers']
 
 - name: Reset ruleset for public zone in firewalld
   shell: |
     firewall-cmd --load-zone-defaults=public --permanent
     firewall-cmd --reload
-  when: inventory_hostname in groups['master'] or inventory_hostname in groups['standby'] or inventory_hostname in groups['workers']
+  when: inventory_hostname in groups['workers']
 
 - name: Set Firewalld Port Policy for Name nodes
   firewalld:
@@ -18,28 +18,6 @@
     state: enabled
     zone: public
     immediate: yes
-  loop: "{{ nn_firewall_ports }}"
-  when: inventory_hostname in groups['master'] or inventory_hostname in groups['standby']
-
-- name: Set Firewalld Port Policy for Data nodes
-  firewalld:
-    port: "{{ item }}/tcp"
-    permanent: true
-    state: enabled
-    zone: public
-    immediate: yes
-  loop: "{{ dn_firewall_ports }}"
+  loop: "{{ weka_ports }}"
   when: inventory_hostname in groups['workers']
-
-- name: Set Firewalld Port Policy for Common
-  firewalld:
-    port: "{{ item }}/tcp"
-    permanent: true
-    state: enabled
-    zone: public
-    immediate: yes
-  loop: "{{ common_firewall_ports }}"
-  when: inventory_hostname in groups['master'] or inventory_hostname in groups['standby'] or inventory_hostname in groups['workers']
-
 #  notify: firewall restart
-#  when: ( inventory_hostname in groups['master'] or inventory_hostname in groups['standby'] or inventory_hostname in groups['workers'] )

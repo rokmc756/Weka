@@ -2,9 +2,8 @@
 #
 - name: Restart system
   shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
-  async: 30
+  async: 300
   poll: 0
-  ignore_errors: true
 
 #
 - name: Waiting for server to come back after reboot
@@ -22,3 +21,4 @@
   service:
     name: sshd
     state: reloaded
+
