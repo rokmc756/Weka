@@ -45,7 +45,7 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ```
 ## Weka Data Platform
 #### 1) The Architecure
-![alt text](https://github.com/rokmc756/Weka/blob/main/roles/weka/images/weka_archecture.webp)
+![alt text](https://raw.githubusercontent.com/rokmc756/Weka/main/roles/weka/images/weka_architecture.webp)
 
 #### 2) Configure inventory
 ```
