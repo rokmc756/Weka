@@ -7,8 +7,21 @@
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
+- name: Set facts for Weka Data Platform
+  import_tasks: set-weka-facts.yml
+  tags:
+    - install
+    - uninstall
+
+#
+- name: Install Weka and tools binary
+  import_tasks: install-binary.yml
+  tags: install
+  when: install_binary == true
+
+#
 - name: Deploy Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
-  import_tasks: install.yml
+  import_tasks: deploy-weka.yml
   tags: install
   when: deploy_weka == true
 
@@ -40,6 +53,3 @@
 - name: Destroy Weka Data Platform Software
   import_tasks: uninstall.yml
   tags: uninstall
-  when: destroy_weka == true
-
-

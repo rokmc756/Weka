@@ -1,0 +1,11 @@
+[all:vars]
+ssh_key_filename="id_rsa"
+remote_machine_username="jomoon"
+remote_machine_password="changeme"
+
+[workers]
+weka4-node01 ansible_ssh_host=192.168.0.141
+weka4-node02 ansible_ssh_host=192.168.0.142
+weka4-node03 ansible_ssh_host=192.168.0.143
+weka4-node04 ansible_ssh_host=192.168.0.144
+weka4-node05 ansible_ssh_host=192.168.0.145

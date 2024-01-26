@@ -5,7 +5,7 @@ ANSIBLE_HOST_PASS="changeme"
 ANSIBLE_TARGET_PASS="changeme"
 # include ./*.mk
 
-GPHOSTS := $(shell grep -i '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' ./ansible-hosts | sed -e "s/ ansible_ssh_host=/,/g")
+WKHOSTS := $(shell grep -i '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' ./ansible-hosts | sed -e "s/ ansible_ssh_host=/,/g")
 
 all:
 	@echo ""
@@ -19,8 +19,8 @@ all:
 	@echo "available-roles: list known roles which can be downloaded"
 	@echo "clean:           delete all temporary files"
 	@echo ""
-	@for GPHOST in ${GPHOSTS}; do \
-		IP=$${GPHOST#*,}; \
+	@for WKHOST in ${WKHOSTS}; do \
+		IP=$${WKHOST#*,}; \
 	    	HOSTNAME=$${LINE%,*}; \
 		echo "Current used hostname: $${HOSTNAME}"; \
 		echo "Current used IP: $${IP}"; \
@@ -28,11 +28,11 @@ all:
 		echo ""; \
 	done
 
-init:	setup-hosts.yml update-hosts.yml
+init:	install-hosts.yml update-hosts.yml
 	# $(shell sed -i -e '2s/.*/ansible_become_pass: ${ANSIBLE_TARGET_PASS}/g' ./group_vars/all.yml)
 	@echo ""
-	@for GPHOST in ${GPHOSTS}; do \
-		IP=$${GPHOST#*,}; \
+	@for WKHOST in ${WKHOSTS}; do \
+		IP=$${WKHOST#*,}; \
 	    	HOSTNAME=$${LINE%,*}; \
 		echo "It will init host $${IP} and install ssh key and basic packages"; \
 		echo ""; \

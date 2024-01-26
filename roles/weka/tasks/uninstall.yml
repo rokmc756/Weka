@@ -1,41 +1,61 @@
 #
+#- name: Check the status of Weka Cluster
+#  shell: |
+#    weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
+#  register: check_weka_cluster
+#  ignore_errors: true
+#  when: destroy_weka == true and inventory_hostname in groups['workers']
 
-- name: Check the status of Weka cluster
-  shell: |
-    weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
-  register: check_weka_cluster
-  ignore_errors: true
-  when: inventory_hostname in groups['workers']
+#    print_debug: true
+#    uninstall_pkgs: true
+#    unconfig_client: false
+#    delete_wekafs: false
+#    destroy_weka: true
 
-- debug: msg={{ check_weka_cluster }}
-  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ check_weka_cluster }}
+#  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
 
 #
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 - set_fact:
     all_nodes_hostname: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+  when: destroy_weka == true and inventory_hostname in groups['workers']
 
 - debug: msg={{ all_nodes_hostname }}
+  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
 
 #
 - name: Destroy Weka Cluster
   shell: |
     cd /root/tools/install ; ./wekadestroy --yes --force --uninstall {{ all_nodes_hostname }}
   register: destroy_weka_cluster
-  ignore_errors: true
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-- debug: msg={{ check_weka_cluster }}
-  when: print_debug == true and  inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ check_weka_cluster }}
+#  when: print_debug == true and ( destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+
+#
+- name: Delete tarball file and install directory
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_install_binary_dir
+  with_items:
+    - "{{ weka.base_path }}/{{ weka_file_name }}"
+    - "{{ weka.base_path }}/{{ weka.tools.name }}"
+    - "{{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}"
+    - "{{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }}"
+  when: uninstall_binary == true and inventory_hostname in groups['workers']
 
 #
 - name: Reboot required
   shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
   async: 1200
   poll: 0
-  when: print_debug == true and inventory_hostname in groups['workers'] and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
+  when:  destroy_weka == true and inventory_hostname in groups['workers']
   notify:
     - Waiting for server to come back after reboot
+  # when: print_debug == true and inventory_hostname in groups['workers'] and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
 
 - meta: flush_handlers
-  when: print_debug == true and inventory_hostname in groups['workers']
+

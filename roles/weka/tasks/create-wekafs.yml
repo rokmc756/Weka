@@ -31,3 +31,4 @@
   register: check_wekafs_container
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_wekafs_container }}
+

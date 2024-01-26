@@ -1,18 +1,21 @@
 ---
 #
 weka_cluster_ports:
-  - 14000
-  - 14100
-  - 8501
+  - "14000"
+  - "14100"
+  - "8501"
+  - "6800-7300"
+  - "7300"
+  - "7480"
 
 wekafs_client_ports:
-  - 14000
-  - 14101
-  - 14201
-  - 14301
-  - 14401
-  - 14501
-  - 14601
+  - "14000"
+  - "14101"
+  - "14201"
+  - "14301"
+  - "14401"
+  - "14501"
+  - "14601"
 
 drives_ports:
   - "6800-7300"
@@ -22,3 +25,59 @@ frontedns_ports:
 
 compute_ports:
   - "7480"
+
+# New defined ports according to https://docs.weka.io/install/prerequisites-and-compatibility#networking
+server_traffic_bare_metal:
+  - "14000-14100"           # TCP and UDP
+  - "14200-14300"           # TCP and UDP
+  - "14300-14400"           # TCP and UDP
+
+server_traffic_coloud:
+  - "14000-14100"           # TCP and UDP
+  - "15000-15100"           # TCP and UDP
+  - "16000-16100"           # TCP and UDP
+
+ssh_manage_traffic:
+  - "22"                    # TCP
+
+client_traffic:
+  - "14000-14100"           # TCP and UDP
+
+gui_access:
+  - "14000"                 # TCP
+
+nfs:
+  - "2049"                  # TCP and UDP
+
+smb:
+  - "139"                   # TCP
+  - "445"                   # TCP
+
+s3:
+  - "9000"                  # TCP
+
+wekatester:
+  - "8501"                  # TCP
+  - "9090"                  # TCP,
+
+managment_station:
+  - "80"                    # HTTP, LWH
+  - "443"                   # HTTPS, LWH
+  - "3000"                  # TCP, mon
+  - "8760"                  # TCP, deploy
+  - "8090"                  # TCP, snap
+  - "8501"                  # TCP, mgmt
+  - "9090"                  # TCP, mgmt
+  - "9091"                  # TCP, mon
+  - "9093"                  # TCP, alerts
+
+cloud_home:
+  - "80"                    # HTTP
+
+local_home:
+  - "443"                   # HTTPS
+
+cst_remote_access:
+  - "4000"                  # TCP
+  - "4001"                  # TCP
+

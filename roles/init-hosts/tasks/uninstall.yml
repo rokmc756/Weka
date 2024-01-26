@@ -25,7 +25,7 @@
 #
 - name: Remove the hostname entries in /etc/hosts file
   vars:
-    remove_host: "jtest.pivotal.io"
+    remove_host: "jtest.weka.io"
   become: yes
   become_user: root
   lineinfile:

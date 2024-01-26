@@ -4,11 +4,21 @@ weka:
   build_version: 7
   patch_version: 64
   base_path: /root
-  bin_type: tar
   admin_user: admin
   admin_default_pass: admin
   admin_change_pass: "Changeme12!@"
   download: false
+  bin_type: tar
+  tools:             # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
+    name: tools
+    major_version: 1
+    minor_version: 3
+    patch_version: 8
+    download: false
+    bin_type: tar.gz
+  allow_unsupported_devices: true
+  default_mem_size: 3GiB
+  use_res_gen: false
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
   container_num: 3
@@ -31,3 +41,9 @@ wekafs:
     - { name: "jtest-s3-fs01",  grp_name: "jtest-s3-grp01", size : "6GiB", mount_dir : "/mnt/jtest-s3-fs01" }
     - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
     - { name: "jtest-wekafs-fs01",  grp_name: "jtest-wekafs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-wekafs-fs01" }
+
+#
+# https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
+#
+# Weka Port Ranges
+# https://docs.weka.io/install/prerequisites-and-compatibility#networking

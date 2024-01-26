@@ -2,10 +2,11 @@
   become: yes
   vars:
     print_debug: true
-    uninstall_pkgs: false
     unconfig_client: false
-    delete_wekafs: true
-    destroy_weka: false
+    delete_wekafs: false
+    destroy_weka: true
+    uninstall_binary: false
   roles:
     - { role: weka }
-#  - { role: init-hosts }
+    # - { role: firewalld }
+    #    - { role: init-hosts }
