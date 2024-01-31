@@ -1,21 +1,25 @@
 ---
 #
-weka_cluster_ports:
-  - "14000"
-  - "14100"
-  - "8501"
-  - "6800-7300"
-  - "7300"
-  - "7480"
+weka_cluster_ports:         # Baremetal
+  - "14000-14100"           # TCP and UDP
+  - "14200-14300"           # TCP and UDP
+  - "14300-14400"           # TCP and UDP
+  - "9090"                  # TCP                # wekatester
+  - "8501"                  # TCP                # wekatester
+  - "22"                    # TCP
+
+
+#  - "14000"
+#  - "14100"
+#  - "8501"
+#  - "6800-7300"
+#  - "7300"
+#  - "7480"
 
 wekafs_client_ports:
-  - "14000"
-  - "14101"
-  - "14201"
-  - "14301"
-  - "14401"
-  - "14501"
-  - "14601"
+  - "14000-14100"           # TCP and UDP
+  - "22"                    # TCP
+
 
 drives_ports:
   - "6800-7300"
@@ -40,8 +44,8 @@ server_traffic_coloud:
 ssh_manage_traffic:
   - "22"                    # TCP
 
-client_traffic:
-  - "14000-14100"           # TCP and UDP
+# client_traffic:
+#  - "14000-14100"           # TCP and UDP
 
 gui_access:
   - "14000"                 # TCP

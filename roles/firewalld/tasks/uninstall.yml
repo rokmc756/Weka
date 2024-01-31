@@ -1,3 +1,4 @@
+#
 - name: Disable Firewalld Port Policy for Weka Cluster
   firewalld:
     port: "{{ item }}/tcp"
@@ -7,7 +8,20 @@
     immediate: yes
   loop: "{{ weka_cluster_ports }}"
   when: inventory_hostname in groups['workers']
-  notify: Start Firewalld
+  notify: Retart Firewalld
+
+#
+- name: Disable Firewalld Port Policy for WekaFS Client
+  firewalld:
+    port: "{{ item }}/tcp"
+    state: disabled
+    zone: public
+    permanent: true
+    immediate: yes
+  loop: "{{ wekafs_client_orts }}"
+  when: inventory_hostname in groups['clients']
+  notify: Restart Firewalld
+
 
 #    - "{{ drives_ports }}"
 #    - "{{ frontedns_ports }}"

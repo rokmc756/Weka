@@ -29,6 +29,22 @@
   notify: Start Firewalld
 
 #
+- name: Set Firewalld Port Policy for WekaFS Client
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    zone: public
+    immediate: yes
+  loop: "{{ wekafs_client_ports }}"
+#    - "{{ drives_ports }}"
+#    - "{{ frontedns_ports }}"
+#    - "{{ compute_ports }}"
+  when: inventory_hostname in groups['clients']
+  notify: Start Firewalld
+
+
+#
 #- name: Set Firewalld Port Policy for Weka Clients
 #  firewalld:
 #    port: "{{ item }}/tcp"
