@@ -25,14 +25,3 @@
 # error: Only one of fs-name or fs-id can be used
 
 
-# Command: weka fs tier s3 add
-
-
-# weka fs tier obs add jtest-obs-tier01
-
-# weka fs tier obs update jtest-obs-tier01
-
-# weka fs tier ops
-
-# weka fs tier obs delete jtest-obs-tier01
-
