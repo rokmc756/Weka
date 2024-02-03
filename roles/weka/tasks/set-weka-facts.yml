@@ -18,6 +18,12 @@
 - debug: msg={{ all_nodes_2nd_ipaddrs }}
 
 #
+#- name: Define fact for all worker's all ip addresses
+#  set_fact:
+#    all_nodes_all_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) + map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+#- debug: msg={{ all_nodes_all_ipaddrs }}
+
+#
 - name: Define fact for Weka version
   set_fact:
     weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}"

@@ -160,3 +160,42 @@ $ make uninstall
 xxxx\
 xxxx\
 xxxx
+### how to get network interface name
+https://serverfault.com/questions/848549/how-do-i-find-the-name-of-the-second-nic-using-ansible
+https://serverfault.com/questions/768470/how-to-enumerate-network-interfaces-in-ansible
+```
+- debug:
+msg: "{{ ansible_interfaces | difference(['lo',ansible_default_ipv4.alias]) | sort | first }}"
+```
+
+
+## Test in KVM
+```
+ClusterInitializationError  Cluster initialization error                   Cluster encountered an error while initializing: An error has occurred when trying to start-io in the cluster. Usually, this indicates a hardware issue (hosts, drives, network). Please check Weka alerts and events for more information about a possible problem. If the problem persists, please contact the Weka Customer Success Team..  Search for the underlying problem causing the error and act accordingly to start IO operations. To clear this alert, run 'weka cluster stop-io'.                1
+CoreOverlapping             Core Overlapping                               Proccesses 63, 61, 62 on server: weka4-node04 - 081f08cf-f1f8-4722-a594-f372701b876a use the same physical core, core ID: 0, NUMA node: 0.
+                                                                          Contact the Customer Success Team.
+                                                                  5
+```
+
+```
+
+fatal: [weka4-node03]: FAILED! => {"changed": true, "cmd": "cd /root/weka-4.2.7.64 ; ./install.sh\n", "delta": "0:00:09.241859", "end": "2024-02-02 19:48:42.176531", "msg": "non-zero return code", "rc": 1, "start": "2024-02-02 19:48:32.934672", "stderr": "error: error: weka-agent isn't running. To start the agent, run 'service weka-agent start'\n\u0000error: error: weka-agent isn't running. To start the agent, run 'service weka-agent start'\n\u0000", "stderr_lines": ["error: error: weka-agent isn't running. To start the agent, run 'service weka-agent start'", "\u0000error: error: weka-agent isn't running. To start the agent, run 'service weka-agent start'", "\u0000"], "stdout": "WekaIO CLI 4.2.7.64 is now installed", "stdout_lines": ["WekaIO CLI 4.2.7.64 is now installed"]}
+
+[root@weka4-node01 ~]# systemctl status weka-agent
+● weka-agent.service - LSB: Runs the wekafs agent deamon
+   Loaded: loaded (/etc/rc.d/init.d/weka-agent; generated)
+   Active: active (exited) since Fri 2024-02-02 19:25:31 KST; 44min ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 1059 ExecStart=/etc/rc.d/init.d/weka-agent start (code=exited, status=0/SUCCESS)
+    Tasks: 0 (limit: 123821)
+   Memory: 0B
+   CGroup: /system.slice/weka-agent.service
+
+Feb 02 19:25:31 weka4-node01 systemd[1]: Started LSB: Runs the wekafs agent deamon.
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: INFO:   daemon.d:109             <5> Starting Weka daemon (CLI build 4.2.7.64, pid 1070)
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: INFO:   config.d:50              <5> Making config directories
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: INFO:   daemon.d:180             <5> Ensuring CPU has flags required by weka
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: ERROR:  daemon.d:142             <5> Failed agent init: CPU Requirement error! Weka requires the AES cpu flag
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: ERROR:  main.d:124               <5> error: Failed agent init: CPU Requirement error! Weka requires the AES cpu flag
+Feb 02 19:25:31 weka4-node01 weka-agent[1070]: DEBUG:  cgroups_wrapper.d:45      #CGROUPS configured cgroups mode is 'auto'
+```

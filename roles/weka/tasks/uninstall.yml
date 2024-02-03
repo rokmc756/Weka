@@ -55,7 +55,6 @@
   when:  destroy_weka == true and inventory_hostname in groups['workers']
   notify:
     - Waiting for server to come back after reboot
-  # when: print_debug == true and inventory_hostname in groups['workers'] and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
 
+#
 - meta: flush_handlers
-

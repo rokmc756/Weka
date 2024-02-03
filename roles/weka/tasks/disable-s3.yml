@@ -1,0 +1,20 @@
+# weka s3 cluster containers remove 0
+# weka s3 cluster containers remove 1
+# weka s3 cluster containers remove 2
+# weka s3 cluster containers remove 3
+# weka s3 cluster containers remove 4
+
+# weka s3 cluster destroy --force
+
+# weka fs delete jtest-fs-0001 --force
+
+
+# weka s3 cluster
+
+# weka s3 cluster status
+
+# weka s3 cluster containers list
+
+#
+# weka s3 cluster destroy
+

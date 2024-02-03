@@ -1,4 +1,5 @@
-
+#
+# - debug: msg={{ "Disable object store" }}
 
 # $ weka s3 bucket create name jtest-bucket01 --policy public --policy-json
 # Cannot pass option "policy-json" for command "weka s3 bucket create" without its value, please make sure to pass a value and check that the format is correct if a value was passed
@@ -24,15 +25,27 @@
 # $ weka s3 bucket create jtest-bucket01 --policy public --fs-name jtest-fs01 --fs-id 0
 # error: Only one of fs-name or fs-id can be used
 
+#
+#- name:  Delete WekaFS attached into Object Store Tier
+#  shell: |
+#    weka fs delete jtest-obs-fs01 --force
+#  register: update_obs_fs_grp
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ update_obs_fs_grp }}
 
-# Command: weka fs tier s3 add
+#
+- name:  Delete Object Store Tier
+  shell: |
+    weka fs tier s3 delete jtest-obs-tier01
+  register: delete_obs_tier
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_obs_tier }}
 
-
-# weka fs tier obs add jtest-obs-tier01
-
-# weka fs tier obs update jtest-obs-tier01
-
-# weka fs tier ops
-
-# weka fs tier obs delete jtest-obs-tier01
+#
+- name:  Delete Object Store
+  shell: |
+    weka fs tier obs delete jtest-obs01
+  register: delete_obs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_obs }}
 

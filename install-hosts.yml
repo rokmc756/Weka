@@ -8,8 +8,8 @@
     config_client: false
     create_wekafs: false
     enable_obs: true
-
   roles:
     - { role: weka }
 #    - { role: firewalld }
 #    - { role: init-hosts }
+

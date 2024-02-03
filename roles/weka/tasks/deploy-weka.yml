@@ -6,12 +6,12 @@
 - debug: msg={{ install_weka_binary }}
 
 #
-- name: Create Weka Cluster
-  shell: |
-    weka cluster create {{ all_nodes_hostname }}
-  register: create_weka_cluster
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_weka_cluster }}
+#- name: Create Weka Cluster
+#  shell: |
+#    weka cluster create {{ all_nodes_hostname }}
+#  register: create_weka_cluster
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ create_weka_cluster }}
 
 ####################################################################
 # weka local ps
@@ -47,7 +47,8 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
+    weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_1st_ipaddrs }}
+    # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
     # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_1st_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -82,15 +83,27 @@
 
 # It's not work with eth0 before applying configuraiton for container
 # weka cluster start-io is not working with eth1 before applying configuration for container
-#- name: Add network NIC
-#  shell: |
-#    weka cluster container net add {{ item }} eth1
+- name: Add network NIC
+  shell: |
+    weka cluster container net add {{ item }} eth0 --netmask=24
+    weka cluster container net add {{ item }} eth1 --netmask=24
 #    # weka cluster container net add {{ item }} eth0
-#  register: add_network_drive
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ add_network_drive }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  register: add_network_drive
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_network_drive }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
+- name: Configure Network
+  shell: |
+    weka cluster default-net set --range 192.168.0.181-200 --netmask-bits 24
+  register: config_default_network
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ config_default_network }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
 
 #
 - name: Apply changes of core numbers for containers
@@ -131,7 +144,7 @@
 # 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
 - name: Add NVME drives into each containers
   shell: |
-    weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
+    weka cluster drive add {{ item }} /dev/vdb /dev/vdc --force
     # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
     # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
     # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4 /dev/nvme0n5 /dev/nvme0n6
