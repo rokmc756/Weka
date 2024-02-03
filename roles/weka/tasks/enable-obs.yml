@@ -23,12 +23,12 @@
 - debug: msg={{ add_custom_obs }}
 
 #
-- name: Reduce the size of the 'jtest-s3fs01' file system if present
-  shell: |
-    weka fs update --total-capacity 10GB jtest-obs-fs01
-  register: reduce_obs_fs_size
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ reduce_obs_fs_size }}
+#- name: Reduce the size of the 'jtest-obs-fs01' file system if present
+#  shell: |
+#    weka fs update --total-capacity 10GB jtest-obs-fs01
+#  register: reduce_obs_fs_size
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ reduce_obs_fs_size }}
 
 #
 - name:  Check WekaFS
@@ -41,21 +41,20 @@
 #
 - name: Attach and Object Store Bucket. (Use your own bucket details)
   shell: |
-    weka fs tier s3 add jtest-obj-tier01 --site local --obs-name jtest-obs-tier01 \
-    --hostname=minio.jtest.pivotal.io --port=9000 --bucket=jbucket01 --auth-method AWSSignature4 \
+    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
+    --hostname=minio.jtest.pivotal.io --port=9000 --bucket=jbucket01 --auth-method AWSSignature2 \
     --region=us-east-1 --protocol=HTTPS --access-key-id=minioadmin --secret-key=changeme --skip-verification
   register: attach_obs_bucket
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ attach_obs_bucket }}
 
 #
-# You are able to validate connection to the bucket in the console if necessary
-- name: Create a File System with a smallish capacity that is tiered to your bucket.
+- name: For this example make the Tiering policy more aggressive. (30s in this case).
   shell: |
-    weka fs create jtest-obs-fs01 jtest-obs-grp01 5GB --obs-name jtest-obj-tier01 --ssd-capacity=5GB
-  register: create_fs_attach_obs_bucket
+    weka fs group update jtest-obs-grp01 --start-demote=10
+  register: update_obs_fs_grp
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_fs_attach_obs_bucket }}
+- debug: msg={{ update_obs_fs_grp }}
 
 #
 - name: For this example make the Tiering policy more aggressive. (30s in this case).
@@ -80,5 +79,6 @@
 #
 # sudo mkdir /mnt/jtest-s3fs01
 # sudo chmod 777 /mnt/jtest-s3fs01
+
 # sudo chown root:root /mnt/jtest-s3fs01
 # sudo mount -t wekafs jtest-s3fs01 /mnt/jtest-s3fs01

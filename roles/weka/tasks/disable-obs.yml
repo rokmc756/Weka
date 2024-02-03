@@ -25,19 +25,22 @@
 # $ weka s3 bucket create jtest-bucket01 --policy public --fs-name jtest-fs01 --fs-id 0
 # error: Only one of fs-name or fs-id can be used
 
+
 #
-#- name:  Delete WekaFS attached into Object Store Tier
-#  shell: |
-#    weka fs delete jtest-obs-fs01 --force
-#  register: update_obs_fs_grp
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ update_obs_fs_grp }}
+- name:  Delete WekaFS attached into Object Store Tier
+  shell: |
+    weka fs delete jtest-obs-fs01 --force
+  register: update_obs_fs_grp
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ update_obs_fs_grp }}
 
 #
 - name:  Delete Object Store Tier
   shell: |
     weka fs tier s3 delete jtest-obs-tier01
   register: delete_obs_tier
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_obs_tier }}
 
@@ -46,6 +49,7 @@
   shell: |
     weka fs tier obs delete jtest-obs01
   register: delete_obs
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_obs }}
 

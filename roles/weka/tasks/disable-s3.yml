@@ -3,6 +3,9 @@
 # weka s3 cluster containers remove 2
 # weka s3 cluster containers remove 3
 # weka s3 cluster containers remove 4
+# weka s3 cluster containers remove 0 1 2 3 4
+
+
 
 # weka s3 cluster destroy --force
 

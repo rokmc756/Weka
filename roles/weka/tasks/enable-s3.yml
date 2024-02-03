@@ -1,0 +1,3 @@
+
+# weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+

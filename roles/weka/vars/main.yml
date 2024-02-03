@@ -44,6 +44,8 @@ wekafs:
     - { name: "jtest-nfs-fs01",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs01" }
     - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
 
+    # - { name: "jtest-s3-config-fs01",  grp_name: "jtest-default-grp01", size : "6GiB", mount_dir : "/mnt/jtest-s3-config-fs01" }
+
 #
 # https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
 #
