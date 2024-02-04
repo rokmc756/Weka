@@ -3,14 +3,14 @@
   become: yes
   vars:
     print_debug: true
-    install_binary: false
-    deploy_weka: false
+    install_binary: true
+    deploy_weka: true
     config_client: false
     create_wekafs: false
     enable_obs: false
     enable_s3: false
     enable_smb: false
-    enable_nfs: true
+    enable_nfs: false
   roles:
     - { role: weka }
 #    - { role: firewalld }

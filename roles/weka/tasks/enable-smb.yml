@@ -1,8 +1,16 @@
-# weka smb cluster create jtest-smb-clu01 jtest.pivotal.io --container-ids 0,1,2,3,4 jtest-default-fs01
+# weka smb cluster create jtest-smb-clu01 jtest.pivotal.io --domain-netbios-name JTEST \
+# --container-ids 0,1,2,3,4 --smb-ips-range 192.168.0.151-155 jtest-default-fs01
 
-# 
 
 # weka smb cluster status
+
+# weka local exec -C smbw
+
+#
+# On Freeipa
+# ipa-adtrust-install --netbios-name JTEST -a changeme
+#
+
 
 
 # Setup: SMB service on WEKA
@@ -22,15 +30,6 @@
 
 # Check that the ID mapping backend is “rfc2307”
 # weka smb cluster
-# Name:                              wekasmb
-#   Exposed IPs:
-#   SMB Hosts:                         HostId<0> HostId<1> HostId<2>
-#   ID mapping backend:                rfc2307
-#   Joined Domain ID mapping range:    0-4290000000
-#   Default Domain ID mapping range:   4290000001-4291000000
-#   Encryption:                        enabled
-#   Config FS                          N/A
-#   Type:                              smb
 
 # And that the Active Directory has been joined
 # weka smb domain

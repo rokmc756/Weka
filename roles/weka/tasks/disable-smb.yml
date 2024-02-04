@@ -1,4 +1,4 @@
 
+# weka smb cluster containers remove --container-ids 0,1,2,3,4 --force
+#
 # weka smb cluster destroy -f
-
-
