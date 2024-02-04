@@ -78,3 +78,15 @@
   tags: uninstall
   when: disable_s3 == true
 
+#
+- name: Enable NFS
+  import_tasks: enable-nfs.yml
+  tags: install
+  when: enable_nfs == true
+
+#
+- name: Disable NFS
+  import_tasks: disable-nfs.yml
+  tags: uninstall
+  when: disable_nfs == true
+
