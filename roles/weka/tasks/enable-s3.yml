@@ -1,3 +1,29 @@
+#
+- name: Create S3 Cluster
+  shell: |
+    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+  register: create_s3_cluster
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-# weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+#
+- name: Validate if S3 Cluster is Online
+  shell: weka s3 cluster status
+  register: check_s3_cluster_status
+  until: check_s3_cluster_status.stdout.find("Not Ready") == -1
+  retries: 5
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_s3_cluster_status }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
+- name: Create S3 Bucket
+  shell: |
+    weka s3 bucket create jtest-s3-bucket01
+  register: create_s3_bucket
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_bucket }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

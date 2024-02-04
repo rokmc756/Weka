@@ -6,7 +6,8 @@
     delete_wekafs: false
     destroy_weka: false
     uninstall_binary: false
-    disable_obs: true
+    disable_obs: false
+    disable_s3: true
   roles:
     - { role: weka }
     # - { role: firewalld }

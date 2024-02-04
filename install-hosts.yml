@@ -7,7 +7,8 @@
     deploy_weka: false
     config_client: false
     create_wekafs: false
-    enable_obs: true
+    enable_obs: false
+    enable_s3: true
   roles:
     - { role: weka }
 #    - { role: firewalld }

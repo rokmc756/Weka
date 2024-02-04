@@ -66,3 +66,15 @@
   tags: uninstall
   when: disable_obs == true
 
+#
+- name: Enable S3
+  import_tasks: enable-s3.yml
+  tags: install
+  when: enable_s3 == true
+
+#
+- name: Disable S3
+  import_tasks: disable-s3.yml
+  tags: uninstall
+  when: disable_s3 == true
+
