@@ -4,7 +4,7 @@
     print_debug: true
     unconfig_client: false
     delete_wekafs: false
-    destroy_weka: true
+    destroy_weka: false
     uninstall_binary: false
     disable_obs: false
     disable_s3: false

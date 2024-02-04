@@ -44,3 +44,20 @@
 # PS C:\Users\Administrator> Add-DnsServerResourceRecordA -Name "wekasmb" -ZoneName "ad.example.com" -AllowUpdateAny -IPv4Address "192.168.114.102"
 
 # https://www.notion.so/wekaio/Multi-protocol-SMB-and-NFS-single-filesystem-access-8abcd9d23e004549a66e2e98fbcbd787?pvs=4
+#
+
+
+###################################################################################################################
+# weka smb cluster destroy -f
+# weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST --container-ids 0,1,2,3,4 \
+# --smb-ips-range 192.168.0.151-155 jtest-default-fs01
+
+# weka smb cluster create wekasmb jtest.weka.io --container-ids 0,1,2,3,4 jtest-default-fs01
+
+# weka smb domain join Administrator --debug --extra-options --domain-ou "jtest.weka.io"
+
+# weka local exec --container smbw /usr/sbin/pcs cluster status
+
+# weka local exec --container smbw cat /tmp/smbw-config-fs/.smbw/tsmb.conf
+
+# weka smb cluster update
