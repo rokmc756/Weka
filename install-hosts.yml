@@ -6,10 +6,10 @@
     install_binary: false
     deploy_weka: false
     config_client: false
-    create_wekafs: true
+    create_wekafs: false
     enable_obs: false
     enable_s3: false
-    enable_smb: false
+    enable_smb: true
     enable_nfs: false
   roles:
     - { role: weka }

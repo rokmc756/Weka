@@ -6,12 +6,12 @@
 - debug: msg={{ install_weka_binary }}
 
 #
-- name: Create Weka Cluster
-  shell: |
-    weka cluster create {{ all_nodes_hostname }}
-  register: create_weka_cluster
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_weka_cluster }}
+#- name: Create Weka Cluster
+#  shell: |
+#    weka cluster create {{ all_nodes_hostname }}
+#  register: create_weka_cluster
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ create_weka_cluster }}
 
 ####################################################################
 # weka local ps
@@ -47,8 +47,8 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
-    # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_1st_ipaddrs }}
+    weka cluster create --host-ips={{ all_nodes_1st_ipaddrs }} {{ all_nodes_hostname }}
+    # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
     # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_1st_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -83,10 +83,10 @@
 
 # It's not work with eth0 before applying configuraiton for container
 # weka cluster start-io is not working with eth1 before applying configuration for container
-# - name: Add network NIC
+#- name: Add network NIC
 #  shell: |
-#    weka cluster container net add {{ item }} eth0
-#    weka cluster container net add {{ item }} eth1
+#     weka cluster container net add {{ item }} eth1
+#    # weka cluster container net add {{ item }} eth0
 #    # weka cluster container net add {{ item }} eth0 --netmask=24
 #    # weka cluster container net add {{ item }} eth1 --netmask=24
 #  register: add_network_drive

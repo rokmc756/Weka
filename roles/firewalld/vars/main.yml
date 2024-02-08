@@ -30,6 +30,9 @@ frontedns_ports:
 compute_ports:
   - "7480"
 
+
+# pcsd for smb : 2224
+
 # New defined ports according to https://docs.weka.io/install/prerequisites-and-compatibility#networking
 server_traffic_bare_metal:
   - "14000-14100"           # TCP and UDP

@@ -52,12 +52,19 @@
 # weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST --container-ids 0,1,2,3,4 \
 # --smb-ips-range 192.168.0.151-155 jtest-default-fs01
 
-# weka smb cluster create wekasmb jtest.weka.io --container-ids 0,1,2,3,4 jtest-default-fs01
-
+# weka smb cluster create wekasmb jtest.weka.io --container-ids 2,3,4 jtest-default-fs01  # node01 has someproblem
 # weka smb domain join Administrator --debug --extra-options --domain-ou "jtest.weka.io"
 
+# For debug and open a 2224 port by firewalld
 # weka local exec --container smbw /usr/sbin/pcs cluster status
+# weka local exec --container smbw
+# cd /var/log/pcsd
+# tail -f *.log
+# cd /var/log/pacemaker
+# tail -f *.log
+# cd /var/lib/pcsd
+# tail -f *.log
 
+#
 # weka local exec --container smbw cat /tmp/smbw-config-fs/.smbw/tsmb.conf
-
 # weka smb cluster update
