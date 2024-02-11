@@ -12,5 +12,7 @@
     disable_smb: true
   roles:
     - { role: weka }
+
     # - { role: firewalld }
     #    - { role: init-hosts }
+

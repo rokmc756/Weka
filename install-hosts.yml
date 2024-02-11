@@ -9,8 +9,8 @@
     create_wekafs: false
     enable_obs: false
     enable_s3: false
-    enable_smb: true
     enable_nfs: false
+    enable_smb: true
   roles:
     - { role: weka }
 #    - { role: firewalld }

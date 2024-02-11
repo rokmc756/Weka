@@ -90,3 +90,16 @@
   tags: uninstall
   when: disable_nfs == true
 
+#
+- name: Enable SMB
+  import_tasks: enable-smb.yml
+  tags: install
+  when: enable_smb == true
+
+#
+- name: Disable SMB
+  import_tasks: disable-smb.yml
+  tags: uninstall
+  when: disable_smb == true
+
+
