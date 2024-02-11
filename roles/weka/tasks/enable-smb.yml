@@ -97,3 +97,21 @@
 - debug: msg={{ login_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+
+# weka smb share add myshare jtest-smb-fs01 --a
+# weka local exec -C smbw bash -ce "chmod 777 /tmp/wekafs/*"
+
+# dnf install -y cifs-utils
+# mount -t cifs -o domain=JTEST,username=admin,passwod=Changeme12\!1@ //192.168.0.151/myshare /mnt/mou
+# fio --name=fio-long-1_`hostname` --rw=write --bs=512k --ioengine=posixaio --direct=1 --directory=/mnt/mounted_myshare/ --size=10GB --iodepth=8 --numjobs=1 --group_reporting --runtime=3000000 --time_based
+#
+# Need to test
+# weka smb share add myshare default
+# mkdir /mnt/default; mount -t wekafs default /mnt/default
+# chmod 777 /mnt/default
+# mkdir /mnt/mounted_myshare
+# sudo mount -t cifs -o domain=test,username=wekadmin,password=myW3ka.io //172.31.10.0/myshare /mnt/mounted_myshare
+# fio --name=fio-long-1_`hostname` --rw=write --bs=512k --ioengine=posixaio --direct=1 --directory=/mnt/mounted_myshare/ --size=10GB --iodepth=8 --numjobs=1 --group_reporting --runtime=3000000 --time_based
+
+# https://www.notion.so/wekaio/FIP-SMBW-5fc9a2a0c4cd4c8ba9f6a0aafc9840df?pvs=4
+
