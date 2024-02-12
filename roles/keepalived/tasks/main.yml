@@ -1,0 +1,24 @@
+---
+
+# Install Keepalived
+
+# for now fail if it's not a Red Hat based system
+- name: Check OS ( GPDB )
+  fail: msg="Not a Red Hat based system!"
+  when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS' or ansible_os_family != 'Rocky'
+
+#
+- name: Installation of Keepalived
+  import_tasks: install.yml
+  tags: install
+
+#
+- name: Uninstallation of Keepalived
+  import_tasks: uninstall.yml
+  tags: uninstall
+
+#
+- name: Upgrade of Keepalived
+  import_tasks: upgrade.yml
+  tags: upgrade
+
