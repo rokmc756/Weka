@@ -130,6 +130,38 @@
 ################################################################################################################################################################
 
 #
+- name: Delete NFS Permission
+  shell: |
+    weka nfs permission delete jtest-default-fs01 nfs-clients -f
+  register: delete_nfs_perms
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_perms }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete NFS ip-range
+  shell: |
+    weka nfs interface-group ip-range delete floating-nfs-ip 192.168.0.161-165 -f
+  register: delete_nfs_ip_range
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_ip_range }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# First we set up a simple NFS service, which requires the use of Interface Groups
+#- name: Delete NFS Permission
+#  shell: |
+#    weka nfs permission delete group nfs-client -f
+#  register: delete_nfs_perm
+#  ignore_errors: true
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ delete_nfs_perm }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
+#
 - name: Delete rule to ensure clients get matched and associated with
   shell: |
     weka nfs rules delete ip nfs-clients 192.168.0.0/255.255.255.0
@@ -182,6 +214,7 @@
 #
 #Options:
 #   -h, --help   Show help message
+
 
 #
 # First we set up a simple NFS service, which requires the use of Interface Groups
