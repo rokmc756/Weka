@@ -238,3 +238,13 @@
 - debug: msg={{ examine_fs_nfs_protocol }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
+- name: Unset global config for NFS
+  shell: |
+    weka nfs global-config set --config-fs ""
+  register: unset_global_config_fs
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ unset_global_config_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+

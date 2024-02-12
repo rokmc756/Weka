@@ -1,4 +1,3 @@
-
 [all:vars]
 ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
@@ -11,3 +10,14 @@ weka4-node03 ansible_ssh_host=192.168.0.183
 weka4-node04 ansible_ssh_host=192.168.0.184
 weka4-node05 ansible_ssh_host=192.168.0.185
 
+#[obs-clients]
+#weka4-obs-clients ansible_ssh_host=192.168.0.186
+
+#[nfs-clients]
+#weka4-nfs-clients ansible_ssh_host=192.168.0.187
+
+#[s3-clients]
+#weka4-s3-clients ansible_ssh_host=192.168.0.188
+
+#[smb-clients]
+#weka4-smb-clients ansible_ssh_host=192.168.0.189

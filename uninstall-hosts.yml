@@ -3,10 +3,10 @@
   vars:
     print_debug: true
     unconfig_client: false
-    delete_wekafs: false
     destroy_weka: false
     uninstall_binary: false
-    disable_obs: false
+    delete_wekafs: false
+    disable_obs: true
     disable_s3: false
     disable_nfs: false
     disable_smb: false
