@@ -6,8 +6,8 @@
     destroy_weka: false
     uninstall_binary: false
     delete_wekafs: false
-    disable_obs: true
-    disable_s3: false
+    disable_obs: false
+    disable_s3: true
     disable_nfs: false
     disable_smb: false
   roles:

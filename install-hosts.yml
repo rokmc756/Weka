@@ -7,8 +7,8 @@
     deploy_weka: false
     config_client: false
     create_wekafs: false
-    enable_obs: true
-    enable_s3: false
+    enable_obs: false
+    enable_s3: true
     enable_nfs: false
     enable_smb: false
   roles:

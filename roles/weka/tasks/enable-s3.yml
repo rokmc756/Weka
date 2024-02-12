@@ -1,7 +1,19 @@
 #
+# weka cluster container | awk '{print $1}' | sed -e 1d | awk '/^"/{printf "\n";} {printf "%s,",$0}' | sed -e s/,$//g
+
 - name: Create S3 Cluster
   shell: |
-    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create S3 Cluster
+  shell: |
+    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container {{ all_container_ids.stdout }}
   register: create_s3_cluster
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
