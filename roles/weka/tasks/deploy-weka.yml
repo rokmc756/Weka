@@ -48,12 +48,9 @@
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
     weka cluster create --host-ips={{ all_nodes_1st_ipaddrs }} {{ all_nodes_hostname }}
-    # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
-    # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_1st_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
-  #  weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
 
 #
 - name: Check Wekca Cluster hosts
@@ -151,7 +148,6 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_nvme_drive }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
   # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
 #

@@ -8,11 +8,10 @@
     config_client: false
     create_wekafs: false
     enable_obs: false
-    enable_s3: true
-    enable_nfs: false
+    enable_s3: false
+    enable_nfs: true
     enable_smb: false
   roles:
     - { role: weka }
-#    - { role: firewalld }
 #    - { role: init-hosts }
-
+#    - { role: firewalld }

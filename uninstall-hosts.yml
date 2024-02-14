@@ -7,8 +7,8 @@
     uninstall_binary: false
     delete_wekafs: false
     disable_obs: false
-    disable_s3: true
-    disable_nfs: false
+    disable_s3: false
+    disable_nfs: true
     disable_smb: false
   roles:
     - { role: weka }
