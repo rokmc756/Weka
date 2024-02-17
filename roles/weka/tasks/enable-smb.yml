@@ -97,6 +97,18 @@
 - debug: msg={{ login_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
+#- name: Add SMB Share
+#  shell: |
+#    weka smb share add jtest-share-01 jtest-smb-fs01 --acl on
+#  register: add_smb_share
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ add_smb_share }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# connect from linux and type:
+# mkdir /mnt/mounted_myshare
+# sudo mount -t cifs -o domain=test,username=wekadmin,password=myW3ka.io <CLUSTER_NAME-0>/myshare /mnt/mounted_myshare
 
 # weka smb share add myshare jtest-smb-fs01 --a
 # weka local exec -C smbw bash -ce "chmod 777 /tmp/wekafs/*"

@@ -2,14 +2,16 @@
   become: yes
   vars:
     print_debug: true
-    unconfig_client: false
+    disable_wekafs_client: false
     destroy_weka: false
     uninstall_binary: false
-    delete_wekafs: false
+    disable_wekafs: false    # weka cluster start-io should be run before deleting fs
     disable_obs: false
     disable_s3: false
-    disable_nfs: true
-    disable_smb: false
+    disable_nfs_client: false  # 1
+    disable_nfs: false         # 2
+    disable_smb_client: false   # 1
+    disable_smb: true          # 2
   roles:
     - { role: weka }
 

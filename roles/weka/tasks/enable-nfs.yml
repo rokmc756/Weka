@@ -220,7 +220,9 @@
 #
 - name: Add permission
   shell: |
-    weka nfs permission add jtest-default-fs01 nfs-clients --squash none
+    weka nfs permission add jtest-default-fs01 nfs-clients --squash none --permission-type rw --supported-versions v3,v4
+    # weka nfs permission add jtest-default-fs01 nfs-clients --squash none --permission-type rw
+    # weka nfs permission add jtest-default-fs01 nfs-clients --squash none
   register: add_permission
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_permission }}

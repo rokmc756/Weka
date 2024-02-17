@@ -5,13 +5,16 @@
     print_debug: true
     install_binary: false
     deploy_weka: false
-    config_client: false
-    create_wekafs: false
+    enable_wekafs_client: false
+    enable_wekafs: false
     enable_obs: false
     enable_s3: false
-    enable_nfs: true
-    enable_smb: false
+    enable_nfs: false
+    enable_nfs_client: false
+    enable_smb: true
+    enable_smb_client: false
   roles:
     - { role: weka }
 #    - { role: init-hosts }
 #    - { role: firewalld }
+

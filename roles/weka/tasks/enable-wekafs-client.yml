@@ -37,7 +37,7 @@
 #
 - name: Mount WekaFS directory
   shell: |
-    mount -t wekafs -o net=udp {{ hostvars[groups['workers'][0]]['ansible_eth1']['ipv4']['address'] }}/{{ wekafs.fs[0].name }} {{ wekafs.fs[0].mount_dir }}
+    mount -t wekafs -o net=udp {{ hostvars[groups['workers'][0]]['ansible_eth0']['ipv4']['address'] }}/{{ wekafs.fs[0].name }} {{ wekafs.fs[0].mount_dir }}
   register: mount_wekafs_dir
   when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 

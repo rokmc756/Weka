@@ -26,28 +26,28 @@
   when: deploy_weka == true
 
 #
-- name: Create Weka File System
-  import_tasks: create-wekafs.yml
+- name: Enable Weka File System
+  import_tasks: enable-wekafs.yml
   tags: install
-  when: create_wekafs == true
+  when: enable_wekafs == true
 
 #
-- name: Config Client
-  import_tasks: config-client.yml
+- name: Enable WekaFS Client
+  import_tasks: enable-wekafs-client.yml
   tags: install
-  when: config_client == true
+  when: enable_wekafs_client == true
 
 #
-- name: Delete Weka File System
-  import_tasks: delete-wekafs.yml
+- name: Disable Weka File System
+  import_tasks: disable-wekafs.yml
   tags: uninstall
-  when: delete_wekafs == true
+  when: disable_wekafs == true
 
 #
-- name: Unconfig Client
-  import_tasks: unconfig-client.yml
+- name: Disable WekaFS Client
+  import_tasks: disable-wekafs-client.yml
   tags: uninstall
-  when: unconfig_client == true
+  when: disable_wekafs_client == true
 
 #
 - name: Destroy Weka Data Platform Software
@@ -78,6 +78,7 @@
   tags: uninstall
   when: disable_s3 == true
 
+###############           N F S            ###################
 #
 - name: Enable NFS
   import_tasks: enable-nfs.yml
@@ -85,11 +86,27 @@
   when: enable_nfs == true
 
 #
+- name: Enable NFS Client
+  import_tasks: enable-nfs-client.yml
+  tags: install
+  when: enable_nfs_client == true
+
+#
+- name: Disable NFS Client
+  import_tasks: disable-nfs-client.yml
+  tags: uninstall
+  when: disable_nfs_client == true
+
+#
 - name: Disable NFS
   import_tasks: disable-nfs.yml
   tags: uninstall
   when: disable_nfs == true
+#
+###############           N F S            ###################
 
+
+###############           S M b            ###################
 #
 - name: Enable SMB
   import_tasks: enable-smb.yml
@@ -101,5 +118,7 @@
   import_tasks: disable-smb.yml
   tags: uninstall
   when: disable_smb == true
+###############           S M b            ###################
+
 
 
