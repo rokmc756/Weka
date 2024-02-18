@@ -11,6 +11,7 @@
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ' ' | sed -e 's/ $//g'
   register: all_container_ids
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 - debug: msg={{ all_container_ids }}
@@ -28,8 +29,8 @@
 #
 - name: Remove S3 Cluster Container
   shell: |
-    weka s3 cluster containers remove {{ all_container_ids.stdout }}
-  #  weka s3 cluster containers remove 0 1 2 3 4
+    weka s3 cluster containers remove 0 1 2 3 4
+    # weka s3 cluster containers remove {{ all_container_ids.stdout }}
   register: remove_s3_cluster_container
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

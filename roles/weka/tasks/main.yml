@@ -61,6 +61,7 @@
   tags: install
   when: enable_obs == true
 
+#
 - name: Enable Object Storage Tier Client
   import_tasks: enable-obs-client.yml
   tags: install

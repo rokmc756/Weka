@@ -169,3 +169,14 @@
 - debug: msg={{ start_cluster_io }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
+- name: Copy expect script file to change admin password
+  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Change admin password
+  shell: |
+    sh /root/change-admin-pass.sh
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
