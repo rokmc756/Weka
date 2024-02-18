@@ -4,7 +4,7 @@
     print_debug: true
     disable_wekafs_client: false
     disable_wekafs: false    # weka cluster start-io should be run before deleting fs
-    destroy_weka: true
+    destroy_weka: false
     uninstall_binary: false
     disable_nfs_client: false  # 1
     disable_nfs: false         # 2
