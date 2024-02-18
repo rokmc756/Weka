@@ -79,6 +79,15 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ update_obs_fs_grp }}
 
+#
+- name: Create OBS directory to mount WekaFS
+  shell: |
+    mkdir /mnt/jtest-obs-fs01
+    mount -t wekafs jtest-obs-fs01 /mnt/jtest-obs-fs01
+  register: create_obsfs_dir
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obsfs_dir  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 ################################################################################

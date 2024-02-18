@@ -1,5 +1,6 @@
-#
 # weka cluster container | awk '{print $1}' | sed -e 1d | awk '/^"/{printf "\n";} {printf "%s,",$0}' | sed -e s/,$//g
+# minio benchmark test
+# https://blog.min.io/how-to-benchmark-minio-warp-speedtest/
 
 - name: Create S3 Cluster
   shell: |
@@ -13,7 +14,7 @@
 #
 - name: Create S3 Cluster
   shell: |
-    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container {{ all_container_ids.stdout }}
+    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
   register: create_s3_cluster
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

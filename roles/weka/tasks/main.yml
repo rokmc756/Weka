@@ -54,11 +54,23 @@
   import_tasks: uninstall.yml
   tags: uninstall
 
+###############           Object Store           ###################
 #
 - name: Enable Object Storage Tier
   import_tasks: enable-obs.yml
   tags: install
   when: enable_obs == true
+
+- name: Enable Object Storage Tier Client
+  import_tasks: enable-obs-client.yml
+  tags: install
+  when: enable_obs_client == true
+
+#
+- name: Disable S3 Object Storage Tier Client
+  import_tasks: disable-obs-client.yml
+  tags: uninstall
+  when: disable_obs_client == true
 
 #
 - name: Disable S3 Object Storage Tier
@@ -66,6 +78,7 @@
   tags: uninstall
   when: disable_obs == true
 
+###############           Object Store           ###################
 #
 - name: Enable S3
   import_tasks: enable-s3.yml
