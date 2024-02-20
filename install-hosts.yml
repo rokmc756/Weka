@@ -3,8 +3,8 @@
   become: yes
   vars:
     print_debug: true
-    install_binary: false
-    deploy_weka: false
+    install_binary: true
+    deploy_weka: true
     enable_wekafs: false
     enable_wekafs_client: false
     enable_nfs: false
@@ -12,11 +12,13 @@
     enable_smb: false
     enable_smb_client: false
     enable_obs: false
-    enable_obs_client: true
+    enable_obs_client: false
     enable_s3: false
   roles:
     - { role: weka }
 
 #    - { role: init-hosts }
 #    - { role: firewalld }
-
+#
+# Need to check port for wekaconfig
+#

@@ -7,15 +7,10 @@
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
-- name: Set facts for Installing Weka Data Platform
-  import_tasks: set-weka-install-facts.yml
+- name: Set facts for Weka Data Platform
+  import_tasks: set-weka-facts.yml
   tags:
     - install
-
-#
-- name: Set facts for Uninstalling Weka Data Platform
-  import_tasks: set-weka-uninstall-facts.yml
-  tags:
     - uninstall
 
 #
