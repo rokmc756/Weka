@@ -21,7 +21,7 @@ weka:
   use_res_gen: false
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
-  container_num: 10
+  container_num: 6
   drives_num: 2
   compute_num: 3
   frontends_num: 1

@@ -25,10 +25,16 @@
   when: install_binary == true
 
 #
-- name: Deploy Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
-  import_tasks: deploy-weka.yml
+- name: Deploy Multi Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
+  import_tasks: deploy-mcb-weka.yml
   tags: install
-  when: deploy_weka == true
+  when: deploy_mcb_weka == true
+
+#
+- name: Deploy Single Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
+  import_tasks: deploy-scb-weka.yml
+  tags: install
+  when: deploy_scb_weka == true
 
 #
 - name: Enable Weka File System
