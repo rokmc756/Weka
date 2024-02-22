@@ -151,6 +151,8 @@
   shell: weka status
   register: check_apply_status
   until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
+  retries: 100
+  delay: 10
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_apply_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
