@@ -2,6 +2,12 @@
 #
 # ./wekachecker 192.168.0.{181..190}
 #
+# 2024-02-22 22:48:15 | DEBUG   | stderr </weka/wekanode:25:14>: modinfo: ERROR: could no
+- name: Load vfio_pci Kernel module
+  shell: |
+    modprobe vfio_pci
+  register: load_vfio_pci
+- debug: msg={{ load_vfio_pci }}
 
 #
 - name: Deploy Weka binary
@@ -9,14 +15,6 @@
     cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
   register: install_weka_binary
 - debug: msg={{ install_weka_binary }}
-
-#
-#- name: Create Weka Cluster
-#  shell: |
-#    weka cluster create {{ all_nodes_hostname }}
-#  register: create_weka_cluster
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ create_weka_cluster }}
 
 ####################################################################
 # weka local ps
@@ -44,7 +42,8 @@
 #
 - name: Create Drive Container
   shell: |
-    weka local setup container --name drive0 --base-port 14000
+    weka local setup container --name drives0 --base-port 14000 --memory 2.5GiB --cores 2
+    # weka local setup container --name drives0 --base-port 14000 --memory 2.5GiB --cores 2 --core-ids 5,6
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
@@ -53,7 +52,8 @@
 #
 - name: Create Compute Container
   shell: |
-    weka local setup container --name compute0 --base-port 14200
+    weka local setup container --name compute0 --base-port 14200 --memory 3.5GiB --cores 1
+    # weka local setup container --name compute0 --base-port 14200 --memory 3.5GiB --cores 1 --core-ids 7  # --memory 0 is auto
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
@@ -62,7 +62,8 @@
 #
 - name: Create Frontend Container
   shell: |
-    weka local setup container --name frontend0 --base-port 14400
+    weka local setup container --name frontend0 --base-port 14400 --memory 2.5GiB --cores 1
+    # weka local setup container --name frontend0 --base-port 14400 --memory 2.5GiB --cores 1 --core-ids 8
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
@@ -71,7 +72,7 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_nodes_hostname }} --host-ips={{ all_nodes_2nd_ipaddrs }}
+    weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 --host-ips=192.168.1.151,192.168.1.152,192.168.1.153,192.168.1.154,192.168.1.155,192.168.1.156
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
@@ -88,92 +89,26 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # Need to check if it needs
-#- name: Check Wekca Cluster hosts
-#  shell: |
-#    weka cluster host
-#  register: check_weka_cluster_host
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ check_weka_cluster_host }}
+# weka cluster host
+# weka local resources
 
-# Need to check loop is need
-#- name: Check Weka Local Resources
-#  shell: |
-#    weka local resources
-#  register: check_weka_local_resources
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ check_weka_local_resources }}
-
-
-# first num is node id and second is total core num
-#- name: Assign number of cores into each compute containers
-#  shell: |
-#    weka cluster container cores {{ wk_host_id }} 3 --only-compute-cores
-#  register: assign_compute_cores_num
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ assign_compute_cores_num  }}
-#  when: inventory_hostname in groups['workers']
-
-#
-#- name: Assign number of cores into each drives containers
-#  shell: |
-#    weka cluster container cores {{ wk_host_id }} 2 --only-drives-cores
-#  register: assign_drive_cores_num
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ assign_drive_cores_num  }}
-#  when: inventory_hostname in groups['workers']
-
-##
-#- name: Assign number of cores into each frontends containers
-#  shell: |
-#    weka cluster container cores {{ wk_host_id }} 1 --only-frontend-cores
-#  register: assign_frontend_cores_num
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ assign_frontend_cores_num }}
-#  when: inventory_hostname in groups['workers']
-#
-
-# 15 means 0 to 16 as cpu core number and is totoal core numbers
-- name: Assign number of cores into each compute/drives/frontends containers
-  shell: |
-    weka cluster container cores {{ item }} 6 --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --frontend-dedicated-cores {{ cpu_cores.frontends_num }}
-  register: assign_cores_num
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ assign_cores_num  }}
-
+# weka cluster container cores {{ container_id }} 3 --only-compute-cores
+# weka cluster container cores 1 1 --only-drives-cores
+# weka cluster container cores 4 1 --only-frontend-cores
 
 # It's not work with eth0 before applying configuraiton for container
 # weka cluster start-io is not working with eth1 before applying configuration for container
 - name: Add network NIC 1
   shell: |
-     weka cluster container net add {{ wk_host_id }} eth1 --ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} --netmask=24 --gateway=192.168.219.1
+     weka cluster container net add {{ wk_host_id }} ens161 --ips={{ hostvars[inventory_hostname]['ansible_ens161']['ipv4']['address'] }} --netmask=24 --gateway=192.168.1.1
   register: add_network_drive
   when: inventory_hostname in groups['workers']
+  #   weka cluster container net add {{ wk_host_id }} ens224 --ips={{ hostvars[inventory_hostname]['ansible_ens224']['ipv4']['address'] }} --netmask=24 --gateway=192.168.1.1
 
-# when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-# with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-# - debug: msg={{ add_network_drive }}
-#  when: inventory_hostname in groups['workers']
 
-# Need to define variable of nvme device list after find each device name of NVME on each hosts
-# 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
-- name: Wipe NVMe partition table
-  shell: |
-    dd if=/dev/zero of=/dev/nvme0n1 bs=1M count=1000
-    dd if=/dev/zero of=/dev/nvme0n2 bs=1M count=1000
-    # nvme format -s1 /dev/nvme0n1 -f
-    # nvme format -s1 /dev/nvme0n2 -f
-  register: wipe_nvme_part_table
-  ignore_errors: true
-  when: inventory_hostname in groups['workers']
-  # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-- debug: msg={{ wipe_nvme_part_table }}
-  when: inventory_hostname in groups['workers']
-  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
-
+# dd if=/dev/zero of=/dev/nvme0n2 bs=1M count=1000
+# nvme format -s1 /dev/nvme0n1 -f
+# weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
 # Need to define variable of nvme device list after find each device name of NVME on each hosts
 # 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
@@ -181,45 +116,35 @@
   shell: |
     weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
   register: add_nvme_drive
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  with_sequence: start=0 end=5  # Container ID
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_nvme_drive }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
+
 
 # This memory should be at least 10GB
-# Need to check reason
-#- name: Setup local weka container with specific memory size
-#  shell: |
-#    weka cluster container memory 4 11GiB
-#    weka cluster container memory 5 11GiB
-#    weka cluster container memory 6 11GiB
-#  register: setup_container_memory
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ setup_container_memory }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+# 6 is container id
+# weka cluster container memory 6 11GiB
 
 #
 - name: Setup local1 weka container with specific memory size
   shell: |
     weka cluster update --data-drives=3 --parity-drives=2
-    # weka cluster hot-spare 1
+    weka cluster hot-spare 1
     weka cluster update --cluster-name wclu01
   register: setup_data_parity
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ setup_data_parity }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-# - meta: end_play
-
 #
-#- name: Aplply changes of core numbers for containers
-#  shell: |
-#    weka cluster container apply --all --force
-#  register: apply_changes_core_num
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ apply_changes_core_num  }}
-#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Aplply changes of core numbers for containers
+  shell: |
+    weka cluster container apply --all --force
+  register: apply_changes_core_num
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ apply_changes_core_num  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Validate if still appying
@@ -229,18 +154,6 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_apply_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-# Need to define variable of nvme device list after find each device name of NVME on each hosts
-# 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
-#- name: Add NVME drives into each containers
-#  shell: |
-#    weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
-#  register: add_nvme_drive
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ add_nvme_drive }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
 #
 - name: Check drivers in the cluster
