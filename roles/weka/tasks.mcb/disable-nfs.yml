@@ -1,20 +1,17 @@
-#
 # $ weka fs
 # FILESYSTEM ID  FILESYSTEM NAME  USED SSD  AVAILABLE SSD  USED TOTAL  AVAILABLE TOTAL  THIN PROVISIONED  THIN PROVISIONED MINIMUM SSD  THIN PROVISIONED MAXIMUM SSD
 # 8              jtest-fs01       4.09 KB   7.51 GB        4.09 KB     7.51 GB          False
 # $ weka nfs global-config set --config-fs  jtest-fs01
 # $ weka nfs global-config set --config-fs ""
 
-#
+
 # $ weka nfs interface-group add jtest-nfs01 nfs --subnet 255.255.255.0 --gateway 192.168.0.1
 # $ weka nfs interface-group delete jtest-nfs01
 # NAME         SUBNET MASK    GATEWAY      TYPE  STATUS    IPS  PORTS  ALLOW MANAGE GIDS
 # jtest-nfs01  255.255.255.0  192.168.0.1  NFS   Inactive       [  ]   True
 
-#
 # weka nfs interface-group port add jtest-nfs01 0 eth0
 
-#
 # [root@weka4-node01 ~]# weka nfs interface-group port add jtest-nfs01 0 eth0
 # error: The given host HostId<0> isn't suitable for the operation
 #
@@ -27,7 +24,6 @@
 #"stderr_lines": ["error: Filesystem jtest-fs01 cannot be deleted, it's in use as an internal NFS configuration filesystem", "\u0000"],
 #"stdout": "", "stdout_lines": []}
 
-#
 # weka nfs interface-group delete jtest-nfs01 -f
 # fatal: [weka4-node01]: FAILED! => {"changed": true, "cmd": "weka fs delete jtest-fs01 -f\n", "delta": "0:00:00.378608",
 # "end": "2024-01-13 19:32:19.126984", "msg": "non-zero return code", "rc": 50, "start": "2024-01-13 19:32:18.748376",
@@ -35,7 +31,6 @@
 # "stderr_lines": ["error: Filesystem jtest-fs01 cannot be deleted, it's in use as an internal NFS configuration filesystem", "\u0000"],
 # "stdout": "", "stdout_lines": []}
 
-#
 # $ weka nfs global-config set --config-fs ""
 #
 # $ weka nfs global-config show
@@ -52,7 +47,8 @@
 # 61          weka4-node04  default    192.168.219.184  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:26h
 # 81          weka4-node05  default    192.168.219.185  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:16h
 
-#
+
+
 # cpu_cores:
 #  container_max_id: "{{ groups['workers'] | length -1 }}"
 #  container_num: 3
@@ -94,19 +90,18 @@
 # Use the following command to set and view the mountd configuration:
 # weka nfs global-config set --mountd-port <mountd-port> and weka nfs global-config show.
 
-#
+
 # weka nfs client-group add jtest-client-group01
 # weka nfs client-group delete jtest-client-group01
 
-#
+
 # weka nfs rules add dns jtest-client-group01 weka4-node07.jtest.pivotal.io
 # weka nfs rules delete dns jtest-client-group01 weka4-node07.jtest.pivotal.io
 
-#
+
 #  weka nfs rules add ip jtest-client-group01 192.168.0.0/255.255.255.0
 #  weka nfs rules delete ip jtest-client-group01 192.168.0.0/255.255.255.0
 
-#
 # $ ip addr
 # 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
 #    link/ether 00:50:56:aa:f7:7b brd ff:ff:ff:ff:ff:ff
@@ -114,122 +109,142 @@
 #       valid_lft forever preferred_lft forever
 # ~~ snip
 
-#
-# weka nfs permission add nfs jtest-client-group01 --path /xxxx/xxx \
+
+# $ weka nfs permission add nfs jtest-client-group01 --path /xxxx/xxx \
 # --permission-type 0777 --squash squash --anon-uid anon-uid --anon-gid anon-gid \
 # --obs-direct obs-direct --manage-gids manage-gids --privileged-port privileged-port \
 # --supported-versions 3
 #
-# weka nfs permission delete <filesystem> <group> [--path path]
+# $ weka nfs permission delete <filesystem> <group> [--path path]
 
 #
-# weka nfs interface-group
+# $ weka nfs interface-group
 # NAME         SUBNET MASK    GATEWAY      TYPE  STATUS  IPS                                                                                                                                                   PORTS                                                                                            ALLOW MANAGE GIDS
 # jtest-nfs01  255.255.255.0  192.168.0.1  NFS   OK      192.168.0.221, 192.168.0.222, 192.168.0.223, 192.168.0.224, 192.168.0.225, 192.168.0.226, 192.168.0.227, 192.168.0.228, 192.168.0.229, 192.168.0.230  [     host_uid: f62e2a1b-704e-01b5-5baa-2b225f4a4084,host_id: HostId<0>,port: eth0,status: OK ]  True
 # $ weka nfs permission
 # FILESYSTEM  GROUP  PATH  TYPE  SQUASHING  ANONYMOUS UID  ANONYMOUS GID  OBS DIRECT  MANAGE GIDS  MOUNT OPTIONS  PRIVILEGED PORT  SUPPORTED VERSIONS
 
-# weka nfs clients show
+# $ weka nfs clients show
 # HOSTID  CLIENT IP  IDLE TIME  NFSV3 OPS  NFSV4 OPS  NFSV4 OPEN OPS  NFSV4 CLOSE OPS
 #
 ################################################################################################################################################################
 
 #
-### Setup: Filesystems required
+- name: Delete NFS Permission
+  shell: |
+    weka nfs permission delete jtest-default-fs01 nfs-clients -f
+  register: delete_nfs_perms
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_perms }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete NFS ip-range
+  shell: |
+    weka nfs interface-group ip-range delete floating-nfs-ip 192.168.0.161-165 -f
+  register: delete_nfs_ip_range
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_ip_range }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# First we set up a simple NFS service, which requires the use of Interface Groups
+#- name: Delete NFS Permission
+#  shell: |
+#    weka nfs permission delete group nfs-client -f
+#  register: delete_nfs_perm
+#  ignore_errors: true
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ delete_nfs_perm }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
+#
+- name: Delete rule to ensure clients get matched and associated with
+  shell: |
+    weka nfs rules delete ip nfs-clients 192.168.0.0/255.255.255.0
+  register: del_rule_client_group
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ del_rule_client_group }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete a group for NFS clients
+  shell: |
+    weka nfs client-group delete nfs-clients -f
+  register: del_ifg_grp_nfs_client
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ del_ifg_grp_nfs_client }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete NFS configuration filesystem
+  shell: |
+    weka nfs interface-group port delete floating-nfs-ip {{ item }} eth0 -f
+  register: del_ifg_grp_port
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ del_ifg_grp_port }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+#- name: Delete NFS configuration filesystem
+#  shell: |
+#    weka nfs global-config set --config-fs jtest-default-fs01
+#  register: del_nfs_config_fs
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ del_nfs_config_fs }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# weka nfs global-config --help
+#Usage:
+#    weka nfs global-config [--help]
+#
+#Description:
+#    NFS Global Configuration
+#
+#Subcommands:
+#   set    Set NFS global configuration options
+#   show   Show the NFS global configuration
+#
+#Options:
+#   -h, --help   Show help message
+
+
+#
+# First we set up a simple NFS service, which requires the use of Interface Groups
+- name: Delete Interface Groups for NFS Service
+  shell: |
+    weka nfs interface-group delete floating-nfs-ip -f
+  register: delete_nfs_ifg_grp
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_ifg_grp }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
 # Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
 - name: Examine filesystem for NFS Protocol
   shell: |
     weka fs --output name,availableTotal
   register: examine_fs_nfs_protocol
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ examine_fs_nfs_protocol }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-# First we set up a simple NFS service, which requires the use of Interface Groups
-- name: Setup simple NFS service with Interface Groups
+- name: Unset global config for NFS
   shell: |
-    weka nfs interface-group add floating-nfs-ip nfs --subnet 255.255.255.0 --gateway 192.168.1.1
-    # weka nfs interface-group add floating-nfs-ip nfs --subnet 255.255.255.0 --gateway 192.168.0.1
-  register: setup_simple_nfs
+    weka nfs global-config set --config-fs ""
+  register: unset_global_config_fs
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ setup_simple_nfs }}
+- debug: msg={{ unset_global_config_fs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-# Now add the NFS configuration filesystem (only required if you’re going to use NFS v4) and add network ports for each server that is going to participate in the NFS cluster. In the example below we use `ens3`, but this will be hardware-dependent.
-- name:  Add NFS configuration filesystem
-  shell: |
-    weka nfs global-config set --config-fs jtest-default-fs01
-  register: add_nfs_config_fs
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_nfs_config_fs }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-- name: Add NFS configuration filesystem
-  shell: |
-    weka nfs interface-group port add floating-nfs-ip {{ item }} ens161
-    # weka nfs interface-group port add floating-nfs-ip {{ item }} eth0
-  register: add_ifg_grp_port
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_ifg_grp_port }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-- name: Validate if NFS Interface Group is Active
-  shell: weka nfs interface-group
-  register: check_nfs_ifg_active
-  until: check_nfs_ifg_active.stdout.find("NFS_SERVER_DOWN") == -1
-  # until: check_nfs_ifg_active.stdout.find("Inactive") == -1
-  retries: 20
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ check_nfs_ifg_active }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-- name: Add IPs for group
-  shell: |
-    weka nfs interface-group ip-range add floating-nfs-ip 192.168.1.241-246
-    # weka nfs interface-group ip-range add floating-nfs-ip 192.168.0.161-165
-  register: add_ips_grp
-  # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_ips_grp }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-
-# Now, add at least one group for your clients. This can be thought of as a bucket, into which matching NFS clients will be placed.
-# NFS shares (aka “permissions”) will then be granted to those client groups.
-- name:  Add at least one group for NFS clients
-  shell: |
-    weka nfs client-group add nfs-clients
-  register: add_ifg_grp_nfs_client
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_ifg_grp_nfs_client }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-# You need to add at least one rule to ensure clients get matched and thus associated with that client group. Here we match an entire /24 CIDR.
-- name: Add rule to ensure clients get matched and associated with hat cloud group
-  shell: |
-    weka nfs rules add ip nfs-clients 192.168.1.0/255.255.255.0
-    # weka nfs rules add ip nfs-clients 192.168.0.0/255.255.255.0
-  register: add_rule_client_group
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_rule_client_group }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-- name: Add permission
-  shell: |
-    weka nfs permission add jtest-default-fs01 nfs-clients --squash none --permission-type rw --supported-versions v3,v4
-    # weka nfs permission add jtest-default-fs01 nfs-clients --squash none --permission-type rw
-    # weka nfs permission add jtest-default-fs01 nfs-clients --squash none
-  register: add_permission
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_permission }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
 

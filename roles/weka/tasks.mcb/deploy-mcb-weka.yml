@@ -42,7 +42,8 @@
 #
 - name: Create Drive Container
   shell: |
-    weka local setup container --name drives0 --base-port 14000 --memory 2.5GiB --cores 2 --core-ids 5,6
+    weka local setup container --name drives0 --base-port 14000 --memory 2.5GiB --cores 2
+    # weka local setup container --name drives0 --base-port 14000 --memory 2.5GiB --cores 2 --core-ids 5,6
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
@@ -51,7 +52,8 @@
 #
 - name: Create Compute Container
   shell: |
-    weka local setup container --name compute0 --base-port 14200 --memory 3.5GiB --cores 1 --core-ids 7  # --memory 0 is auto
+    weka local setup container --name compute0 --base-port 14200 --memory 3.5GiB --cores 1
+    # weka local setup container --name compute0 --base-port 14200 --memory 3.5GiB --cores 1 --core-ids 7  # --memory 0 is auto
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
@@ -60,7 +62,8 @@
 #
 - name: Create Frontend Container
   shell: |
-    weka local setup container --name frontend0 --base-port 14400 --memory 2.5GiB --cores 1 --core-ids 8
+    weka local setup container --name frontend0 --base-port 14400 --memory 2.5GiB --cores 1
+    # weka local setup container --name frontend0 --base-port 14400 --memory 2.5GiB --cores 1 --core-ids 8
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
@@ -70,8 +73,6 @@
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
     weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 --host-ips=192.168.1.151,192.168.1.152,192.168.1.153,192.168.1.154,192.168.1.155,192.168.1.156
-    # weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 --host-ips=192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145,192.168.1.146
-    # weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 --host-ips=192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
@@ -99,49 +100,23 @@
 # weka cluster start-io is not working with eth1 before applying configuration for container
 - name: Add network NIC 1
   shell: |
-    weka cluster container net add {{ wk_host_id }} ens161 --ips={{ hostvars[inventory_hostname]['ansible_ens161']['ipv4']['address'] }} --netmask=24 --gateway=192.168.1.1
+     weka cluster container net add {{ wk_host_id }} ens161 --ips={{ hostvars[inventory_hostname]['ansible_ens161']['ipv4']['address'] }} --netmask=24 --gateway=192.168.1.1
   register: add_network_drive
   when: inventory_hostname in groups['workers']
-- debug: msg={{ add_network_drive }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   #   weka cluster container net add {{ wk_host_id }} ens224 --ips={{ hostvars[inventory_hostname]['ansible_ens224']['ipv4']['address'] }} --netmask=24 --gateway=192.168.1.1
 
-#
-- name: Validate if still appying
-  shell: weka status
-  register: check_apply_status
-  until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
-  retries: 100
-  delay: 10
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ check_apply_status }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # dd if=/dev/zero of=/dev/nvme0n2 bs=1M count=1000
 # nvme format -s1 /dev/nvme0n1 -f
 # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
-
-#
-#- name: Delete partition table
-#  shell: |
-#     dd if=/dev/zero of=/dev/vdb bs=1MB count=1
-#     dd if=/dev/zero of=/dev/vdc bs=1MB count=1
-#  register: del_part_table
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ del_part_table }}
-#  when: print_debug == true and inventory_hostname in groups['workers']
-
 
 # Need to define variable of nvme device list after find each device name of NVME on each hosts
 # 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
 - name: Add NVME drives into each containers
   shell: |
     weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
-    # weka cluster drive add {{ item }} /dev/vdb --force
-    # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --force
   register: add_nvme_drive
   with_sequence: start=0 end=5  # Drive Container ID
-  # with_sequence: start=0 end=5  # Drive Container ID
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_nvme_drive }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -204,12 +179,13 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Copy expect script file to change admin password
-  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- name: Copy expect script file to change admin password
+#  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Change admin password
-  shell: /root/change-admin-pass.sh
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- name: Change admin password
+#  shell: |
+#    sh /root/change-admin-pass.sh
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

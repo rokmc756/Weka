@@ -149,8 +149,7 @@
 # First we set up a simple NFS service, which requires the use of Interface Groups
 - name: Setup simple NFS service with Interface Groups
   shell: |
-    weka nfs interface-group add floating-nfs-ip nfs --subnet 255.255.255.0 --gateway 192.168.1.1
-    # weka nfs interface-group add floating-nfs-ip nfs --subnet 255.255.255.0 --gateway 192.168.0.1
+    weka nfs interface-group add floating-nfs-ip nfs --subnet 255.255.255.0 --gateway 192.168.0.1
   register: setup_simple_nfs
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ setup_simple_nfs }}
@@ -169,8 +168,7 @@
 #
 - name: Add NFS configuration filesystem
   shell: |
-    weka nfs interface-group port add floating-nfs-ip {{ item }} ens161
-    # weka nfs interface-group port add floating-nfs-ip {{ item }} eth0
+    weka nfs interface-group port add floating-nfs-ip {{ item }} eth0
   register: add_ifg_grp_port
   with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -191,8 +189,7 @@
 #
 - name: Add IPs for group
   shell: |
-    weka nfs interface-group ip-range add floating-nfs-ip 192.168.1.241-246
-    # weka nfs interface-group ip-range add floating-nfs-ip 192.168.0.161-165
+    weka nfs interface-group ip-range add floating-nfs-ip 192.168.0.161-165
   register: add_ips_grp
   # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -214,8 +211,7 @@
 # You need to add at least one rule to ensure clients get matched and thus associated with that client group. Here we match an entire /24 CIDR.
 - name: Add rule to ensure clients get matched and associated with hat cloud group
   shell: |
-    weka nfs rules add ip nfs-clients 192.168.1.0/255.255.255.0
-    # weka nfs rules add ip nfs-clients 192.168.0.0/255.255.255.0
+    weka nfs rules add ip nfs-clients 192.168.0.0/255.255.255.0
   register: add_rule_client_group
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_rule_client_group }}

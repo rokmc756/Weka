@@ -9,7 +9,7 @@
     disable_nfs_client: false  # 1
     disable_nfs: false         # 2
     disable_smb_client: false   # 1
-    disable_smb: false          # 2
+    disable_smb: false        # 2
     disable_obs: false
     disable_obs_client: false
     disable_s3: false

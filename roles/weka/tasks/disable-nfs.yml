@@ -164,7 +164,7 @@
 #
 - name: Delete rule to ensure clients get matched and associated with
   shell: |
-    weka nfs rules delete ip nfs-clients 192.168.0.0/255.255.255.0
+    weka nfs rules delete ip nfs-clients 192.168.1.0/255.255.255.0
   register: del_rule_client_group
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -184,7 +184,7 @@
 #
 - name: Delete NFS configuration filesystem
   shell: |
-    weka nfs interface-group port delete floating-nfs-ip {{ item }} eth0 -f
+    weka nfs interface-group port delete floating-nfs-ip {{ item }} ens161 -f
   register: del_ifg_grp_port
   with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   ignore_errors: true
@@ -226,7 +226,6 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_nfs_ifg_grp }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
 
 # Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
 - name: Examine filesystem for NFS Protocol

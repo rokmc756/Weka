@@ -9,14 +9,12 @@
 - name: Define fact for all worker's first ip addresses
   set_fact:
     all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_ens192', 'ipv4', 'address']) | join(',') }}"
-    # all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}"
 - debug: msg={{ all_nodes_1st_ipaddrs }}
 
 #
 - name: Define fact for all worker's second ip addresses
   set_fact:
     all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_ens161', 'ipv4', 'address']) | join(',') }}"
-    # all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
 - debug: msg={{ all_nodes_2nd_ipaddrs }}
 
 #- name: Set fact for merge ip addresses for HA

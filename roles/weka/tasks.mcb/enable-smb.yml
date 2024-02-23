@@ -71,8 +71,8 @@
 #
 - name: Create SMB Cluster
   shell: |
-    weka smb cluster create jtest-smb-clu01 jtest.weka.io  --domain-netbios-name JTEST ---encryption enabled --container-ids 0,1,2,3,4,5 \
-    --smb-ips-range 192.168.0.241-246 jtest-default-fs01
+    weka smb cluster create jtest-smb-clu01 jtest.weka.io  --domain-netbios-name JTEST ---encryption enabled --container-ids 0,1,2,3,4 \
+    --smb-ips-range 192.168.0.151-155 jtest-default-fs01
   register: create_smb_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_smb_cluster }}

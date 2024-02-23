@@ -14,7 +14,7 @@
 #
 - name: Create S3 Cluster
   shell: |
-    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4,5
+    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
   register: create_s3_cluster
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -26,7 +26,7 @@
   shell: weka s3 cluster status
   register: check_s3_cluster_status
   until: check_s3_cluster_status.stdout.find("Not Ready") == -1
-  retries: 50
+  retries: 5
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_s3_cluster_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -48,7 +48,8 @@
 
 #
 - name: Add s3 user
-  shell: /root/add-s3-user.sh
+  shell: |
+    sh /root/add-s3-user.sh
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # weka user --verbose
