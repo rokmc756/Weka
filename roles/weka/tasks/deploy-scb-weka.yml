@@ -1,6 +1,4 @@
 # ./wekachecker 192.168.0.{181..190}
-# 
-
 #
 - name: Deploy Weka binary
   shell: |
@@ -28,7 +26,6 @@
   shell: |
     weka local stop && weka local rm default -f
   register: remove_local_weka
-  when: inventory_hostname in groups['workers']
 - debug: msg={{ stop_local_weka }}
 
 #
@@ -36,16 +33,12 @@
   shell: |
     weka local setup host --name jscb01 --memory {{ weka.default_mem_size }}
   register: setup_local_weka
-  when: inventory_hostname in groups['workers']
 - debug: msg={{ setup_local_weka }}
 
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 \
-    --host-ips=192.168.1.151,192.168.1.152,192.168.1.153,192.168.1.154,192.168.1.155
-    # weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 \
-    # --host-ips=192.168.1.151,192.168.1.152,192.168.1.153,192.168.1.154,192.168.1.155,192.168.1.156
+    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_2nd_ipaddrs }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   # weka cluster create --host-ips={{ all_nodes_1st_ipaddrs }} {{ all_nodes_hostname }}
@@ -57,7 +50,6 @@
   register: create_cluster_name
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_cluster_name }}
-
 
 # weka cluster host
 # weka local resources
@@ -76,7 +68,7 @@
 - name: Setup local1 weka container with specific memory size
   shell: |
     weka cluster update --data-drives=3 --parity-drives=2
-    # weka cluster hot-spare 1
+    weka cluster hot-spare 0
   register: setup_data_parity
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ setup_data_parity }}
@@ -163,6 +155,16 @@
 #  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
 
 #
+- name: Delete partition table
+  shell: |
+    sudo wipefs --all --force /dev/sdb
+    sudo wipefs --all --force /dev/sdc
+    # dd if=/dev/zero of=/dev/sdb bs=512 count=1
+    # dd if=/dev/zero of=/dev/sdc bs=512 count=1
+  register: delete_partition_table
+- debug: msg={{ delete_partition_table }}
+
+#
 # item is driver container id assigned into hosts
 - name: Add NVME drives into each containers
   shell: |
@@ -174,8 +176,6 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   #  weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
   # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
- 
-
 
 #- name: Pause for 2 minutes to wait for applying changes of core numbers into containers
 #  pause:
@@ -201,7 +201,6 @@
 #  #when: inventory_hostname in groups['workers']
 #- debug: msg={{ check_cluster_drives }}
 #  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
-
 
 #
 - name: Start IO in the cluster

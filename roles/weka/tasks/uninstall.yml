@@ -17,17 +17,16 @@
 
 #
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
-- set_fact:
-    all_nodes_hostname: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-  when: destroy_weka == true and inventory_hostname in groups['workers']
-
-- debug: msg={{ all_nodes_hostname }}
-  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
+#- set_fact:
+#    all_nodes_hostname: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+#  when: destroy_weka == true and inventory_hostname in groups['workers']
+#
+#- debug: msg={{ all_nodes_hostname }}
+#  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
 
 #
 - name: Destroy Weka Cluster
-  shell: |
-    cd /root/tools/install ; ./wekadestroy --yes --force --uninstall {{ all_nodes_hostname }}
+  shell: /root/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}
   register: destroy_weka_cluster
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

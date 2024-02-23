@@ -184,7 +184,7 @@
 #
 - name: Delete NFS configuration filesystem
   shell: |
-    weka nfs interface-group port delete floating-nfs-ip {{ item }} ens161 -f
+    weka nfs interface-group port delete floating-nfs-ip {{ item }} eth1 -f
   register: del_ifg_grp_port
   with_sequence: start=0 end={{ cpu_cores.container_max_id }}
   ignore_errors: true

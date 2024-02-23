@@ -10,3 +10,9 @@ weka4-node03 ansible_ssh_host=192.168.0.143 wk_host_id=2
 weka4-node04 ansible_ssh_host=192.168.0.144 wk_host_id=3
 weka4-node05 ansible_ssh_host=192.168.0.145 wk_host_id=4
 
+[workers01]
+weka4-node01-01 ansible_ssh_host=192.168.1.141 wk_host_id=0
+weka4-node02-01 ansible_ssh_host=192.168.1.142 wk_host_id=1
+weka4-node03-01 ansible_ssh_host=192.168.1.143 wk_host_id=2
+weka4-node04-01 ansible_ssh_host=192.168.1.144 wk_host_id=3
+weka4-node05-01 ansible_ssh_host=192.168.1.145 wk_host_id=4

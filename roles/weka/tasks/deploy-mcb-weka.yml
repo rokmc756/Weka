@@ -69,9 +69,7 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 --host-ips=192.168.1.151,192.168.1.152,192.168.1.153,192.168.1.154,192.168.1.155,192.168.1.156
-    # weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 weka4-node06-01 --host-ips=192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145,192.168.1.146
-    # weka cluster create weka4-node01-01 weka4-node02-01 weka4-node03-01 weka4-node04-01 weka4-node05-01 --host-ips=192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145
+    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_2nd_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
@@ -122,40 +120,39 @@
 # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
 #
-#- name: Delete partition table
-#  shell: |
-#     dd if=/dev/zero of=/dev/vdb bs=1MB count=1
-#     dd if=/dev/zero of=/dev/vdc bs=1MB count=1
-#  register: del_part_table
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ del_part_table }}
-#  when: print_debug == true and inventory_hostname in groups['workers']
+- name: Delete partition table
+  shell: |
+    wipefs --all --force /dev/sdb
+    wipefs --all --force /dev/sdc
+    dd if=/dev/zero of=/dev/sdb bs=512 count=1
+    dd if=/dev/zero of=/dev/sdc bs=512 count=1
+  register: del_part_table
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ del_part_table }}
+  when: print_debug == true and inventory_hostname in groups['workers']
 
 
 # Need to define variable of nvme device list after find each device name of NVME on each hosts
 # 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
 - name: Add NVME drives into each containers
   shell: |
-    weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
-    # weka cluster drive add {{ item }} /dev/vdb --force
-    # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --force
+    weka cluster drive add {{ item }} /dev/sdb /dev/sdc --force
   register: add_nvme_drive
-  with_sequence: start=0 end=5  # Drive Container ID
-  # with_sequence: start=0 end=5  # Drive Container ID
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }} # Drive Container ID
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_nvme_drive }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
+  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --force
 
-
+#
 # This memory should be at least 10GB
 # 6 is container id
 # weka cluster container memory 6 11GiB
-
-#
 - name: Setup local1 weka container with specific memory size
   shell: |
     weka cluster update --data-drives=3 --parity-drives=2
-    weka cluster hot-spare 1
+    weka cluster hot-spare 0
     weka cluster update --cluster-name wclu01
   register: setup_data_parity
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

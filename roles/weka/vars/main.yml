@@ -17,7 +17,7 @@ weka:
     download: false
     bin_type: tar.gz
   allow_unsupported_devices: true
-  default_mem_size: 3.5GiB
+  default_mem_size: 3GiB
   use_res_gen: false
 cpu_cores:
   container_max_id: "{{ groups['workers'] | length -1 }}"
