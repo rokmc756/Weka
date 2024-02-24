@@ -38,7 +38,7 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_2nd_ipaddrs }}
+    weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   # weka cluster create --host-ips={{ all_nodes_1st_ipaddrs }} {{ all_nodes_hostname }}
