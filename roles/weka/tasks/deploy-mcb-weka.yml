@@ -150,13 +150,13 @@
 #  with_items: "{{ drives_container_ids.stdout_lines }}"
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-# Allocate a dedicated networking device on a container (to the cluster).
-- name: Add network NICs
+#
+- name: Allocate a dedicated networking device on a container (to the cluster)
   shell: |
     weka cluster container net add {{ item }} eth1 --netmask=24 --gateway=192.168.1.1
     weka cluster container net add {{ item }} eth2 --netmask=24 --gateway=192.168.2.1
   register: add_network_drive
-  with_items: "{{ drives_container_ids.stdout_lines }}"
+  with_items: "{{ all_container_ids.stdout_lines }}"
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_network_drive }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -178,7 +178,6 @@
 
 # dd if=/dev/zero of=/dev/nvme0n2 bs=1M count=1000
 # nvme format -s1 /dev/nvme0n1 -f
-# weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
 #
 - name: Delete partition table
@@ -193,8 +192,7 @@
   when: print_debug == true and inventory_hostname in groups['workers']
 
 
-# Need to define variable of nvme device list after find each device name of NVME on each hosts
-# 1 to 4 number of nvme devices is ok to start io, 5 and 6 does not work
+#
 - name: Add NVME drives into each containers
   shell: |
     weka cluster drive add {{ item }} /dev/sdb /dev/sdc --force
@@ -204,10 +202,11 @@
 - debug: msg={{ add_nvme_drive }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
-  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --force
+  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
   # with_sequence: start=0 end={{ cpu_cores.container_max_id }} # Drive Container ID
 
-# Set the default data networking configuration
+
+# Set the default data networking configuration -> enough?
 - name: Configure Default Data Networking
   shell: |
     weka cluster default-net set --range 192.168.2.61-100 --gateway=192.168.2.1 --netmask-bits=24
