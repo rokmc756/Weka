@@ -1,5 +1,18 @@
 # ./wekachecker 192.168.0.{181..190}
 #
+#
+
+#
+- name: Install expect
+  shell: |
+    dnf -y install yum-utils
+    yum-config-manager --enable devel
+    yum install -y expect
+    yum-config-manager --disable devel
+  register: install_expect
+- debug: msg={{ install_expect }}
+
+#
 - name: Deploy Weka binary
   shell: |
     cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
@@ -113,54 +126,62 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 
-#- name: Add Networking
+#- name: Configure Default Data Networking
 #  shell: |
-#    weka cluster default-net set --range 192.168.2.20-200 --gateway=192.168.2.1 --netmask-bits=24
+#    weka cluster default-net set --range 192.168.1.61-100 --gateway=192.168.1.1 --netmask-bits=24
+#    weka cluster default-net set --range 192.168.2.61-100 --gateway=192.168.2.1 --netmask-bits=24
 #  register: config_default_network
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 #- debug: msg={{ config_default_network }}
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
-#- name: Add networks
-#  shell: |
-#    weka cluster container net add {{ item }} ens224 --ips-type=POOL
-#  register: add_network_drive
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ add_network_drive }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+# weka cluster default-net set --range 192.168.1.20-200 --gateway=192.168.1.1 --netmask-bits=24
+# error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
+# weka cluster default-net set --range 192.168.2.20-200 --gateway=192.168.2.1 --netmask-bits=24
+# weka cluster default-net set --range 192.168.0.20-200 --gateway=192.168.0.1 --netmask-bits=24
+
 
 #
-#- name: Dedicate containers if applicable
-#  shell: |
-#    weka cluster container dedicate {{ item }} on
-#  register: dedicate_container
-#  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ dedicate_container }}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Add networks
+  shell: |
+    weka cluster container net add {{ item }} eth1 --ips-type=POOL
+    weka cluster container net add {{ item }} eth2 --ips-type=POOL
+  register: add_network_drive
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_network_drive }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Check drivers in the cluster
-#  shell: |
-#    weka cloud enable
-#    # weka cluster drive scan
-#    # weka cluster container activate
-#    # weka cluster drive activate
-#  register: check_cluster_drives
-#  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
+- name: Dedicate containers if applicable
+  shell: |
+    weka cluster container dedicate {{ item }} on
+  register: dedicate_container
+  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ dedicate_container }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Check drivers in the cluster
+  shell: |
+    weka cloud enable
+    # weka cluster drive scan
+    # weka cluster container activate
+    # weka cluster drive activate
+  register: check_cluster_drives
+  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
 #  #when: inventory_hostname in groups['workers']
-#- debug: msg={{ check_cluster_drives }}
-#  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
+- debug: msg={{ check_cluster_drives }}
+  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
 
 #
 - name: Delete partition table
   shell: |
-    sudo wipefs --all --force /dev/sdb
-    sudo wipefs --all --force /dev/sdc
-    # dd if=/dev/zero of=/dev/sdb bs=512 count=1
-    # dd if=/dev/zero of=/dev/sdc bs=512 count=1
+    dd if=/dev/zero of=/dev/sdb bs=512 count=1
+    dd if=/dev/zero of=/dev/sdc bs=512 count=1
+    wipefs --all --force /dev/sdb
+    wipefs --all --force /dev/sdc
   register: delete_partition_table
 - debug: msg={{ delete_partition_table }}
 

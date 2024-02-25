@@ -14,23 +14,23 @@
 - name: Define facts for all worker's hostname
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-    all_int1_hostnames: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-    all_int2_hostnames: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+    # all_int1_hostnames: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+    # all_int2_hostnames: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
 - debug: msg={{ all_ext1_hostnames }}
-- debug: msg={{ all_int1_hostnames }}
-- debug: msg={{ all_int2_hostnames }}
+#- debug: msg={{ all_int1_hostnames }}
+#- debug: msg={{ all_int2_hostnames }}
 
 #
 - name: Define fact for all worker's first ip addresses
   set_fact:
     all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}"
-    all_int1_ipaddrs: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-    all_int2_ipaddrs: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
+    # all_int1_ipaddrs: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+    # all_int2_ipaddrs: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
 - debug: msg={{ all_ext1_ipaddrs }}
-- debug: msg={{ all_int1_ipaddrs }}
-- debug: msg={{ all_int2_ipaddrs }}
-  # all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-  # all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+#- debug: msg={{ all_int1_ipaddrs }}
+#- debug: msg={{ all_int2_ipaddrs }}
+# all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+# all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
 
 
 #- name: Set fact for merge ip addresses for HA

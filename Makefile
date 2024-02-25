@@ -52,7 +52,7 @@ install: role-update install-hosts.yml
 	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-hosts.yml --tags="install"
 
 uninstall: role-update uninstall-hosts.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} uninstall-hosts.yml --tags="uninstall"
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts-uninstall -u ${USERNAME} uninstall-hosts.yml --tags="uninstall"
 
 upgrade: role-update upgrade-hosts.yml
 	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} upgrade-hosts.yml --tags="upgrade"

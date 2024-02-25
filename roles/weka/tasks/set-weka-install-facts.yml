@@ -71,6 +71,19 @@
 #- debug:
 #    var: eth_list
 
+#
+#
+#  weka cluster o
+# If you need stdout on a line-by-line basis, with_indexed_items: "{{ vcs.stdout_lines }}" is equivalent to .split('\n') and likely simpler/clearer.
+
+
+
+#- name: Run command to cat each file and then capture that output.
+#   shell: cat {{ item.stdout_lines }}
+#   register: annoying_words
+#   with_items:
+#    - "{{ annoying.results }}"
+
 
 #- name: define traditional ethernet facts
 #  set_fact:
