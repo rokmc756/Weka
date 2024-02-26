@@ -1,7 +1,5 @@
 # weka binary check
-#
 # ./wekachecker 192.168.0.{181..190}
-
 #
 #- name: Install expect
 #  shell: |
@@ -50,7 +48,9 @@
 - debug: msg={{ create_drive_container }}
   when: inventory_hostname in groups['workers']
   # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 # --> Not working although it's created by resourc-generator.py
-
+  # --net Network specification - <netdev>/[ip]/[bits]/[gateway]. Or: 'udp' to enforce UDP and
+  #       avoid an attempt of auto deduction
+  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
 #
 #- name: Validate if containers are running
 #  shell: weka status
@@ -63,6 +63,14 @@
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
+- name: Create weka cluster with all nodes and second ip addresses
+  shell: |
+    weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }} -T infinite
+  register: create_weka_cluster
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_weka_cluster }}
+
+#
 - name: Create Compute Container
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
@@ -73,18 +81,7 @@
 - debug: msg={{ create_compute_container }}
   when: inventory_hostname in groups['workers']
   # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1  # --> Not working although it's created by resource-generator.py
-
-#
-- name: Create Frontend Container
-  shell: |
-    weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
-    --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }}  --join-ips {{ all_int1_ipaddrs }} \
-    --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
-  register: create_frontend_container
-  when: inventory_hostname in groups['workers']
-- debug: msg={{ create_frontend_container }}
-  when: inventory_hostname in groups['workers']
-  # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1   -->  Not working although it's created by resource-*.py
+  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
 
 
 # error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
@@ -98,14 +95,6 @@
 # weka cluster container cores {{ container_id }} 3 --only-compute-cores
 # weka cluster container cores 1 1 --only-drives-cores
 # weka cluster container cores 4 1 --only-frontend-cores
-
-#
-- name: Create weka cluster with all nodes and second ip addresses
-  shell: |
-    weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }} -T infinite
-  register: create_weka_cluster
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_weka_cluster }}
 
 #
 - name: Validate if containers are running
@@ -133,18 +122,18 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Get all frontend container ids
-  shell:
-     weka cluster container | frontend | awk '{print $1}'
-  register: frontend_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- name: Get all frontend container ids
+#  shell:
+#     weka cluster container | frontend | awk '{print $1}'
+#  register: frontend_container_ids
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Get all compute container ids
-  shell:
-     weka cluster container | grep compute | awk '{print $1}'
-  register: compute_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- name: Get all compute container ids
+#  shell:
+#     weka cluster container | grep compute | awk '{print $1}'
+#  register: compute_container_ids
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 # with_indexed_items: "{{ compute_container_ids.stdout_lines }}"
@@ -235,6 +224,20 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_apply_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create Frontend Container
+  shell: |
+    weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
+    --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }}  --join-ips {{ all_int1_ipaddrs }} \
+    --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+  register: create_frontend_container
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ create_frontend_container }}
+  when: inventory_hostname in groups['workers']
+  # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1   -->  Not working although it's created by resource-*.py
+  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
+  # only --net udp is working
 
 #
 - name: Check drivers in the cluster
