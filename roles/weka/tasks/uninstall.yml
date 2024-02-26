@@ -51,6 +51,15 @@
   shell: |
     umount /opt/weka/data/agent/tmpfss/cross-container-rpc-the-tmpfs
   register: umount_tmpfs
+  ignore_errors: true
+  when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Clear Memory Cache
+  shell: |
+    sync && echo 3 > /proc/sys/vm/drop_caches
+  register: clear_cache_memory
+  ignore_errors: true
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #

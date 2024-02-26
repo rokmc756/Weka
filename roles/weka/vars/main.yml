@@ -1,4 +1,5 @@
 weka:
+  cluster_name: jclu01
   major_version: 4
   minor_version: 2
   build_version: 7
@@ -19,15 +20,29 @@ weka:
   allow_unsupported_devices: true
   default_mem_size: 3GiB
   use_res_gen: false
-cpu_cores:
-  container_max_id: "{{ groups['workers'] | length -1 }}"
-  container_num: 4
-  drives_num: 2
-  compute_num: 1
-  frontends_num: 1
-drives:
-  data: 3
-  parity: 2
+container:
+   compute:
+     num: "1"
+     memory: "3.5GiB"       # 0 means automatical allocation
+     cpu_core_num: "1"
+     cpu_core_ids: "7"
+     port: "14200"
+   drives:
+     num: "2"
+     memory: "2.5GiB"       # 0 means automatical allocation
+     cpu_core_num: "2"
+     cpu_core_ids: "5,6"
+     data: "3"
+     parity: "2"
+     hotspare: "0"          # 0 means automaical allocation
+     devices: "/dev/sdb /dev/sdc"
+     port: "14000"
+   frontend:
+     num: "1"
+     memory: "2.5GiB"
+     cpu_core_num: "1"
+     cpu_core_ids: "8"
+     port: "14400"
 wekafs:
   group:
     - { name: "jtest-default-grp01" }

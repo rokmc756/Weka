@@ -36,3 +36,4 @@ weka cloud enable # [--cloud-url https://api.home.rnd.weka.io # if that's an rnd
 weka cluster license payg ###
 
 weka cluster start-io
+
