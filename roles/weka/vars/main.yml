@@ -23,15 +23,15 @@ weka:
 container:
    compute:
      num: "1"
-     memory: "3.7GiB"       # 0 means automatical allocation
+     memory: "3.5GiB"       # 0 means automatical allocation
      cpu_core_num: "1"
-     cpu_core_ids: "4"
+     cpu_core_ids: "9"
      port: "14200"
    drives:
      num: "2"
-     memory: "2.7GiB"       # 0 means automatical allocation
+     memory: "2.5GiB"       # 0 means automatical allocation
      cpu_core_num: "2"
-     cpu_core_ids: "5,6"
+     cpu_core_ids: "7,8"
      data: "3"
      parity: "2"
      hotspare: "0"          # 0 means automaical allocation
@@ -39,9 +39,9 @@ container:
      port: "14000"
    frontend:
      num: "1"
-     memory: "2.7GiB"
+     memory: "2.5GiB"
      cpu_core_num: "1"
-     cpu_core_ids: "7"
+     cpu_core_ids: "15"
      port: "14400"
 wekafs:
   group:

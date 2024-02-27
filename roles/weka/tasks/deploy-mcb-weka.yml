@@ -42,7 +42,8 @@
 - name: Create Drive Container
   shell: |
     weka local setup container --name drives0 --base-port {{ container.drives.port }} --memory {{ container.drives.memory }} \
-    --cores {{ container.drives.cpu_core_num }} --core-ids {{ container.drives.cpu_core_ids }}
+    --cores {{ container.drives.cpu_core_num }}
+    # --core-ids {{ container.drives.cpu_core_ids }}
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
@@ -74,8 +75,9 @@
 - name: Create Compute Container
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
-    --cores {{ container.compute.cpu_core_num }} --core-ids {{ container.compute.cpu_core_ids }} \
+    --cores {{ container.compute.cpu_core_num }} \
     --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    # --cores {{ container.compute.cpu_core_num }} --core-ids {{ container.compute.cpu_core_ids }} \
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
@@ -229,8 +231,9 @@
 - name: Create Frontend Container
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
-    --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }} \
+    --cores {{ container.frontend.cpu_core_num }} \
     --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    # --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }} \
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
