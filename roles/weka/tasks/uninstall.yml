@@ -26,7 +26,8 @@
 
 #
 - name: Destroy Weka Cluster
-  shell: /root/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}
+  shell: /home/weka/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}
+  # shell: /root/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}
   register: destroy_weka_cluster
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

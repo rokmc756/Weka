@@ -9,7 +9,4 @@ wk4-worker02 ansible_ssh_host=192.168.0.142
 wk4-worker03 ansible_ssh_host=192.168.0.143
 wk4-worker04 ansible_ssh_host=192.168.0.144
 wk4-worker05 ansible_ssh_host=192.168.0.145
-wk4-worker06 ansible_ssh_host=192.168.0.146
-wk4-worker07 ansible_ssh_host=192.168.0.147
-wk4-worker08 ansible_ssh_host=192.168.0.148
-wk4-worker09 ansible_ssh_host=192.168.0.149
+

@@ -1,14 +1,14 @@
 # weka binary check
 # ./wekachecker 192.168.0.{181..190}
 #
-#- name: Install expect
-#  shell: |
-#    dnf -y install yum-utils
-#    yum-config-manager --enable devel
-#    yum install -y expect
+- name: Install expect
+  shell: |
+    dnf -y install yum-utils
+    yum-config-manager --enable devel
+    yum install -y expect
 #    yum-config-manager --disable devel
-#  register: install_expect
-#- debug: msg={{ install_expect }}
+  register: install_expect
+- debug: msg={{ install_expect }}
 
 # 2024-02-22 22:48:15 | DEBUG   | stderr </weka/wekanode:25:14>: modinfo: ERROR: could no
 - name: Load vfio_pci Kernel module
@@ -74,8 +74,8 @@
 - name: Create Compute Container
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
-    --cores {{ container.compute.cpu_core_num }} --core-ids {{ container.compute.cpu_core_ids }} --join-ips {{ all_int1_ipaddrs }} \
-    --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --cores {{ container.compute.cpu_core_num }} --core-ids {{ container.compute.cpu_core_ids }} \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
@@ -122,18 +122,18 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Get all frontend container ids
-#  shell:
-#     weka cluster container | frontend | awk '{print $1}'
-#  register: frontend_container_ids
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Get all frontend container ids
+  shell:
+     weka cluster container | frontend | awk '{print $1}'
+  register: frontend_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Get all compute container ids
-#  shell:
-#     weka cluster container | grep compute | awk '{print $1}'
-#  register: compute_container_ids
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Get all compute container ids
+  shell:
+     weka cluster container | grep compute | awk '{print $1}'
+  register: compute_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 # with_indexed_items: "{{ compute_container_ids.stdout_lines }}"
@@ -229,8 +229,8 @@
 - name: Create Frontend Container
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
-    --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }}  --join-ips {{ all_int1_ipaddrs }} \
-    --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }} \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
@@ -262,11 +262,11 @@
 
 #
 - name: Copy expect script file to change admin password
-  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
+  copy: src=change-admin-pass.sh dest=/home/weka/change-admin-pass.sh mode=0755 owner=weka group=weka
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Change admin password
-  shell: /root/change-admin-pass.sh
+  shell: sudo /home/weka/change-admin-pass.sh
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
