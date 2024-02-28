@@ -3,21 +3,21 @@
 #
 
 #
-- name: Install expect
-  shell: |
-    dnf -y install yum-utils
-    yum-config-manager --enable devel
-    yum install -y expect
-    yum-config-manager --disable devel
-  register: install_expect
-- debug: msg={{ install_expect }}
+#- name: Install expect
+#  shell: |
+#    dnf -y install yum-utils
+#    yum-config-manager --enable devel
+#    yum install -y expect
+#    yum-config-manager --disable devel
+#  register: install_expect
+#- debug: msg={{ install_expect }}
 
 #
-- name: Deploy Weka binary
-  shell: |
-    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
-  register: install_weka_binary
-- debug: msg={{ install_weka_binary }}
+#- name: Deploy Weka binary
+#  shell: |
+#    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
+#  register: install_weka_binary
+#- debug: msg={{ install_weka_binary }}
 
 #
 #- name: Create Weka Cluster
@@ -39,7 +39,7 @@
   shell: |
     weka local stop && weka local rm default -f
   register: remove_local_weka
-- debug: msg={{ stop_local_weka }}
+- debug: msg={{ remove_local_weka }}
 
 #
 - name: Setup local Weka Container with specific memory size
@@ -90,9 +90,9 @@
 # item is container id and cput_cores.container_number core number to assign
 - name: Assign number of cores into each compute/drives/frontends containers
   shell: |
-    weka cluster container cores {{ item }} {{ cpu_cores.container_num }} --drives-dedicated-cores {{ cpu_cores.drives_num }} --compute-dedicated-cores {{ cpu_cores.compute_num }} --frontend-dedicated-cores {{ cpu_cores.frontends_num }}
+    weka cluster container cores {{ item }} 5 --drives-dedicated-cores {{ container.drives.cpu_core_num }} --compute-dedicated-cores {{ container.compute.cpu_core_num }} --frontend-dedicated-cores {{ container.frontend.cpu_core_num }}
   register: assign_cores_num
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  with_sequence: start=0 end=4
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ assign_cores_num  }}
 

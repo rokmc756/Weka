@@ -169,13 +169,14 @@
 #
 - name: Add NFS configuration filesystem
   shell: |
-    weka nfs interface-group port add floating-nfs-ip {{ item }} ens161
+    weka nfs interface-group port add floating-nfs-ip {{ item }} eth1
     # weka nfs interface-group port add floating-nfs-ip {{ item }} eth0
   register: add_ifg_grp_port
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  with_sequence: start=0 end=4
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_ifg_grp_port }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
 
 #
 - name: Validate if NFS Interface Group is Active
@@ -191,7 +192,7 @@
 #
 - name: Add IPs for group
   shell: |
-    weka nfs interface-group ip-range add floating-nfs-ip 192.168.1.241-246
+    weka nfs interface-group ip-range add floating-nfs-ip 192.168.1.241-245
     # weka nfs interface-group ip-range add floating-nfs-ip 192.168.0.161-165
   register: add_ips_grp
   # with_sequence: start=0 end={{ cpu_cores.container_max_id }}

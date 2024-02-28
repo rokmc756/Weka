@@ -1,14 +1,14 @@
 # weka binary check
 # ./wekachecker 192.168.0.{181..190}
 #
-- name: Install expect
-  shell: |
-    dnf -y install yum-utils
-    yum-config-manager --enable devel
-    yum install -y expect
+#- name: Install expect
+#  shell: |
+#    dnf -y install yum-utils
+#    yum-config-manager --enable devel
+#    yum install -y expect
 #    yum-config-manager --disable devel
-  register: install_expect
-- debug: msg={{ install_expect }}
+#  register: install_expect
+#- debug: msg={{ install_expect }}
 
 # 2024-02-22 22:48:15 | DEBUG   | stderr </weka/wekanode:25:14>: modinfo: ERROR: could no
 - name: Load vfio_pci Kernel module
@@ -42,17 +42,21 @@
 - name: Create Drive Container
   shell: |
     weka local setup container --name drives0 --base-port {{ container.drives.port }} --memory {{ container.drives.memory }} \
-    --cores {{ container.drives.cpu_core_num }}
+    --cores {{ container.drives.cpu_core_num }} \
+    --net udp
     # --core-ids {{ container.drives.cpu_core_ids }}
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
   when: inventory_hostname in groups['workers']
-  # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 # --> Not working although it's created by resourc-generator.py
   # --net Network specification - <netdev>/[ip]/[bits]/[gateway]. Or: 'udp' to enforce UDP and
   #       avoid an attempt of auto deduction
   # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
-#
+  # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
+  # --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
+
+
+
 #- name: Validate if containers are running
 #  shell: weka status
 #  register: check_apply_status
@@ -63,6 +67,8 @@
 #- debug: msg={{ check_apply_status }}
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+
+
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
@@ -70,13 +76,15 @@
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
+  # weka cluster create {{ all_int1_hostnames }} {{ all_int2_hostnames }} {{ all_int3_hostnames }} --host-ips={{ all_int1_ipaddrs }},{{ all_int2_ipaddrs }},{{ all_int3_ipaddrs }} -T infinite
 
 #
 - name: Create Compute Container
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
     --cores {{ container.compute.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
+    --net udp
     # --cores {{ container.compute.cpu_core_num }} --core-ids {{ container.compute.cpu_core_ids }} \
   register: create_compute_container
   when: inventory_hostname in groups['workers']
@@ -232,7 +240,8 @@
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
     --cores {{ container.frontend.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
+    --net udp
     # --cores {{ container.frontend.cpu_core_num }} --core-ids {{ container.frontend.cpu_core_ids }} \
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
@@ -241,6 +250,7 @@
   # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1   -->  Not working although it's created by resource-*.py
   # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
   # only --net udp is working
+  # --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
 
 #
 - name: Check drivers in the cluster

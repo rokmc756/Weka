@@ -142,7 +142,7 @@
 #
 - name: Delete NFS ip-range
   shell: |
-    weka nfs interface-group ip-range delete floating-nfs-ip 192.168.0.161-165 -f
+    weka nfs interface-group ip-range delete floating-nfs-ip 192.168.1.241-245 -f
   register: delete_nfs_ip_range
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -186,11 +186,12 @@
   shell: |
     weka nfs interface-group port delete floating-nfs-ip {{ item }} eth1 -f
   register: del_ifg_grp_port
-  with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+  with_sequence: start=0 end=4
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ del_ifg_grp_port }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
 
 #
 #- name: Delete NFS configuration filesystem

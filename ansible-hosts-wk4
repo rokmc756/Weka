@@ -18,9 +18,15 @@ wk4-worker04-01 ansible_ssh_host=192.168.1.144
 wk4-worker05-01 ansible_ssh_host=192.168.1.145
 
 [workers02]
-wk4-worker01-02 ansible_ssh_host=192.168.2.141
-wk4-worker02-02 ansible_ssh_host=192.168.2.142
-wk4-worker03-02 ansible_ssh_host=192.168.2.143
-wk4-worker04-02 ansible_ssh_host=192.168.2.144
-wk4-worker05-02 ansible_ssh_host=192.168.2.145
+wk4-worker01-02 ansible_ssh_host=192.168.1.151
+wk4-worker02-02 ansible_ssh_host=192.168.1.152
+wk4-worker03-02 ansible_ssh_host=192.168.1.153
+wk4-worker04-02 ansible_ssh_host=192.168.1.154
+wk4-worker05-02 ansible_ssh_host=192.168.1.155
 
+[workers03]
+wk4-worker01-03 ansible_ssh_host=192.168.1.161
+wk4-worker02-03 ansible_ssh_host=192.168.1.162
+wk4-worker03-03 ansible_ssh_host=192.168.1.163
+wk4-worker04-03 ansible_ssh_host=192.168.1.164
+wk4-worker05-03 ansible_ssh_host=192.168.1.165

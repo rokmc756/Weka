@@ -16,6 +16,7 @@
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
     all_int1_hostnames: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
     all_int2_hostnames: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+    all_int3_hostnames: "{{ groups['workers03'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
 - debug: msg={{ all_ext1_hostnames }}
 - debug: msg={{ all_int1_hostnames }}
 - debug: msg={{ all_int2_hostnames }}
@@ -26,6 +27,7 @@
     all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}"
     all_int1_ipaddrs: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
     all_int2_ipaddrs: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
+    all_int3_ipaddrs: "{{ groups['workers03'] | map('extract', hostvars, ['ansible_eth3', 'ipv4', 'address']) | join(',') }}"
 - debug: msg={{ all_ext1_ipaddrs }}
 - debug: msg={{ all_int1_ipaddrs }}
 - debug: msg={{ all_int2_ipaddrs }}
