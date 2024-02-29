@@ -42,17 +42,15 @@
 - name: Create Drive Container
   shell: |
     weka local setup container --name drives0 --base-port {{ container.drives.port }} --memory {{ container.drives.memory }} \
-    --cores {{ container.drives.cpu_core_num }} --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
+    --cores {{ container.drives.cpu_core_num }} \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
   when: inventory_hostname in groups['workers']
-  # --net Network specification - <netdev>/[ip]/[bits]/[gateway]. Or: 'udp' to enforce UDP and
   #       avoid an attempt of auto deduction
-  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
   # --core-ids {{ container.drives.cpu_core_ids }} \
-  #  eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
-  # --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
+  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 
 
@@ -82,14 +80,13 @@
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
     --cores {{ container.compute.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
   when: inventory_hostname in groups['workers']
-  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
   #  --core-ids {{ container.compute.cpu_core_ids }} \
-  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24 \
+  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 
 # error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
@@ -177,7 +174,7 @@
 - name: Delete partition table
   shell: |
     dd if=/dev/zero of=/dev/sdc bs=512 count=1
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1
+    dd if=/dev/zero of=/dev/sdd bs=512 count=1
     # wipefs --all --force /dev/sdb
     # wipefs --all --force /dev/sdc
   register: del_part_table
@@ -238,16 +235,13 @@
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
     --cores {{ container.frontend.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
   when: inventory_hostname in groups['workers']
-  # It's not working # --net udp/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1
-  # only --net udp is working
-  # --join-ips {{ all_int1_ipaddrs }} --management-ips={{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} \
   # --core-ids {{ container.frontend.cpu_core_ids }} \
-  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24 \
+  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 #
 - name: Check drivers in the cluster

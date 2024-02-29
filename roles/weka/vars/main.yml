@@ -29,13 +29,13 @@ container:
      port: "14200"
    drives:
      num: "2"
-     memory: "3GiB"       # 0 means automatical allocation
+     memory: "5GiB"       # 0 means automatical allocation
      cpu_core_num: "2"
      cpu_core_ids: "8,9"
      data: "3"
      parity: "2"
      hotspare: "0"          # 0 means automaical allocation
-     devices: "/dev/sdb /dev/sdc"
+     devices: "/dev/sdc /dev/sdd"
      port: "14000"
    frontend:
      num: "1"
