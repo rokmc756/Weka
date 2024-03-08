@@ -46,7 +46,6 @@
 # https://www.notion.so/wekaio/Multi-protocol-SMB-and-NFS-single-filesystem-access-8abcd9d23e004549a66e2e98fbcbd787?pvs=4
 #
 
-
 ###################################################################################################################
 # weka smb cluster destroy -f
 # weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST --container-ids 0,1,2,3,4 \
@@ -69,10 +68,21 @@
 # weka smb cluster update
 
 #
+- name: Create S3 Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
 - name: Create SMB Cluster
   shell: |
-    weka smb cluster create jtest-smb-clu01 jtest.weka.io  --domain-netbios-name JTEST ---encryption enabled --container-ids 0,1,2,3,4,5 \
-    --smb-ips-range 192.168.0.241-246 jtest-default-fs01
+    weka smb cluster create jtest-smb-clu01 jtest.weka.io  --domain-netbios-name JTEST ---encryption enabled --container-ids {{ all_container_ids.stdout }} \
+    --smb-ips-range 192.168.0.241-245 jtest-default-fs01
   register: create_smb_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_smb_cluster }}
@@ -98,13 +108,15 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Add SMB Share
-#  shell: |
-#    weka smb share add jtest-share-01 jtest-smb-fs01 --acl on
-#  register: add_smb_share
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ add_smb_share }}
-#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Add SMB Share
+  shell: |
+    weka smb share add jtest-share-01 jtest-smb-fs01 --acl on
+  register: add_smb_share
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_smb_share }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# adcli join --domain SUPPORT.LOCAL --service-name=cifs --computer-name SMB-W --host-fqdn smb-w.SUPPORT.LOCAL -v --domain-ou ou=production,dc=support,dc=local -U admin
 
 # connect from linux and type:
 # mkdir /mnt/mounted_myshare

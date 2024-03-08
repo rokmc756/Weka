@@ -41,8 +41,9 @@
 - name: Attach and Object Store Bucket. (Use your own bucket details)
   shell: |
     weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
-    --hostname=minio.jtest.pivotal.io --port=9001 --bucket=jbucket01 --auth-method AWSSignature2 \
-    --region=us-east-1 --protocol=HTTPS --access-key-id=minioadmin --secret-key=changeme --skip-verification
+    --hostname=s3.ap-northeast-2.amazonaws.com --port=443 --bucket=jack-kr-bucket02 --auth-method AWSSignature4 \
+    --region=ap-northeast-2 --protocol=HTTPS --access-key-id='AKIAVRCROUNL2LKDWHEM' --secret-key='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'
+    #  --skip-verification
   register: attach_obs_bucket
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ attach_obs_bucket }}
@@ -116,8 +117,6 @@
 # sudo mount -t wekafs -o mode=udp jtest-obs-fs02 /mnt/jtest-obs-fs02
 
 
-
-
 # https://www.notion.so/wekaio/How-to-pause-and-resume-OBS-detach-operation-18af0d88c1f24c6caa0c2326cf5ac26a?pvs=4
 # How to pause and resume OBS detach operation
 # Starting weka 3.5.6 we can use manhole to pause and resume OBS detach operation.
@@ -140,21 +139,6 @@
 
 # Verify in traces using #MANUAL_OVERRIDE that the command completed successfully
 
-    #
-# In MCB, 
-# [root@weka4-node01 ~]#     mount -t wekafs jtest-obs-fs01 /mnt/jtest-obs-fs01
-# wekafs_mount_helper: Mounting jtest-obs-fs01 on /mnt/jtest-obs-fs01
-# Basing mount on container compute0
-# This is legacy mount, will wait for the driver before calling directly
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-# 127.0.0.1:14200 is in STEM mode, retrying
-
-
 # mount -t wekafs -o net=udp 192.168.0.181:/jtest-obs-fs01 /mnt/jtest-obs-fs01
 # wekafs_mount_helper: Mounting 192.168.0.181:/jtest-obs-fs01 on /mnt/jtest-obs-fs01
 # Basing mount on container drives0
@@ -163,4 +147,37 @@
 #At this point weka does not support mixing backend and stateless client containers on the same host.
 #If you’re sure the currently running containers are not in use anymore, you can stop and delete them by running ‘weka local stop’ and ‘weka local rm’.
 #Please note that running these commands on backend hosts could cause data loss.
+
+#[root@cst2 ~]# weka fs tier s3 -v --name=jtest-obs-tier01
+#UID                                   OBS ID  OBS NAME     OBS BUCKET ID  OBS BUCKET NAME   SITE   UPLOAD  DOWNLOAD  REMOVE  NODES UP  NODES DOWN  NODES UNKNOWN  LAST ERRORS  PROTOCOL  HOSTNAME                         PORT  BUCKET            AUTH METHOD    REGION          ACCESS KEY ID         SECRET KEY  STATUS  UPTIME    DOWNLOAD BANDWIDTH  UPLOAD BANDWIDTH   REMOVE BANDWIDTH   ERRORS TIMEOUT  PREFETCH MB  MAX CONCURRENT DOWNLOADS  MAX CONCURRENT UPLOADS  MAX CONCURRENT REMOVALS  MAX EXTENTS PER UPLOAD  MAX DATA UPLOAD SIZE  UPLOAD TAGS
+#ce27d195-b405-9049-7b54-c526e26c21a1  4       jtest-obs01  3              jtest-obs-tier01  LOCAL  UP      UP        UP      80        0           0                           HTTPS     s3.ap-northeast-2.amazonaws.com  443   jack-kr-bucket02  AWSSignature4  ap-northeast-2  AKIAVRCROUNL2LKDWHEM  **********  UP      0:40:06h  _mbps: 4294967295   _mbps: 4294967295  _mbps: 4294967295  300             0            64                        64                      64                                                                     Disabled
+
+# Follow up
+# We can only track progress of the 64MB blobs. These are now completed for pgen_genomes.
+# To see progress of this part of the migration:
+# weka debug jrpc filesystems_get_obs_usage filesystem=<filesystemname>
+
+# weka debug jrpc filesystems_get_obs_usage filesystem=pgen_genomes
+# weka debug jrpc filesystems_get_obs_usage filesystem=pgen_genomes
+
+# weka fs tier obs
+# ID        NAME            NUM OF BUCKETS  UPLOAD BUCKETS UP  DOWNLOAD BUCKETS UP  REMOVE BUCKETS UP
+# ObsId<0>  default-local   0               0                  0                    0
+# ObsId<1>  default-remote  0               0                  0                    0
+# ObsId<4>  jtest-obs01     1               1                  1                    1
+
+# [root@cst2 ~]# weka fs tier location /mnt/jtest-obs-fs02
+# PATH                 FILE TYPE  FILE SIZE  CAPACITY IN SSD (WRITE-CACHE)  CAPACITY IN SSD (READ-CACHE)  CAPACITY IN OBJECT STORAGE  CAPACITY IN REMOTE STORAGE
+# /mnt/jtest-obs-fs02  directory  0 B        0 B                            0 B                           0 B                         0 B
+
+
+# Where ever this command is ran it must be mounted to Weka. <path> is the full path of the file.
+# fetch      Fetch object-stored files to SSD storage
+# weka fs tier fetch /mnt/jtest-obs-fs02
+
+
+# weka fs tier location /mnt/jtest-obs-fs02/1.txt
+# PATH                       FILE TYPE  FILE SIZE  CAPACITY IN SSD (WRITE-CACHE)  CAPACITY IN SSD (READ-CACHE)  CAPACITY IN OBJECT STORAGE  CAPACITY IN REMOTE STORAGE
+# /mnt/jtest-obs-fs02/1.txt  regular    0 B        0 B                            0 B                           0 B                         0 B
+# weka fs tier fetch /mnt/jtest-obs-fs02/1.txt
 

@@ -43,14 +43,14 @@
   shell: |
     weka local setup container --name drives0 --base-port {{ container.drives.port }} --memory {{ container.drives.memory }} \
     --cores {{ container.drives.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
+    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
   when: inventory_hostname in groups['workers']
   #       avoid an attempt of auto deduction
   # --core-ids {{ container.drives.cpu_core_ids }} \
-  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 
 
@@ -80,13 +80,13 @@
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
     --cores {{ container.compute.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
+    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
   when: inventory_hostname in groups['workers']
   #  --core-ids {{ container.compute.cpu_core_ids }} \
-  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 
 # error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
@@ -175,13 +175,15 @@
   shell: |
     dd if=/dev/zero of=/dev/sdc bs=512 count=1
     dd if=/dev/zero of=/dev/sdd bs=512 count=1
-    # wipefs --all --force /dev/sdb
-    # wipefs --all --force /dev/sdc
+    wipefs --all --force /dev/sdc
+    wipefs --all --force /dev/sdd
   register: del_part_table
   when: inventory_hostname in groups['workers']
 - debug: msg={{ del_part_table }}
   when: print_debug == true and inventory_hostname in groups['workers']
   # nvme format -s1 /dev/nvme0n1 -f
+  # nvme format /dev/nvme4n1 -f
+
 
 
 #
@@ -235,13 +237,13 @@
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
     --cores {{ container.frontend.cpu_core_num }} \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }} 
+    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}
   when: inventory_hostname in groups['workers']
   # --core-ids {{ container.frontend.cpu_core_ids }} \
-  #  --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24
 
 #
 - name: Check drivers in the cluster

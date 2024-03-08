@@ -4,18 +4,18 @@
     print_debug: true
     uninstall_binary: false
     disable_wekafs_client: false
-    disable_wekafs: false    # weka cluster start-io should be run before deleting fs
-    destroy_weka: true
-    disable_nfs_client: false  # 1
-    disable_nfs: false    # 2
+    disable_wekafs: false       # weka cluster start-io should be run before deleting fs
+    destroy_weka: false
+    disable_nfs_client: false   # 1
+    disable_nfs: false          # 2
     disable_smb_client: false   # 1
-    disable_smb: false        # 2
+    disable_smb: true          # 2
     disable_obs: false
     disable_obs_client: false
     disable_s3: false
   roles:
     - { role: weka }
 
-    # - { role: firewalld }
-    #    - { role: init-hosts }
+  # - { role: firewalld }
+  #    - { role: init-hosts }
 

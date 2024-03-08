@@ -1,0 +1,33 @@
+
+worker01
+16-31
+fe, 1       ,  25
+drives, 1   ,  26
+compute, 5  ,  27,28,29,30,31
+
+worker02
+32-47
+fe, 1       , 41
+drives, 1   , 42
+compute, 5  , 43,44,45,46,47
+
+worker03
+48-63
+fe, 1       , 57
+drives, 1   , 58
+compute, 5  , 59,60,61,62,63
+
+worker04
+64-79
+fe, 1       , 73
+drives, 1   , 74
+compute, 5  , 75,76,77,78,79
+
+
+worker05
+80-95
+fe, 1       , 89
+drives, 1   , 90
+compute, 5  , 91,92,93,94,95
+
+

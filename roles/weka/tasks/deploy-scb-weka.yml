@@ -1,6 +1,5 @@
 # ./wekachecker 192.168.0.{181..190}
 #
-#
 #- name: Install expect
 #  shell: |
 #    dnf -y install yum-utils
@@ -20,14 +19,6 @@
   when: inventory_hostname in groups['workers']
 
 #
-#- name: Create Weka Cluster
-#  shell: |
-#    weka cluster create {{ all_nodes_hostname }}
-#  register: create_weka_cluster
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ create_weka_cluster }}
-
-
 ####################################################################
 # weka local ps
 # weka local stop
@@ -45,9 +36,11 @@
   when: inventory_hostname in groups['workers']
 
 #
+#
 - name: Setup local Weka Container with specific memory size
   shell: |
-    weka local setup host --name jscb01 --memory {{ weka.default_mem_size }}
+    weka local setup host --name default --memory {{ weka.default_mem_size }}
+    # weka local resources -C default memory 3GiB
   register: setup_local_weka
   when: inventory_hostname in groups['workers']
 - debug: msg={{ setup_local_weka }}
@@ -56,38 +49,62 @@
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }}
+    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_ext1_ipaddrs }}
+    # weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka cluster create --host-ips={{ all_nodes_1st_ipaddrs }} {{ all_nodes_hostname }}
 
 #
-- name: Delete partition table
-  shell: |
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1
-    dd if=/dev/zero of=/dev/sdc bs=512 count=1
-    wipefs --all --force /dev/sdb
-    wipefs --all --force /dev/sdc
-  register: delete_partition_table
-  when: inventory_hostname in groups['workers']
-- debug: msg={{ delete_partition_table }}
-  when: inventory_hostname in groups['workers']
+#- name: Delete partition table
+#  shell: |
+#    dd if=/dev/zero of=/dev/nvme0n1 bs=1k count=10000
+#    dd if=/dev/zero of=/dev/nvme0n2 bs=1k count=10000
+#    nvme format /dev/nvme0n1 -f
+#    nvme format /dev/nvme0n2 -f
+#  register: del_part_table
+#  when: inventory_hostname in groups['workers']
+#- debug: msg={{ del_part_table }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
 
 
 #
-# item is driver container id assigned into hosts
-- name: Add NVME drives into each containers
-  shell: |
-    weka cluster drive add {{ item }} /dev/sdb /dev/sdc --force
-  register: add_nvme_drive
-  with_sequence: start=0 end=4
+- name: Get all drives container ids
+  shell:
+     weka cluster container | awk '{print $1}' | sed 1d
+  register: all_container_ids
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_nvme_drive }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  #  weka cluster drive add {{ item }} /dev/nvme0n1 /dev/nvme0n2
-  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
 
+#
+- name: Delete partition table
+  shell: |
+    dd if=/dev/zero of=/dev/sdc bs=512 count=1
+    dd if=/dev/zero of=/dev/sdd bs=512 count=1
+    wipefs --all --force /dev/sdc
+    wipefs --all --force /dev/sdd
+  register: del_part_table
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ del_part_table }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+#
+- name: Add data devices into drive containers
+  shell: |
+    weka cluster drive add {{ item }} /dev/sdc /dev/sdd --force
+  register: add_data_devices
+  with_items: "{{ all_container_ids.stdout_lines }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_data_devices }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka cluster drive add {{ item }} /dev/vdb /dev/vdc --allow-format-non-wekafs-drives --force
+  # with_sequence: start=0 end={{ cpu_cores.container_max_id }} # Drive Container ID
+  # dd if=/dev/zero of=/dev/sdc bs=512 count=1
+  # dd if=/dev/zero of=/dev/sdb bs=512 count=1
+  # wipefs --all --force /dev/sdc
+  # wipefs --all --force /dev/sdd
+
+#
 - name: Validate if still appying
   shell: weka status
   register: check_apply_status
@@ -97,15 +114,16 @@
 - debug: msg={{ check_apply_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-
+#
 # item is container id and cput_cores.container_number core number to assign
 - name: Assign number of cores into each compute/drives/frontends containers
   shell: |
-    weka cluster container cores {{ item }} 4 --drives-dedicated-cores {{ container.drives.cpu_core_num }} --compute-dedicated-cores {{ container.compute.cpu_core_num }} --frontend-dedicated-cores {{ container.frontend.cpu_core_num }}
+    weka cluster container cores {{ item }} 4 --drives-dedicated-cores {{ container.drives.cpu_core_num }} --frontend-dedicated-cores {{ container.frontend.cpu_core_num }}
   register: assign_cores_num
   with_sequence: start=0 end=4
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ assign_cores_num  }}
+  # weka cluster container cores {{ item }} 4 --drives-dedicated-cores {{ container.drives.cpu_core_num }} --compute-dedicated-cores {{ container.compute.cpu_core_num }} --frontend-dedicated-cores {{ container.frontend.cpu_core_num }}
 
 #
 - name: Validate if still appying
@@ -125,12 +143,12 @@
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 #- debug: msg={{ config_default_network }}
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
 # weka cluster default-net set --range 192.168.1.20-200 --gateway=192.168.1.1 --netmask-bits=24
 # error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
 # weka cluster default-net set --range 192.168.2.20-200 --gateway=192.168.2.1 --netmask-bits=24
 # weka cluster default-net set --range 192.168.0.20-200 --gateway=192.168.0.1 --netmask-bits=24
 
+#
 # UDP mode does not require this commands
 #- name: Add networks
 #  shell: |
@@ -183,7 +201,7 @@
 #
 - name: Created a Cluster Name
   shell: |
-    weka cluster update --cluster-name=wclu01
+    weka cluster update --cluster-name=jack-kr-clu01
   register: create_cluster_name
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_cluster_name }}
