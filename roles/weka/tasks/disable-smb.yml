@@ -42,6 +42,7 @@
   shell: |
     weka smb domain leave Administrator Changeme12\!\@
   register: leave_ad
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ leave_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -51,6 +52,7 @@
   shell: |
     weka smb cluster destroy -f
   register: destroy_smb_cluster
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 - debug: msg={{ destroy_smb_cluster }}

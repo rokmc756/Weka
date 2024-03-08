@@ -42,7 +42,7 @@
   shell: |
     weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
     --hostname=s3.ap-northeast-2.amazonaws.com --port=443 --bucket=jack-kr-bucket02 --auth-method AWSSignature4 \
-    --region=ap-northeast-2 --protocol=HTTPS --access-key-id='AKIAVRCROUNL2LKDWHEM' --secret-key='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'
+    --region=ap-northeast-2 --protocol=HTTPS --access-key-id='' --secret-key=''
     #  --skip-verification
   register: attach_obs_bucket
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

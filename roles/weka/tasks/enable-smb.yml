@@ -64,7 +64,6 @@
 # cd /var/lib/pcsd
 # tail -f *.log
 
-# weka local exec --container smbw cat /tmp/smbw-config-fs/.smbw/tsmb.conf
 # weka smb cluster update
 
 #
@@ -81,7 +80,7 @@
 #
 - name: Create SMB Cluster
   shell: |
-    weka smb cluster create jtest-smb-clu01 jtest.weka.io  --domain-netbios-name JTEST ---encryption enabled --container-ids {{ all_container_ids.stdout }} \
+    weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST ---encryption enabled --container-ids {{ all_container_ids.stdout }} \
     --smb-ips-range 192.168.0.241-245 jtest-default-fs01
   register: create_smb_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
