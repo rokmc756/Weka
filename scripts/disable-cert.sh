@@ -2,7 +2,6 @@
 
 dnf -y install jq
 
-
 cp -f /opt/weka/dist/release/4.2.7.64.spec /opt/weka/dist/release/4.2.7.64.spec.orig
 
 jq --arg SSL_CERT_FILE /host/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem '.containers.weka.env = $ARGS.named + .containers.weka.env' /opt/weka/dist/release/4.2.7.64.spec.orig > /opt/weka/dist/release/4.2.7.64.spec

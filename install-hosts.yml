@@ -4,10 +4,8 @@
   vars:
     print_debug: true
     install_binary: false
-    deploy_scb_weka: false
-    deploy_mcb_weka: false
-    enable_wekafs: false
-    enable_wekafs_client: false
+    deploy_scb: false
+    deploy_mcb: false
   roles:
     - { role: obs }
     # - { role: wekafs }
@@ -19,4 +17,3 @@
 # - { role: init-hosts }
 #    - { role: firewalld }
 # Need to check port for wekaconfig
-
