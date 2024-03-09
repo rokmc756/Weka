@@ -1,0 +1,39 @@
+obs:
+  name: jtest-obs01
+  tier:
+    name: jtest-obs-tier01
+    ssd_size: 1GiB
+    fs:
+      name: jtest-obs-fs02
+      size: 7GiB
+    fs_group:
+      name: jtest-obs-grp01
+    demote: 30
+  fs:
+    name: jtest-obs-fs01
+    size: 10GiB
+  site:
+    name: local                                                 # default-local or default-remote
+  s3:
+    hostname: minio.jtest.weka.io
+    port: 9001                                                  # 80 or 443 or 8443
+    type: OTHER                                                 # AWS or AZURE or OTHER
+    bucket:
+      name: jbucket01
+    auth_method: None                                           # AWSSignature4 or AWSSignature2 or none
+    region: default                                             # ap-northeast-2 or us-east-2 and so on
+    protocol: HTTPS_UNVERIFIED                                  # HTTP or HTTPS or HTTPS_UNVERIFIED
+    access_key: "minioadmin"
+    secret_key: "changeme"
+
+#  s3:
+#    hostname: s3.ap-northeast-2.amazonaws.com
+#    port: 443                                                  # 80
+#    bucket:
+#      name: jack-kr-bucket02
+#    auth_method: AWSSignature4                                 # AWSSignature4 or AWSSignature2 or none
+#    region: ap-northeast-2                                     #
+#    protocol: HTTPS                                            # HTTP or HTTPS
+#    access_key: ""
+#    secret_key: ""     #
+

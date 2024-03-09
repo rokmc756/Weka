@@ -1,0 +1,173 @@
+# weka cluster container | awk '{print $1}' | sed -e 1d | awk '/^"/{printf "\n";} {printf "%s,",$0}' | sed -e s/,$//g
+# minio benchmark test
+# https://blog.min.io/how-to-benchmark-minio-warp-speedtest/
+
+- name: Create S3 Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create S3 Cluster
+  shell: |
+    weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+  register: create_s3_cluster
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Validate if S3 Cluster is Online
+  shell: weka s3 cluster status
+  register: check_s3_cluster_status
+  until: check_s3_cluster_status.stdout.find("Not Ready") == -1
+  retries: 5
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_s3_cluster_status }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create S3 Bucket
+  shell: |
+    weka s3 bucket create jtest-s3-bucket01
+  register: create_s3_bucket
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_bucket }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Copy expect script file to add s3 user
+  copy: src=add-s3-user.sh dest=/root/add-s3-user.sh mode=0755 owner=root group=root
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add s3 user
+  shell: |
+    sh /root/add-s3-user.sh
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# weka user --verbose
+# weka user --verbose
+# weka s3 policy attach readwrite jomoon
+# weka s3 policy show readwrite
+#{
+#    "Version": "2012-10-17",
+#    "Statement": [
+#        {
+#            "Effect": "Allow",
+#            "Action": [
+#                "s3:*"
+#            ],
+#            "Resource": [
+#                "arn:aws:s3:::*"
+#            ]
+#        }
+#    ]
+#}
+
+# weka s3 policy show readwrite > mypolicy.json
+# weka s3 policy add bucketroot ./mypolicy.json
+# weka s3 policy list
+#
+# weka s3 service-account list
+# error: This S3 operation can only be performed with an S3 user role
+# weka user login jomoon
+# Password for jomoon:
+#+------------------------------+
+#| Login completed successfully |
+#+------------------------------+
+# weka s3 service-account list
+# ACCESS-KEY
+
+#[root@weka4-node07 ~]# s3cmd --configure --no-check-certificate
+#
+#Enter new values or accept defaults in brackets with Enter.
+#Refer to user manual for detailed description of all options.
+#
+#Access key and Secret key are your identifiers for Amazon S3. Leave them empty for using the env variables.
+#Access Key [jomoon]:
+#Secret Key [changeme]: Changeme12!@
+#Default Region [US]:
+#
+#Use "s3.amazonaws.com" for S3 Endpoint and not modify it to the target Amazon S3.
+#S3 Endpoint [192.168.0.181:9000]:
+#
+#Use "%(bucket)s.s3.amazonaws.com" to the target Amazon S3. "%(bucket)s" and "%(location)s" vars can be used
+#if the target S3 system supports dns based buckets.
+#DNS-style bucket+hostname:port template for accessing a bucket [%(bucket)s.s3.amazonaws.com]: no
+#
+#Encryption password is used to protect your files from reading
+#by unauthorized persons while in transfer to S3
+#Encryption password [changeme]: Changeme12!@
+#Path to GPG program [/usr/bin/gpg]:
+#
+#When using secure HTTPS protocol all communication with Amazon S3
+#servers is protected from 3rd party eavesdropping. This method is
+#slower than plain HTTP, and can only be proxied with Python 2.7 or newer
+#Use HTTPS protocol [No]: Yes
+#
+#On some networks all internet access must go through a HTTP proxy.
+#Try setting it here if you can't connect to S3 directly
+#HTTP Proxy server name:
+#
+#New settings:
+#  Access Key: jomoon
+#  Secret Key: Changeme12!@
+#  Default Region: US
+#  S3 Endpoint: 192.168.0.181:9000
+#  DNS-style bucket+hostname:port template for accessing a bucket: %(bucket)s.s3.amazonaws.com
+#  Encryption password: Changeme12!@
+#  Path to GPG program: /usr/bin/gpg
+#  Use HTTPS protocol: True
+#  HTTP Proxy server name:
+#  HTTP Proxy server port: 0
+#
+#Test access with supplied credentials? [Y/n]
+#Please wait, attempting to list all buckets...
+#Success. Your access key and secret key worked fine :-)
+#
+#Now verifying that encryption works...
+#Success. Encryption and decryption worked fine :-)
+#
+#Save settings? [y/N] y
+#Configuration saved to '/root/.s3cfg'
+#
+# s3cmd --config ~/.s3cfg put test-s3.py s3://jtest-s3-bucket01
+# upload: 'test-s3.py' -> 's3://jtest-s3-bucket01/test-s3.py'  [1 of 1]
+# 317 of 317   100% in    1s   312.03 B/s  done
+# s3cmd --config ~/.s3cfg get test-s3.py s3://jtest-s3-bucket01
+# ERROR: Parameter problem: Expecting S3 URI instead of 'test-s3.py'
+
+# [root@weka4-node07 ~]# s3cmd --config ~/.s3cfg get s3://jtest-s3-bucket01/test-s3.py
+# download: 's3://jtest-s3-bucket01/test-s3.py' -> './test-s3.py'  [1 of 1]
+# 317 of 317   100% in    0s     5.57 KB/s  done
+
+# [root@weka4-node01 ~]# mkdir /mnt/jtest-default-fs01
+# [root@weka4-node01 ~]# mkdir /mnt/jtest-s3-fs01
+# [root@weka4-node01 ~]#
+# [root@weka4-node01 ~]# mount -t wekafs jtest-s3-fs01 /mnt/jtest-s3-fs01/
+# wekafs_mount_helper: Mounting jtest-s3-fs01 on /mnt/jtest-s3-fs01
+# Basing mount on container default
+# This is legacy mount, will wait for the driver before calling directly
+# wekafs_mount_helper: Executing `mount --no-canonicalize -i -t wekafs -o inode_bits=auto,dentry_max_age_positive=1000,dentry_max_age_negative=0,readahead_kb=32768,container_name=default,writecache,relatime,rw,relatime_threshold=0,token=eyJhbGciOiJSUzI1NiIsIml0dCI6IkNMSUVOVCIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDgyNjc1NTcsImlhdCI6MTcwODI2NjM1NywiaXR0IjoiQ0xJRU5UIiwic3ViIjp7ImZzSWQiOiJGU0lkPDM-IiwidWlkIjoiODIyMDRlM2QtMTg4My1hYjZlLTBkYTMtYjA4NTk0MWE3OGUwIn19.rg5WjzHbh9dWHjPklcEH7x4lSh_zYZ_umGYRyvqio26Vfc9w5SSi2--aoMO4vT-60kbig5o5cpzJFoJE2IQY0rLdbbTuiD0-QgggR3Un9yVHS23k2IWh2aICmdTBUaH_M8QW_1_IP6n2ZC-nZFKlhHl_7nfR9k_3jC6pccAG1r2Ch6I-p_iM_A4dYOaX0cN3I4pwYUWTdCzp2ZipRlJQT9dHID6ME1jejn2rIVHJ34XgF5ByTZufwL7y5wYzaYlYvtE4q7XbSYunTWcyQ-Z5uGvEypZyeaA1HPWiGrxTGets6xaiApYxdGkg_R6vp22XM-XCTUKvpiS8nsLFXj5oJQ jtest-s3-fs01 /mnt/jtest-s3-fs01`
+# Mount completed successfully
+# [root@weka4-node01 ~]#
+# [root@weka4-node01 ~]# ls -al /mnt/jtest-s3-fs01/
+# total 0
+# drwxrwxr-x  1 root root   0 Feb 18 21:51 .
+# drwxr-xr-x. 9 root root 144 Feb 18 23:25 ..
+# drwxr-xr-x  1 root root   0 Feb 18 23:10 jtest-s3-bucket01
+# drwxr-xr-x  1 root root   0 Feb 18 21:51 .minio.sys
+# [root@weka4-node01 ~]# ls -al /mnt/jtest-s3-fs01/jtest-s3-bucket01/
+# total 4
+# drwxr-xr-x 1 root root   0 Feb 18 23:10 .
+# drwxrwxr-x 1 root root   0 Feb 18 21:51 ..
+# drwxr-xr-x 1 root root   0 Feb 18 23:10 .minio.sys
+# -rw-r--r-- 1 root root 317 Feb 18 23:10 test-s3.py
+

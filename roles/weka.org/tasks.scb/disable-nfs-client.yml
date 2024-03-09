@@ -1,0 +1,45 @@
+#
+- name: Delete text file
+  shell: |
+    rm -f /mnt/nfs/test-nfs01.txt
+  register: delete_nfs_file
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_file }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Umount NFS directory
+  shell: |
+    umount /mnt/nfs
+  register: umount_nfs_dir
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ umount_nfs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Delete directory to mount NFS
+  shell: |
+    rm -rf /mnt/nfs
+  register: delete_nfs_dir
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ delete_nfs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Remove NFS Client
+  shell: |
+    dnf remove -y nfs-utils
+  register: uninstall_nfs_client
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ uninstall_nfs_client }}
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Disable Development Repository
+  shell: |
+    dnf config-manager --set-disabled devel
+  register: disable_devel_repo
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ disable_devel_repo }}
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+

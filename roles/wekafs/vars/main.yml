@@ -1,0 +1,19 @@
+wekafs:
+  group:
+    - { name: "jtest-default-grp01" }
+    - { name: "jtest-wekafs-grp01" }
+    - { name: "jtest-obs-grp01" }
+    - { name: "jtest-s3-grp01" }
+    - { name: "jtest-nfs-grp01" }
+    - { name: "jtest-smb-grp01" }
+  fs:
+    - { name: "jtest-default-fs01",  grp_name: "jtest-default-grp01", size : "6GiB", mount_dir : "/mnt/jtest-default-fs01" }
+    - { name: "jtest-wekafs-fs01",  grp_name: "jtest-wekafs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-wekafs-fs01" }
+    - { name: "jtest-obs-fs01",  grp_name: "jtest-obs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-obs-fs01" }
+    - { name: "jtest-obs-fs02",  grp_name: "jtest-obs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-obs-fs02" }
+    - { name: "jtest-s3-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-fs01" }
+    - { name: "jtest-s3-default-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-default-fs01" }
+    - { name: "jtest-s3-config-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-config-fs01" }
+    - { name: "jtest-nfs-fs01",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs01" }
+    - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
+

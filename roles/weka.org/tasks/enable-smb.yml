@@ -1,0 +1,140 @@
+# weka smb cluster create jtest-smb-clu01 jtest.pivotal.io --domain-netbios-name JTEST \
+# --container-ids 0,1,2,3,4 --smb-ips-range 192.168.0.151-155 jtest-default-fs01
+
+
+# weka smb cluster status
+
+# weka local exec -C smbw
+
+#
+# On Freeipa
+# ipa-adtrust-install --netbios-name JTEST -a changeme
+#
+
+
+
+# Setup: SMB service on WEKA
+# Setting up an SMB cluster is a little simpler, assuming no floating IPs are required. You only need to select the hosts you wish to use, the Netbios name to create, and the domain name you’re looking to join - for this to work, you must be able to resolve DNS records for the AD service from the WEKA backends.
+# weka smb cluster create wekasmb ad.example.com --container-ids 0,1,2
+
+# Now wait for the SMB cluster service to be ready everywhere:
+# weka smb cluster status
+# HostId<0>: Ready
+
+# And join using a priviliged AD account:
+# weka smb domain join Administrator
+# Password for Administrator:
+# Using short domain name -- AD
+# Joined 'WEKASMB' to dns domain 'ad.example.com'
+# Not doing automatic DNS update in a clustered setup.
+
+# Check that the ID mapping backend is “rfc2307”
+# weka smb cluster
+
+# And that the Active Directory has been joined
+# weka smb domain
+#   Domain Name:             ad.example.com
+#   Domain Joined:           True
+#   Domain Admin Username:   Administrator
+#   Domain Netbios Name:     ad
+
+# Optional, but useful: setting up DNS A records for either the SMB-running Backends or the Floating IPs allows you to access the SMB service by name (and also allows the use of the strongly-preferred later authentication algorithms).
+# PS C:\Users\Administrator> Add-DnsServerResourceRecordA -Name "wekasmb" -ZoneName "ad.example.com" -AllowUpdateAny -IPv4Address "192.168.114.100"
+# PS C:\Users\Administrator> Add-DnsServerResourceRecordA -Name "wekasmb" -ZoneName "ad.example.com" -AllowUpdateAny -IPv4Address "192.168.114.101"
+# PS C:\Users\Administrator> Add-DnsServerResourceRecordA -Name "wekasmb" -ZoneName "ad.example.com" -AllowUpdateAny -IPv4Address "192.168.114.102"
+
+# https://www.notion.so/wekaio/Multi-protocol-SMB-and-NFS-single-filesystem-access-8abcd9d23e004549a66e2e98fbcbd787?pvs=4
+#
+
+###################################################################################################################
+# weka smb cluster destroy -f
+# weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST --container-ids 0,1,2,3,4 \
+# --smb-ips-range 192.168.0.151-155 jtest-default-fs01
+
+# weka smb cluster create wekasmb jtest.weka.io --container-ids 2,3,4 jtest-default-fs01  # node01 has someproblem
+# weka smb domain join Administrator --debug --extra-options --domain-ou "jtest.weka.io"
+
+# For debug and open a 2224 port by firewalld
+# weka local exec --container smbw /usr/sbin/pcs cluster status
+# weka local exec --container smbw
+# cd /var/log/pcsd
+# tail -f *.log
+# cd /var/log/pacemaker
+# tail -f *.log
+# cd /var/lib/pcsd
+# tail -f *.log
+
+# weka smb cluster update
+
+#
+- name: Create S3 Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create SMB Cluster
+  shell: |
+    weka smb cluster create jtest-smb-clu01 jtest.weka.io --domain-netbios-name JTEST ---encryption enabled --container-ids {{ all_container_ids.stdout }} \
+    --smb-ips-range 192.168.0.241-245 jtest-default-fs01
+  register: create_smb_cluster
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_smb_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Validate if SMB Cluster is Online
+  shell: weka smb cluster status
+  register: check_smb_cluster_status
+  until: check_smb_cluster_status.stdout.find("Not Ready") == -1
+  retries: 50
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_smb_cluster_status }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Login into AD
+  shell: |
+    weka smb domain join Administrator Changeme12\!\@
+  register: login_ad
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ login_ad }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add SMB Share
+  shell: |
+    weka smb share add jtest-share-01 jtest-smb-fs01 --acl on
+  register: add_smb_share
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_smb_share }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# adcli join --domain SUPPORT.LOCAL --service-name=cifs --computer-name SMB-W --host-fqdn smb-w.SUPPORT.LOCAL -v --domain-ou ou=production,dc=support,dc=local -U admin
+
+# connect from linux and type:
+# mkdir /mnt/mounted_myshare
+# sudo mount -t cifs -o domain=test,username=wekadmin,password=myW3ka.io <CLUSTER_NAME-0>/myshare /mnt/mounted_myshare
+
+# weka smb share add myshare jtest-smb-fs01 --a
+# weka local exec -C smbw bash -ce "chmod 777 /tmp/wekafs/*"
+
+# dnf install -y cifs-utils
+# mount -t cifs -o domain=JTEST,username=admin,passwod=Changeme12\!1@ //192.168.0.151/myshare /mnt/mou
+# fio --name=fio-long-1_`hostname` --rw=write --bs=512k --ioengine=posixaio --direct=1 --directory=/mnt/mounted_myshare/ --size=10GB --iodepth=8 --numjobs=1 --group_reporting --runtime=3000000 --time_based
+#
+# Need to test
+# weka smb share add myshare default
+# mkdir /mnt/default; mount -t wekafs default /mnt/default
+# chmod 777 /mnt/default
+# mkdir /mnt/mounted_myshare
+# sudo mount -t cifs -o domain=test,username=wekadmin,password=myW3ka.io //172.31.10.0/myshare /mnt/mounted_myshare
+# fio --name=fio-long-1_`hostname` --rw=write --bs=512k --ioengine=posixaio --direct=1 --directory=/mnt/mounted_myshare/ --size=10GB --iodepth=8 --numjobs=1 --group_reporting --runtime=3000000 --time_based
+
+# https://www.notion.so/wekaio/FIP-SMBW-5fc9a2a0c4cd4c8ba9f6a0aafc9840df?pvs=4
+

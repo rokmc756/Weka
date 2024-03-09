@@ -8,15 +8,13 @@
     deploy_mcb_weka: false
     enable_wekafs: false
     enable_wekafs_client: false
-    enable_nfs: false
-    enable_nfs_client: false
-    enable_smb: true
-    enable_smb_client: false
-    enable_obs: false
-    enable_obs_client: false
-    enable_s3: false
   roles:
-    - { role: weka }
+    - { role: obs }
+    # - { role: wekafs }
+    # - { role: minio }
+    # - { role: s3 }
+    # - { role: smb }
+    # - { role: nfs }
 
 # - { role: init-hosts }
 #    - { role: firewalld }

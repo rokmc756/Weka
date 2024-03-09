@@ -1,0 +1,149 @@
+---
+# For now fail if it's not suppoted OS
+- name: Check OS
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when:
+    - ansible_distribution_major_version|int >= 8
+    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+
+#
+- name: Set facts for Installing Weka Data Platform
+  import_tasks: set-weka-install-facts.yml
+  tags:
+    - install
+
+#
+- name: Set facts for Uninstalling Weka Data Platform
+  import_tasks: set-weka-uninstall-facts.yml
+  tags:
+    - uninstall
+
+#
+- name: Install Weka and tools binary
+  import_tasks: install-binary.yml
+  tags: install
+  when: install_binary == true
+
+#
+- name: Deploy Multi Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
+  import_tasks: deploy-mcb-weka.yml
+  tags: install
+  when: deploy_mcb_weka == true
+
+#
+- name: Deploy Single Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}
+  import_tasks: deploy-scb-weka.yml
+  tags: install
+  when: deploy_scb_weka == true
+
+#
+- name: Enable Weka File System
+  import_tasks: enable-wekafs.yml
+  tags: install
+  when: enable_wekafs == true
+
+#
+- name: Enable WekaFS Client
+  import_tasks: enable-wekafs-client.yml
+  tags: install
+  when: enable_wekafs_client == true
+
+#
+- name: Disable Weka File System
+  import_tasks: disable-wekafs.yml
+  tags: uninstall
+  when: disable_wekafs == true
+
+#
+- name: Disable WekaFS Client
+  import_tasks: disable-wekafs-client.yml
+  tags: uninstall
+  when: disable_wekafs_client == true
+
+#
+- name: Destroy Weka Data Platform Software
+  import_tasks: uninstall.yml
+  tags: uninstall
+
+###############           Object Store           ###################
+#
+- name: Enable Object Storage Tier
+  import_tasks: enable-obs.yml
+  tags: install
+  when: enable_obs == true
+
+#
+- name: Enable Object Storage Tier Client
+  import_tasks: enable-obs-client.yml
+  tags: install
+  when: enable_obs_client == true
+
+#
+- name: Disable S3 Object Storage Tier Client
+  import_tasks: disable-obs-client.yml
+  tags: uninstall
+  when: disable_obs_client == true
+
+#
+- name: Disable S3 Object Storage Tier
+  import_tasks: disable-obs.yml
+  tags: uninstall
+  when: disable_obs == true
+
+###############           Object Store           ###################
+#
+- name: Enable S3
+  import_tasks: enable-s3.yml
+  tags: install
+  when: enable_s3 == true
+
+#
+- name: Disable S3
+  import_tasks: disable-s3.yml
+  tags: uninstall
+  when: disable_s3 == true
+
+###############           N F S            ###################
+#
+- name: Enable NFS
+  import_tasks: enable-nfs.yml
+  tags: install
+  when: enable_nfs == true
+
+#
+- name: Enable NFS Client
+  import_tasks: enable-nfs-client.yml
+  tags: install
+  when: enable_nfs_client == true
+
+#
+- name: Disable NFS Client
+  import_tasks: disable-nfs-client.yml
+  tags: uninstall
+  when: disable_nfs_client == true
+
+#
+- name: Disable NFS
+  import_tasks: disable-nfs.yml
+  tags: uninstall
+  when: disable_nfs == true
+#
+###############           N F S            ###################
+
+
+###############           S M b            ###################
+#
+- name: Enable SMB
+  import_tasks: enable-smb.yml
+  tags: install
+  when: enable_smb == true
+
+#
+- name: Disable SMB
+  import_tasks: disable-smb.yml
+  tags: uninstall
+  when: disable_smb == true
+###############           S M b            ###################
+
+
+

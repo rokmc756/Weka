@@ -1,0 +1,117 @@
+# https://www.notion.so/wekaio/Synthesia-Testing-15-Million-File-Retrieval-from-S3-Object-Store-Tier-31e79b29217645a8aaf4d0d558d746f8?pvs=4
+#
+# $ weka user login admin Changeme12\!\@
+#
+# $ weka fs
+# FILESYSTEM ID  FILESYSTEM NAME  USED SSD  AVAILABLE SSD  USED TOTAL  AVAILABLE TOTAL  THIN PROVISIONED  THIN PROVISIONED MINIMUM SSD  THIN PROVISIONED MAXIMUM SSD
+# 0              jtest-fs01       20.47 KB  7.51 GB        20.47 KB    7.51 GB          False
+
+# Checking
+# Command: weka fs tier s3 add
+# weka fs tier obs add jtest-obs-tier01
+# weka fs tier obs update jtest-obs-tier01
+# weka fs tier ops
+# weka fs tier obs delete jtest-obs-tier01
+
+#
+- name: Reduce the size of the 'jtest-obs-fs01' file system if present
+  shell: |
+    weka fs update --total-capacity 10GB jtest-obs-fs01
+  register: reduce_obs_fs_size
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ reduce_obs_fs_size }}
+
+#
+- name: Add Customer Object Store
+  shell: |
+    weka fs tier obs add jtest-obs01
+  register: add_custom_obs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_custom_obs }}
+
+#
+- name:  Check WekaFS
+  shell: |
+    weka fs
+  register: check_wekafs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_wekafs }}
+
+#
+- name: Attach and Object Store Bucket. (Use your own bucket details)
+  shell: |
+    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
+    --hostname=minio.jtest.pivotal.io --port=9001 --bucket=jbucket01 --auth-method AWSSignature2 \
+    --region=us-east-1 --protocol=HTTPS --access-key-id=minioadmin --secret-key=changeme --skip-verification
+  register: attach_obs_bucket
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ attach_obs_bucket }}
+
+#
+#- name: Reduce the size of the 'jtest-obs-fs02' file system if present
+#  shell: |
+#    weka fs update --total-capacity 10GB jtest-obs-fs02
+#  register: reduce_obs_fs02_size
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ reduce_obs_fs02_size }}
+
+#
+- name: Create a File System with a smallish capacity that is tiered to your bucket.
+  shell: |
+    weka fs create jtest-obs-fs02 jtest-obs-grp01 7GiB --obs-name jtest-obs-tier01 --ssd-capacity=1GiB
+  register: create_obs_weka_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obs_weka_fs }}
+
+#
+#- name: For this example make the Tiering policy more aggressive. (30s in this case).
+#  shell: |
+#    weka fs group update jtest-obs-grp01 --start-demote=10
+#  register: update_obs_fs_grp
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ update_obs_fs_grp }}
+
+#
+- name: For this example make the Tiering policy more aggressive. (30s in this case).
+  shell: |
+    weka fs group update jtest-obs-grp01 --start-demote=30
+  register: update_obs_fs_grp
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ update_obs_fs_grp }}
+
+#
+- name: Create OBS directory to mount WekaFS
+  shell: |
+    mkdir /mnt/jtest-obs-fs01
+    mount -t wekafs jtest-obs-fs01 /mnt/jtest-obs-fs01
+  register: create_obsfs_dir
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obsfs_dir  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+################################################################################
+# Mount the jtest-obs-fs02 filesystem on the backends and clients if you have them.
+# Backends
+
+# Clients (replace ip with one of your backends)
+# sudo mkdir /mnt/jtest-obs-fs02
+# [root@weka4-node01 ~]# mount -t wekafs -o net=udp 192.168.0.181/jtest-obs-fs02 /mnt/jtest-obs-fs02
+# wekafs_mount_helper: Mounting 192.168.0.181/jtest-obs-fs02 on /mnt/jtest-obs-fs02
+# Basing mount on container default
+# error: A backend weka container is already running.
+#
+#At this point weka does not support mixing backend and stateless client containers on the same host.
+#If you’re sure the currently running containers are not in use anymore, you can stop and delete them by running ‘weka local stop’ and ‘weka local rm’.
+#Please note that running these commands on backend hosts could cause data loss.
+
+
+# Mount the jtest-s3fs01 filesystem on the backends and clients if you have them.
+# Backends
+#
+# sudo mkdir /mnt/jtest-obs-fs02
+# sudo chmod 777 /mnt/jtest-obs-fs02
+
+# sudo chown root:root /mnt/jtest-obs-fs02
+# sudo mount -t wekafs -o mode=udp jtest-obs-fs02 /mnt/jtest-obs-fs02
+

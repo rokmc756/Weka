@@ -1,0 +1,60 @@
+#
+- name: Get All Share IDs
+  shell: |
+    weka smb share | sed 1d | awk '{print $2}'
+  register: all_share_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Remove All Share IDs
+  shell: |
+    weka smb share remove {{ item }} -f
+  register: remove_all_share_ids
+  with_items: "{{ all_share_ids.stdout_lines }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and "'' not in remove_all_share_ids.stdout"
+- debug: msg={{ remove_all_share_ids }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # failed_when: "'(Greenplum Database ' not in select_version.stdout"
+
+#
+- name: Get All SMB Contaienr IDs
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# - name: Remove SMB Containers
+#   shell: |
+#    weka smb cluster containers remove --container-ids {{ all_container_ids.stdout }} --force
+#  register: remove_smb_containers
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ remove_smb_containers }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#  error: SMB cluster must have at least 3 hosts to function as a cluster
+
+#
+- name: Leave from AD
+  shell: |
+    weka smb domain leave {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }}
+  register: leave_ad
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ leave_ad }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Destroy SMB Cluster
+  shell: |
+    weka smb cluster destroy -f
+  register: destroy_smb_cluster
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- debug: msg={{ destroy_smb_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+

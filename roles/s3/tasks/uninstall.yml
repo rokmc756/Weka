@@ -1,0 +1,35 @@
+- name: Get All Container IDs
+  shell: |
+    weka cluster container | awk '{print $1}' | sed 1d
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ' ' | sed -e 's/ $//g'
+  # weka s3 cluster containers list
+
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Destroy S3 Bucket
+  shell: |
+    weka s3 bucket destroy {{ s3.buckets.name }} -f
+  register: destroy_s3_bucket
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ destroy_s3_bucket }}
+
+#
+- name: Remove S3 Cluster Container
+  shell: |
+    weka s3 cluster containers remove {{ item }}
+  register: remove_s3_cluster_container
+  with_items: "{{ all_container_ids.stdout_lines }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ remove_s3_cluster_container }}
+
+#
+- name: Destroy S3 Clsuter
+  shell: |
+    weka s3 cluster destroy --force
+  register: destroy_s3_cluster
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ destroy_s3_cluster }}

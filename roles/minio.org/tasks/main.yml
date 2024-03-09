@@ -1,0 +1,42 @@
+---
+# Define import tasks according to tags option to install or uninstall minio s3 object storage in Red Hat / CentOS / Rocky Linux
+#
+# for now fail if it's not a Red Hat based system
+- name: Check OS ( GPDB )
+  fail: msg="Not a Red Hat based system!"
+  when: ansible_os_family != 'RedHat' or  ansible_os_family != 'CentOS' or  ansible_os_family != 'Rocky'
+
+#
+- name: Configure firewall for MinIO on {{ ansible_distribution }}
+  import_tasks: firewalld.yml
+  tags: install
+  when: open_firewall and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+
+#
+- name: Enable SSL on {{ ansible_distribution }}
+  import_tasks: enable-ssl.yml
+  tags: install
+  when: enable_ssl and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+
+#
+- name: Install MinIO on {{ ansible_distribution }}
+  import_tasks: minio.yml
+  tags: install
+  when: install_minio and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+
+#
+- name: Install Nginx on {{ ansible_distribution }}
+  import_tasks: nginx.yml
+  tags: install
+  when: use_nginx and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+
+#
+- name: Uninstall MinIO on {{ ansible_distribution }}
+  import_tasks: uninstall.yml
+  tags: uninstall and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+
+#
+- name: Upgrade MinIO on {{ ansible_distribution }}
+  import_tasks: upgrade.yml
+  tags: upgrade and inventory_hostname in hostvars[groups['minio'][0]]['ansible_hostname']
+

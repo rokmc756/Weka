@@ -1,0 +1,62 @@
+
+# weka fs delete jtest-fs-0001 --force
+# weka s3 cluster
+# weka s3 cluster status
+# weka s3 cluster containers list
+# weka s3 cluster destroy
+# weka s3 cluster create jtest-s3-fs01 jtest-default-fs01 --container 0,1,2,3,4
+# weka s3 bucket create jtest-s3-bucket01
+
+- name: Get All Container IDs
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ' ' | sed -e 's/ $//g'
+  register: all_container_ids
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Destroy S3 Bucket
+  shell: |
+    weka s3 bucket destroy jtest-s3-bucket01 -f
+  register: destroy_s3_bucket
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ destroy_s3_bucket }}
+
+#
+- name: Remove S3 Cluster Container
+  shell: |
+    weka s3 cluster containers remove 0 1 2 3 4
+    # weka s3 cluster containers remove {{ all_container_ids.stdout }}
+  register: remove_s3_cluster_container
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ remove_s3_cluster_container }}
+
+# weka s3 cluster containers remove 0
+# weka s3 cluster containers remove 1
+# weka s3 cluster containers remove 2
+# weka s3 cluster containers remove 3
+# weka s3 cluster containers remove 4
+
+#
+- name: Destroy S3 Clsuter
+  shell: |
+    weka s3 cluster destroy --force
+  register: destroy_s3_cluster
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ destroy_s3_cluster }}
+
+#
+#- name: X
+#  shell: |
+#
+#  register: x
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ x }}
+#
+

@@ -1,0 +1,33 @@
+---
+# For now fail if it's not suppoted OS
+- name: Check OS
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when:
+    - ansible_distribution_major_version|int >= 8
+    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+
+#
+#- name: Set facts for Installing Weka Data Platform
+#  import_tasks: set-weka-install-facts.yml
+#  tags:
+#    - install
+#  when: inventory_hostname in groups['workers']
+
+#
+#- name: Set facts for Uninstalling Weka Data Platform
+#  import_tasks: set-weka-uninstall-facts.yml
+#  tags:
+#    - uninstall
+#  when: inventory_hostname in groups['workers']
+
+#
+- name: Setup S3 Backends
+  import_tasks: install.yml
+  tags: install
+  when: inventory_hostname in groups['workers']
+
+#
+- name: Remove S3 Backends
+  import_tasks: uninstall.yml
+  tags: uninstall
+  when: inventory_hostname in groups['workers']

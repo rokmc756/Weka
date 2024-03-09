@@ -55,15 +55,57 @@ wekafs:
     - { name: "jtest-default-fs01",  grp_name: "jtest-default-grp01", size : "6GiB", mount_dir : "/mnt/jtest-default-fs01" }
     - { name: "jtest-wekafs-fs01",  grp_name: "jtest-wekafs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-wekafs-fs01" }
     - { name: "jtest-obs-fs01",  grp_name: "jtest-obs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-obs-fs01" }
-    - { name: "jtest-s3-fs01",  grp_name: "jtest-s3-grp01", size : "6GiB", mount_dir : "/mnt/jtest-s3-fs01" }
+    - { name: "jtest-s3-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-fs01" }
+    - { name: "jtest-s3-default-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-default-fs01" }
+    - { name: "jtest-s3-config-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-config-fs01" }
     - { name: "jtest-nfs-fs01",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs01" }
     - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
+smb:
+  cluster:
+    name: jtest-smb-clu01
+  ad:
+    domain: jtest.weka.io
+    netbios: JTEST
+    users:
+      admin:
+        id: Administrator
+        pass: Changeme12\!\@
+  net:
+    ips_range: 192.168.0.241-245
+  fs:
+    name: jtest-smb-fs01
+  share:
+    name: jtest-smb-share-01
+s3:
+  buckets:
+    name: jtest-s3-bucket01
+  users:
+    name: jomoon
+    pass: Changeme12\!\@
+  fs:
+    default:
+      name: jtest-s3-default-fs01
+    config:
+      name: jtest-s3-fs01
+obs:
+  name: test
 
-    # - { name: "jtest-s3-config-fs01",  grp_name: "jtest-default-grp01", size : "6GiB", mount_dir : "/mnt/jtest-s3-config-fs01" }
+nfs:
+  interface:
+    group: floating-nfs-ip
+  client:
+    group: client-nfs
+  net:
+    ifname: eth1
+    network: 192.168.1.0
+    subnet: 255.255.255.0
+    gateway: 192.168.1.1
+    iprange: 192.168.1.241-245
+  fs:
+    config: jtest-default-fs01
 
 #
 # https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
 #
 # Weka Port Ranges
 # https://docs.weka.io/install/prerequisites-and-compatibility#networking
-

@@ -1,0 +1,11 @@
+s3:
+  buckets:
+    name: jtest-s3-bucket01
+  users:
+    name: jomoon
+    pass: Changeme12\!\@
+  fs:
+    default:
+      name: jtest-s3-default-fs01
+    config:
+      name: jtest-s3-fs01

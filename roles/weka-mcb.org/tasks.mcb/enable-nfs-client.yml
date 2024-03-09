@@ -1,0 +1,45 @@
+#
+- name: X
+  shell: |
+    dnf config-manager --set-enabled devel
+  register: x
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ x }}
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Install NFS Client
+  shell: |
+    dnf install -y nfs-utils
+  register: x
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ x }}
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Create directory to mount NFS
+  shell: |
+    mkdir /mnt/nfs
+  register: create_nfs_dir
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ create_nfs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Mount NFS directory
+  shell: |
+    mount -t nfs 192.168.0.163:/jtest-default-fs01 /mnt/nfs
+  register: mount_nfs_dir
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ mount_nfs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Creat text file
+  shell: |
+    touch /mnt/nfs/test-nfs01.txt
+  register: create_nfs_file
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ create_nfs_file }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']

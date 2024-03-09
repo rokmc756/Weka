@@ -1,0 +1,59 @@
+#
+- name: Create S3 Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# Arguments:
+# default-fs-name   S3 default filesystem name
+# config-fs-name    S3 config filesystem name
+- name: Create S3 Cluster
+  shell: |
+    weka s3 cluster create {{ s3.fs.default.name }} {{ s3.fs.config.name }} --container {{ all_container_ids.stdout }}
+  register: create_s3_cluster
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Validate if S3 Cluster is Online
+  shell: weka s3 cluster status
+  register: check_s3_cluster_status
+  until: check_s3_cluster_status.stdout.find("Not Ready") == -1
+  retries: 30
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_s3_cluster_status }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create S3 Bucket
+  shell: |
+    weka s3 bucket create {{ s3.buckets.name }}
+  register: create_s3_bucket
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_bucket }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Copy expect script file to add s3 user
+  template: src=add-s3-user.sh.j2 dest=/root/add-s3-user.sh owner=root group=root mode=755 force=yes
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add s3 user
+  shell: /root/add-s3-user.sh
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Attache readwrite permission
+  shell: weka s3 policy attach readwrite {{ s3.users.name }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Remove add s3 user script
+  shell: rm -f /root/add-s3-user.sh
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+

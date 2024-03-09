@@ -1,0 +1,193 @@
+# https://www.notion.so/wekaio/Synthesia-Testing-15-Million-File-Retrieval-from-S3-Object-Store-Tier-31e79b29217645a8aaf4d0d558d746f8?pvs=4
+#
+# $ weka user login admin Changeme12\!\@
+#
+# $ weka fs
+# FILESYSTEM ID  FILESYSTEM NAME  USED SSD  AVAILABLE SSD  USED TOTAL  AVAILABLE TOTAL  THIN PROVISIONED  THIN PROVISIONED MINIMUM SSD  THIN PROVISIONED MAXIMUM SSD
+# 0              jtest-fs01       20.47 KB  7.51 GB        20.47 KB    7.51 GB          False
+
+# Checking
+# Command: weka fs tier s3 add
+# weka fs tier obs add jtest-obs-tier01
+# weka fs tier obs update jtest-obs-tier01
+# weka fs tier ops
+# weka fs tier obs delete jtest-obs-tier01
+
+#
+- name: Reduce the size of the 'jtest-obs-fs01' file system if present
+  shell: |
+    weka fs update --total-capacity 10GB jtest-obs-fs01
+  register: reduce_obs_fs_size
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ reduce_obs_fs_size }}
+
+#
+- name: Add Customer Object Store
+  shell: |
+    weka fs tier obs add jtest-obs01
+  register: add_custom_obs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_custom_obs }}
+
+#
+- name:  Check WekaFS
+  shell: |
+    weka fs
+  register: check_wekafs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_wekafs }}
+
+#
+- name: Attach and Object Store Bucket. (Use your own bucket details)
+  shell: |
+    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 --obs-type OTHER \
+    --hostname=minio.jtest.weka.io --port=9001 --bucket=jbucket01 --auth-method None \
+    --region=default --protocol=HTTPS_UNVERIFIED --access-key-id=minioadmin --secret-key=changeme --skip-verification
+  register: attach_obs_bucket
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ attach_obs_bucket }}
+#    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
+#    --hostname=s3.ap-northeast-2.amazonaws.com --port=443 --bucket=jack-kr-bucket02 --auth-method AWSSignature4 \
+#    --region=us-east-2ap-northeast-2 --protocol=HTTPS --access-key-id='AKIAVRCROUNL2LKDWHEM' --secret-key='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'
+#    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
+#    --hostname=s3.us-east-2.amazonaws.com --port=443 --bucket=jack-kr-bucket03 --auth-method AWSSignature4 \
+#    --region=us-east-2 --protocol=HTTPS --access-key-id='AKIAVRCROUNL2LKDWHEM' --secret-key='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'
+#    #  --skip-verification
+#    weka fs tier s3 add jtest-obs-tier01 --site local --obs-name jtest-obs01 \
+#    --hostname=minio.jtest.weka.io --port=9001 --bucket=jbucket01 --auth-method None \
+#    --region=us-east-1 --protocol=HTTPS_UNVERIFIED --access-key-id=minioadmin --secret-key=changeme
+
+
+#
+#- name: Reduce the size of the 'jtest-obs-fs02' file system if present
+#  shell: |
+#    weka fs update --total-capacity 10GB jtest-obs-fs02
+#  register: reduce_obs_fs02_size
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ reduce_obs_fs02_size }}
+
+#
+- name: Create a File System with a smallish capacity that is tiered to your bucket.
+  shell: |
+    weka fs create jtest-obs-fs02 jtest-obs-grp01 7GiB --obs-name jtest-obs-tier01 --ssd-capacity=1GiB
+  register: create_obs_weka_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obs_weka_fs }}
+
+#
+#- name: For this example make the Tiering policy more aggressive. (30s in this case).
+#  shell: |
+#    weka fs group update jtest-obs-grp01 --start-demote=10
+#  register: update_obs_fs_grp
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ update_obs_fs_grp }}
+
+#
+- name: For this example make the Tiering policy more aggressive. (30s in this case).
+  shell: |
+    weka fs group update jtest-obs-grp01 --start-demote=30
+  register: update_obs_fs_grp
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ update_obs_fs_grp }}
+
+#
+- name: Create OBS directory to mount WekaFS
+  shell: |
+    mkdir /mnt/jtest-obs-fs01
+    mount -t wekafs jtest-obs-fs01 /mnt/jtest-obs-fs01
+  register: create_obsfs_dir
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obsfs_dir  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+################################################################################
+# Mount the jtest-obs-fs02 filesystem on the backends and clients if you have them.
+# Backends
+
+# Clients (replace ip with one of your backends)
+# sudo mkdir /mnt/jtest-obs-fs02
+# [root@weka4-node01 ~]# mount -t wekafs -o net=udp 192.168.0.181/jtest-obs-fs02 /mnt/jtest-obs-fs02
+# wekafs_mount_helper: Mounting 192.168.0.181/jtest-obs-fs02 on /mnt/jtest-obs-fs02
+# Basing mount on container default
+# error: A backend weka container is already running.
+#
+#At this point weka does not support mixing backend and stateless client containers on the same host.
+#If you’re sure the currently running containers are not in use anymore, you can stop and delete them by running ‘weka local stop’ and ‘weka local rm’.
+#Please note that running these commands on backend hosts could cause data loss.
+
+
+# Mount the jtest-s3fs01 filesystem on the backends and clients if you have them.
+# Backends
+#
+# sudo mkdir /mnt/jtest-obs-fs02
+# sudo chmod 777 /mnt/jtest-obs-fs02
+
+# sudo chown root:root /mnt/jtest-obs-fs02
+# sudo mount -t wekafs -o mode=udp jtest-obs-fs02 /mnt/jtest-obs-fs02
+
+
+# https://www.notion.so/wekaio/How-to-pause-and-resume-OBS-detach-operation-18af0d88c1f24c6caa0c2326cf5ac26a?pvs=4
+# How to pause and resume OBS detach operation
+# Starting weka 3.5.6 we can use manhole to pause and resume OBS detach operation.
+# The example below run on cluster with six hosts with single compute node on each host and container name is default_3.5.6
+# Create or update file name buckets in /opt/weka/data/<container name>/current/faults/ with the following information: all:stall_migrate
+# for i in $(cat my_hosts); do ssh $i 'sudo sh -c "echo all:stall_migrate >> /opt/weka/data/default_3.5.6/current/faults/buckets"' ; done
+# for i in $(cat my_hosts); do ssh $i 'cat /opt/weka/data/default_3.5.6/current/faults/buckets' ; done
+
+# Run “bucket_reload_manual_overrides” manhole on all compute node slots
+# for i in $(cat my_hosts); do for s in  {1..1}; do sudo weka local -e WEKA_USERNAME=admin -e WEKA_PASSWORD=XXXX run manhole -H$i -s$s bucket_reload_manual_overrides; done ; done
+# for i in $(cat my_hosts); do ssh $i 'sudo sed -i 's/all:stall_migrate//g' /opt/weka/data/default_3.5.6/current/faults/buckets' ; done
+
+# Verify in traces using #MANUAL_OVERRIDE that the command completed successfully
+# !https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e2da22c4-d061-46a0-8c7f-64e0d65cb704/image-20200123-083310.png
+# Using weka cluster tasks command you will see the detach operation is not progressing.
+# In order to resume detach operation you will need to clear “all:stall_migrate” from the buckets file and run the manhole command again
+
+# for i in $(cat my_hosts); do ssh $i 'cat /opt/weka/data/default_3.5.6/current/faults/buckets' ; done
+# for i in $(cat my_hosts); do for s in  {1..1}; do sudo weka local -e WEKA_USERNAME=admin -e WEKA_PASSWORD=XXXXXX run manhole -H$i -s$s bucket_reload_manual_overrides; done ; done
+
+# Verify in traces using #MANUAL_OVERRIDE that the command completed successfully
+
+# mount -t wekafs -o net=udp 192.168.0.181:/jtest-obs-fs01 /mnt/jtest-obs-fs01
+# wekafs_mount_helper: Mounting 192.168.0.181:/jtest-obs-fs01 on /mnt/jtest-obs-fs01
+# Basing mount on container drives0
+# error: A backend weka container is already running.
+#
+#At this point weka does not support mixing backend and stateless client containers on the same host.
+#If you’re sure the currently running containers are not in use anymore, you can stop and delete them by running ‘weka local stop’ and ‘weka local rm’.
+#Please note that running these commands on backend hosts could cause data loss.
+
+#[root@cst2 ~]# weka fs tier s3 -v --name=jtest-obs-tier01
+#UID                                   OBS ID  OBS NAME     OBS BUCKET ID  OBS BUCKET NAME   SITE   UPLOAD  DOWNLOAD  REMOVE  NODES UP  NODES DOWN  NODES UNKNOWN  LAST ERRORS  PROTOCOL  HOSTNAME                         PORT  BUCKET            AUTH METHOD    REGION          ACCESS KEY ID         SECRET KEY  STATUS  UPTIME    DOWNLOAD BANDWIDTH  UPLOAD BANDWIDTH   REMOVE BANDWIDTH   ERRORS TIMEOUT  PREFETCH MB  MAX CONCURRENT DOWNLOADS  MAX CONCURRENT UPLOADS  MAX CONCURRENT REMOVALS  MAX EXTENTS PER UPLOAD  MAX DATA UPLOAD SIZE  UPLOAD TAGS
+#ce27d195-b405-9049-7b54-c526e26c21a1  4       jtest-obs01  3              jtest-obs-tier01  LOCAL  UP      UP        UP      80        0           0                           HTTPS     s3.ap-northeast-2.amazonaws.com  443   jack-kr-bucket02  AWSSignature4  ap-northeast-2  AKIAVRCROUNL2LKDWHEM  **********  UP      0:40:06h  _mbps: 4294967295   _mbps: 4294967295  _mbps: 4294967295  300             0            64                        64                      64                                                                     Disabled
+
+# Follow up
+# We can only track progress of the 64MB blobs. These are now completed for pgen_genomes.
+# To see progress of this part of the migration:
+# weka debug jrpc filesystems_get_obs_usage filesystem=<filesystemname>
+
+# weka debug jrpc filesystems_get_obs_usage filesystem=pgen_genomes
+# weka debug jrpc filesystems_get_obs_usage filesystem=pgen_genomes
+
+# weka fs tier obs
+# ID        NAME            NUM OF BUCKETS  UPLOAD BUCKETS UP  DOWNLOAD BUCKETS UP  REMOVE BUCKETS UP
+# ObsId<0>  default-local   0               0                  0                    0
+# ObsId<1>  default-remote  0               0                  0                    0
+# ObsId<4>  jtest-obs01     1               1                  1                    1
+
+# [root@cst2 ~]# weka fs tier location /mnt/jtest-obs-fs02
+# PATH                 FILE TYPE  FILE SIZE  CAPACITY IN SSD (WRITE-CACHE)  CAPACITY IN SSD (READ-CACHE)  CAPACITY IN OBJECT STORAGE  CAPACITY IN REMOTE STORAGE
+# /mnt/jtest-obs-fs02  directory  0 B        0 B                            0 B                           0 B                         0 B
+
+
+# Where ever this command is ran it must be mounted to Weka. <path> is the full path of the file.
+# fetch      Fetch object-stored files to SSD storage
+# weka fs tier fetch /mnt/jtest-obs-fs02
+
+
+# weka fs tier location /mnt/jtest-obs-fs02/1.txt
+# PATH                       FILE TYPE  FILE SIZE  CAPACITY IN SSD (WRITE-CACHE)  CAPACITY IN SSD (READ-CACHE)  CAPACITY IN OBJECT STORAGE  CAPACITY IN REMOTE STORAGE
+# /mnt/jtest-obs-fs02/1.txt  regular    0 B        0 B                            0 B                           0 B                         0 B
+# weka fs tier fetch /mnt/jtest-obs-fs02/1.txt
+

@@ -1,0 +1,44 @@
+---
+# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
+- name: Define fact for all worker's hostname
+  set_fact:
+    all_nodes_hostname: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
+- debug: msg={{ all_nodes_hostname }}
+
+#
+- name: Define fact for all worker's first ip addresses
+  set_fact:
+    all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}"
+- debug: msg={{ all_nodes_1st_ipaddrs }}
+
+#
+- name: Define fact for all worker's second ip addresses
+  set_fact:
+    all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+- debug: msg={{ all_nodes_2nd_ipaddrs }}
+
+#- name: Set fact for merge ip addresses for HA
+#  set_fact:
+#    ha_ips: {% for h in groups['workers'] %}{{hostvars[h]['ansible_eth0']['ipv4']['address']}}+{{ hostvars[h]['ansible_eth1']['ipv4']['address'])}}{% if not loop.last %},{% endif %}{% endfor %}
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#- name: Set fact for merge ip addresses for HA
+#  set_fact:
+#    ha_ips: "{{ ( ha_ips | default([]) ) + [ hostvars[item].ansible_eth0.ipv4.address + '+' + hostvars[item].ansible_eth1.ipv4.address ] }}"
+#  loop: "{{ groups['workers'] }}"
+#
+#- debug:
+#var: ha_ips | join(',')
+
+#
+- name: Define fact for Weka version
+  set_fact:
+    weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}"
+- debug: msg={{ weka_file_name }}
+
+#
+- name: Define fact for Weka tools version
+  set_fact:
+    weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
+- debug: msg={{ weka_tools_file_name }}
+

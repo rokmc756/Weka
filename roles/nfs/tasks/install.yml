@@ -1,0 +1,145 @@
+# Need to check if fs exists?
+# weka fs
+#
+# Need to check which is correct?
+# weka nfs global-config set --config-fs  jtest-fs01
+# weka nfs global-config set --config-fs ""
+
+# Need for MCB
+# $ weka cluster process | grep FRONTEND
+# 1           weka4-node01  default    192.168.219.181  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:26h
+# 21          weka4-node02  default    192.168.219.182  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:26h
+# 41          weka4-node03  default    192.168.219.183  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:21h
+# 61          weka4-node04  default    192.168.219.184  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:26h
+# 81          weka4-node05  default    192.168.219.185  UP      4.2.7.64  FRONTEND    UDP      1    1.47 GB  0:07:16h
+
+# $ weka nfs global-config set --mountd-port <mountd-port>
+# The mountd service receives requests from clients to mount to the NFS server.
+# When working with interface groups (with allow-manage-gids=on),
+# it is possible to set it explicitly, rather than have it randomly selected on each server startup.
+# This allows an easier setup of the firewalls to allow that port.
+# Use the following command to set and view the mountd configuration:
+# weka nfs global-config set --mountd-port <mountd-port> and weka nfs global-config show.
+
+# Need to check if DNS is needed
+# weka nfs rules add dns jtest-client-group01 weka4-node07.jtest.pivotal.io
+# weka nfs rules delete dns jtest-client-group01 weka4-node07.jtest.pivotal.io
+
+# Need to check if it's OK when running playbook
+# weka nfs interface-group
+# NAME         SUBNET MASK    GATEWAY      TYPE  STATUS  IPS                                                                                                                                                   PORTS                                                                                            ALLOW MANAGE GIDS
+# jtest-nfs01  255.255.255.0  192.168.0.1  NFS   OK      192.168.0.221, 192.168.0.222, 192.168.0.223, 192.168.0.224, 192.168.0.225, 192.168.0.226, 192.168.0.227, 192.168.0.228, 192.168.0.229, 192.168.0.230  [     host_uid: f62e2a1b-704e-01b5-5baa-2b225f4a4084,host_id: HostId<0>,port: eth0,status: OK ]  True
+#
+# Need to check if it's OK when running playbook
+# weka nfs permission
+# FILESYSTEM  GROUP  PATH  TYPE  SQUASHING  ANONYMOUS UID  ANONYMOUS GID  OBS DIRECT  MANAGE GIDS  MOUNT OPTIONS  PRIVILEGED PORT  SUPPORTED VERSIONS
+
+# Need to check if it's OK when running playbook
+# weka nfs clients show
+# HOSTID  CLIENT IP  IDLE TIME  NFSV3 OPS  NFSV4 OPS  NFSV4 OPEN OPS  NFSV4 CLOSE OPS
+
+- name: Get All Container IDs
+  shell: |
+    weka cluster container | awk '{print $1}' | sed 1d
+  register: all_container_ids
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+### Setup: Filesystems required
+# Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
+- name: Examine filesystem for NFS Protocol
+  shell: |
+    weka fs --output name,availableTotal
+  register: examine_fs_nfs_protocol
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ examine_fs_nfs_protocol }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# First we set up a simple NFS service, which requires the use of Interface Groups
+- name: Setup simple NFS service with Interface Groups
+  shell: |
+    weka nfs interface-group add {{ nfs.interface.group }} nfs --subnet {{ nfs.net.subnet }} --gateway {{ nfs.net.gateway }}
+  register: setup_simple_nfs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ setup_simple_nfs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# Now add the NFS configuration filesystem (only required if you’re going to use NFS v4) and add network ports for each server that is going to participate in the NFS cluster. In the example below we use `ens3`, but this will be hardware-dependent.
+- name:  Add NFS configuration filesystem
+  shell: |
+    weka nfs global-config set --config-fs {{ nfs.fs.config }}
+  register: add_nfs_config_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_nfs_config_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add NFS configuration filesystem
+  shell: |
+    weka nfs interface-group port add {{ nfs.interface.group }} {{ item }} {{ nfs.net.ifname }}
+  register: add_ifg_grp_port
+  with_items: "{{ all_container_ids.stdout_lines }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_ifg_grp_port }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Validate if NFS Interface Group is Active
+  shell: weka nfs interface-group
+  register: check_nfs_ifg_active
+  until: check_nfs_ifg_active.stdout.find("NFS_SERVER_DOWN") == -1
+  # until: check_nfs_ifg_active.stdout.find("Inactive") == -1
+  retries: 20
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_nfs_ifg_active }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add IPs for group
+  shell: |
+    weka nfs interface-group ip-range add {{ nfs.interface.group }} {{ nfs.net.iprange }}
+  register: add_ips_grp
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_ips_grp }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # with_sequence: start=0 end={{ cpu_cores.container_max_id }}
+
+
+# Now, add at least one group for your clients. This can be thought of as a bucket, into which matching NFS clients will be placed.
+# NFS shares (aka “permissions”) will then be granted to those client groups.
+- name:  Add at least one group for NFS clients
+  shell: |
+    weka nfs client-group add {{ nfs.client.group }}
+  register: add_ifg_grp_nfs_client
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_ifg_grp_nfs_client }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+# You need to add at least one rule to ensure clients get matched and thus associated with that client group. Here we match an entire /24 CIDR.
+- name: Add rule to ensure clients get matched and associated with hat cloud group
+  shell: |
+    weka nfs rules add ip {{ nfs.client.group }} {{ nfs.net.network }}/{{ nfs.net.subnet }}
+  register: add_rule_client_group
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_rule_client_group }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add permission
+  shell: |
+    weka nfs permission add {{ nfs.fs.config }} {{ nfs.client.group }} --squash none --permission-type rw --supported-versions v3,v4
+  register: add_permission
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_permission }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+# weka nfs permission add nfs jtest-client-group01 --path /xxxx/xxx \
+# --permission-type 0777 --squash squash --anon-uid anon-uid --anon-gid anon-gid \
+# --obs-direct obs-direct --manage-gids manage-gids --privileged-port privileged-port \
+# --supported-versions 3
+#
+# weka nfs permission delete <filesystem> <group> [--path path]

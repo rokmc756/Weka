@@ -1,0 +1,73 @@
+#
+- name: Delete text file with the content
+  shell: |
+    rm -f {{ wekafs.fs[0].mount_dir }}/test01.txt
+  register: delete_wekafs_file
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ delete_wekafs_file }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Check if WekaFS directory is mounted
+  shell: |
+    df -h
+    ls -al {{ wekafs.fs[0].mount_dir }}
+  register: check_wekafs_mounted
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ check_wekafs_mounted  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Unmount WekaFS directory
+  shell: |
+    umount {{ wekafs.fs[0].mount_dir }}
+  register: unmount_wekafs_dir
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ unmount_wekafs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Delete directory to mount WekaFS
+  shell: |
+    rm -rf {{ wekafs.fs[0].mount_dir }}
+  register: delete_wekafs_dir
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ delete_wekafs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Destroy Weka Client
+  shell: |
+    cd /root/tools/install ; ./wekadestroy --yes --force --uninstall {{ hostvars[groups['clients'][0]]['ansible_hostname'] }}
+  register: destroy_weka_client
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ destroy_weka_client }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Reboot required
+  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
+  async: 1200
+  poll: 0
+  when: ( print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname'] ) and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
+  notify:
+    - Waiting for server to come back after reboot
+
+- meta: flush_handlers
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+#- name: Uninstall WekaFS Client
+#  shell: |
+#    curl {{ hostvars[groups['workers'][0]]['ansible_eth0']['ipv4']['address'] }}:14000/dist/v1/install | sh
+#  register: uninstall_wekafs_client
+#  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+#- debug: msg={{ uninstall_wekafs_client }}
+

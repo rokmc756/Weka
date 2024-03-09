@@ -1,0 +1,324 @@
+# Filesystem Group
+fs_group:
+  add:
+    name: 1
+    target_ssd_retention: 1
+    start_demote: 1
+  edit:
+    name: 1
+    new_name: 1
+    target_ssd_retention: 1
+    start_demonte: 1
+  delete:
+    name: 1
+
+# Filesystem
+fs:
+  create: 
+    name: 1
+    group_name: 1
+    total_capacity: 1
+    ssd_capacity: 1
+    thin_provision_min_ssd: 1
+    thin_provision_max_ssd: 1
+    max_files: 1
+    encrypted: 1
+    obs_name: 1
+    auth_required: 1
+    data_reduction: 1
+  edit:
+    name: 1
+    new_name: 1
+    total_capacity: 1
+    ssd_capacity: 1
+    thin_provision_min_ssd: 1
+    thin_provision_max_ssd: 1
+    max_files: 1
+    auth_required: 1
+  delete:
+    name: 1
+    purge_from_obs: 1
+
+# S3 Object Store Bucket
+s3_bucket:
+  attach:
+    fs_name: 1
+    obs_name: 1
+    mode: 1
+  detach:
+    fs_name: 1
+    obs_name: 1
+
+# Snapshot
+snapshot:
+  create:
+    file_system: 1
+    name: 1
+    access_point: 1
+    source_snap: 1
+    is_writable: 1
+  delete:
+    file_system: 1
+    name: 1
+  restore:
+    filesystem:
+      file_system: 1
+      source_name: 1
+      destination_name: 1
+      preserved_overwritten_snapshot_name: 1
+      preserved_overwritten_snapshot_access_point: 1
+    snapshot:
+      file_system: 1
+      source_name: 1
+      destination_name: 1
+      preserved_overwritten_snapshot_name: 1
+      preserved_overwritten_snapshot_access_point: 1
+  update:
+    file_system: 1
+    name: 1
+    new_name: 1
+    access_point: 1
+
+# Snapshot to object store
+snap_to_object:
+  upload:
+    file_system: 1
+    snapshot: 1
+    site:
+  create:
+    name: 1
+    group_name: 1
+    total_capacity: 1
+    ssd_capacity: 1
+    obs_bucket: 1
+    locator: 1
+    additional_obs: 1
+    snapshot_name: 1
+    access_point: 1
+  download:
+    file_system: 1
+    locator: 1
+
+# Quota Management
+quota:
+  set:
+    path: 1
+    soft: 1
+    hard: 1
+    grace: 1
+    owner: 1
+  list:
+    fs_name: 1
+    snap_name: 1
+    path: 1
+    under: 1
+    over: 1
+    quick: 1
+    all: 1
+  unset:
+    path: 1
+
+# SMB
+smb:
+  create:
+    netbios_name: 1
+    domain: 1
+    config_fs_name: 1
+    domain_netbios_name: 1
+    idmap_backend: 1
+    default_domain_mapping_from_id: 1
+    joined_domain_mapping_from_id: 1
+    default_domain_mapping_to_id: 1
+    joined_domain_mapping_to_id: 1
+    encryption: 1
+    smb_conf_extra: 1
+    container_ids: 1
+    smb_ips_pool: 1
+    smb_ips_range: 1
+  update:
+    encryption: 1
+    smb_ips_pool: 1
+    smb_ips_range: 1
+  join_ad:
+    username: 1
+    password: 1
+    server: 1
+    create_computer: 1
+  cluster:
+    delete: 1
+  container:
+    add:
+      container_id: 1
+    remove:
+      container_id: 1
+  trust_domain:
+    domain_name: 1
+    from_id: 1
+    to_id: 1
+  share:
+    add:
+      share_name: 1
+      fs_name: 1
+      description: 1
+      internal_path: 1
+      mount_option: 1
+      file_create_mask: 1
+      directory_create_mask: 1
+      obs_direct: 1
+      encryption: 1
+      read_only: 1
+      user_list_type: 1
+      users: 1
+      allow_guest_access: 1
+      hidden: 1
+    update:
+      share_id: 1
+      encryption: 1
+      read_only: 1
+      allow_guest_access: 1
+      hidden: 1
+    control:
+      share_id: 1
+      user_list_type: 1
+      users: 1
+    remove:
+      share_id: 1
+    access_control:
+      share_id: 1
+      mode: 1
+      ips: 1
+      hosts: 1
+
+# NFS Access
+nfs:
+  set:
+    config_fs: 1
+  interface_group:
+    create:
+      name: 1
+      type: 1
+      subnet: 1
+      gateway: 1
+      allow_manage_gids: 1
+    port:
+      set:
+        name: 1
+        container_id: 1
+        port: 1
+    ips:
+      set:
+        name: 1
+        ips: 1
+    service_mountd_port:
+      set:
+        mountd_port: 1
+  rules:
+    dns:
+      name: 1
+      dns: 1
+    ip:
+      name: 1
+      ip: 1
+  permissions:
+    filesystem: 1
+    group: 1
+    path: 1
+    permission_type: 1
+    squash: 1
+    anon_uid: 1
+    anon_gid: 1
+    obs_direct: 1
+    manage_gids: 1
+    privileged_port: 1
+    supported_versions: 1
+
+# Object Store
+object_store:
+  name:
+    edit:
+      name: 1
+      new_name: 1
+      site: 1
+      hostname: 1
+      port: 1
+      auth_method: 1
+      region: 1
+      access_key_id: 1
+      secret_key: 1
+      protocol: 1
+      bandwidth: 1
+      download_bandwidth: 1
+      upload_bandwidth: 1
+      remove_bandwidth: 1
+      max_concurrent_downloads: 1
+      max_concurrent_uploads: 1
+      max_concurrent_removals: 1
+      enable_upload_tags: 1
+    add_bucket:
+      name: 1
+      site: 1
+      obs_name: 1
+      hostname: 1
+      port: 1
+      bucket: 1
+      auth_method: 1
+      region: 1
+      access_key_id: 1
+      secret_key: 1
+      protocol: 1
+      bandwidth: 1
+      download_bandwidth: 1
+      remove_bandwidth: 1
+      upload_bandwidth: 1
+      errors_timeout: 1
+      prefetch_mib: 1
+      enable_upload_tags: 1
+      max_concurrent_downloads: 1
+      max_concurrent_uploads: 1
+      max_concurrent_removals: 1
+      max_extents_in_data_blob: 1
+      max_data_blob_size: 1
+      sts_operation_type: 1
+      sts_role_arn: 1
+      sts_role_session_name: 1
+      sts_session_duration: 1
+    edit_bucket:
+      name: 1
+      new_name: 1
+      new_obs_name: 1
+      hostname: 1
+      port: 1
+      bucket: 1
+      auth_method: 1
+      region: 1
+      access_key_id: 1
+      secret_key: 1
+      protocol: 1
+      bandwidth: 1
+      download_bandwidth: 1
+      upload_bandwidth: 1
+      remove_bandwidth: 1
+      errors_timeout: 1
+      prefetch_mib: 1
+      enable_upload_tags: 1
+      max_concurrent_downloads: 1
+      max_concurrent_uploads: 1
+      max_concurrent_removals: 1
+      max_extents_in_data_blob: 1
+      max_data_blob_size: 1
+      sts_operation_type: 1
+      sts_role_arn: 1
+      sts_role_session_name: 1
+      sts_session_duration: 1
+    history_bucket:
+      name: 1
+      format: 1
+      output: 1
+      sort: 1
+      filter: 1
+      raw_units: 1
+      utc: 1
+      no_header: 1
+      verbose: 1
+    delete:
+      name: 1
