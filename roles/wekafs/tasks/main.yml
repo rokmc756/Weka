@@ -7,40 +7,33 @@
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
-#- name: Set facts for Installing Weka Data Platform
-#  import_tasks: set-weka-install-facts.yml
-#  tags:
-#    - install
-#  when: inventory_hostname in groups['workers']
+- name: Set facts for Setup and Remove Weka File Sysetm and Clients
+  import_tasks: set-weka-facts.yml
+  tags:
+    - install
+    - uninstall
+  when: inventory_hostname in groups['all']
 
 #
-#- name: Set facts for Uninstalling Weka Data Platform
-#  import_tasks: set-weka-uninstall-facts.yml
-#  tags:
-#    - uninstall
-#  when: inventory_hostname in groups['workers']
-
-#
-- name: Setup Weka File System
+- name: Install WekaFS
   import_tasks: install.yml
   tags: install
   when: inventory_hostname in groups['workers']
 
 #
-#- name: Enable WekaFS Client
-#  import_tasks: enable-wekafs-client.yml
-#  tags: install
-#  when: enable_wekafs_client == true and inventory_hostname in groups['workers']
+- name: Install WekaFS Client
+  import_tasks: install-clients.yml
+  tags: install
+  when: weka.client.wekafs == true and  ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
 #
-- name: Remove Weka File System
+- name: Uninstall WekaFS Clients
+  import_tasks: uninstall-clients.yml
+  tags: uninstall
+  when: weka.client.wekafs == true and inventory_hostname in groups['clients']
+
+#
+- name: Uninstall WekaFS
   import_tasks: uninstall.yml
   tags: uninstall
   when: inventory_hostname in groups['workers']
-
-#
-#- name: Disable WekaFS Client
-#  import_tasks: disable-wekafs-client.yml
-#  tags: uninstall
-#  when: disable_wekafs_client == true and inventory_hostname in groups['workers']
-

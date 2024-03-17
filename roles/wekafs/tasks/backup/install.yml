@@ -1,11 +1,12 @@
 #
 - name: Weka admin login
   shell: |
-    weka user login {{ weka.admin_user }} {{ weka.admin_change_pass }}
+    weka user login admin Changeme12\!\@
   register: weka_admin_login
   with_items: "{{ wekafs.group }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ weka_admin_login }}
+
 
 #
 - name: Create Custom WekaFS Group

@@ -1,5 +1,4 @@
 # Setup: SMB service on WEKA
-#
 # weka smb domain join Administrator
 # Password for Administrator:
 # Using short domain name -- AD
@@ -37,15 +36,21 @@
 # weka smb cluster update
 
 #
-- name: Create S3 Cluster
+- name: Get All Container IDs for SCB
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#- name: Get All Container IDs for MCB
+#  shell: |
+#    weka cluster container | grep drives0 | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
+#  register: all_container_ids
+#  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ all_container_ids }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Create SMB Cluster
@@ -62,13 +67,13 @@
   shell: weka smb cluster status
   register: check_smb_cluster_status
   until: check_smb_cluster_status.stdout.find("Not Ready") == -1
-  retries: 50
+  retries: 30
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_smb_cluster_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Login into AD
+- name: Login into Active Directory
   shell: |
     weka smb domain join {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }}
   register: login_ad

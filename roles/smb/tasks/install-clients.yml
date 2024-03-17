@@ -1,0 +1,45 @@
+#
+- name:  Enable Devel Package Repository
+  shell: |
+    dnf config-manager --set-enabled devel
+  register: enable_devel_repo
+- debug: msg={{ enable_devel_repo }}
+  when: print_debug == true
+
+#
+- name: Install CIFS Client
+  shell: |
+    yum install -y cifs-utils
+  register: install_cifs_client
+- debug: msg={{ install_cifs_client }}
+  when: print_debug == true
+
+#
+- name: Create directory to mount CIFS
+  shell: |
+    mkdir -p {{ smb.fs.mount_dir }}
+  register: create_cifs_dir
+- debug: msg={{ create_cifs_dir }}
+  when: print_debug == true
+
+#
+- name: Mount CIFS Directory
+  shell: |
+    mount -t cifs //{{ smb.net.client_ip }}/{{ smb.share.name }} {{ smb.fs.mount_dir }} -o domain=jtest.weka.io,username=jomoon,password=Changeme12\!\@,vers=2.1,uid=1100,gid=1100 # --verbose or 3.0 version is OK
+  delegate_to: "{{ inventory_hostname }}"
+  delegate_facts: True
+  register: mount_cifs_dir
+  with_items:
+    - { netdev: "{{ netdev0 }}", ipaddr: "{{ ipaddr0 }}" }
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ mount_cifs_dir }}
+  when: print_debug == true
+
+#
+- name: Creat text file
+  shell: |
+    touch {{ smb.fs.mount_dir }}/test-smb01.txt ; echo "Hellow SMBW world!"
+  register: create_cifs_file
+- debug: msg={{ create_cifs_file }}
+  when: print_debug == true
+

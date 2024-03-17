@@ -1,37 +1,61 @@
 ---
-#- name: Get interface name from provided IP
-#  set_fact:
-#    ext_netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4.address', 'match', '192.168.0') | map(attribute='device') | first }}"
-#    int_netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4.address', 'match', '192.168.1') | map(attribute='device') | first }}"
-#   int_netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4.address', 'match', '192\\.168\\.2\\') | map(attribute='device') | first }}"
+# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 
+- name: Get interface name from provided IP
+  set_fact:
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr1 ) | map(attribute='device') | first }}"
+    netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr2 ) | map(attribute='device') | first }}"
+    netdev3: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr3 ) | map(attribute='device') | first }}"
+    netdev4: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr4 ) | map(attribute='device') | first }}"
+    netdev5: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr5 ) | map(attribute='device') | first }}"
 
-#- debug: msg={{ ext_netdev1 }}
-#- debug: msg={{ int_netdev1 }}
+#
+#- debug:
+#    var: "{{ netdev0 }} - {{ netdev1 }} - {{ netdev2 }} - {{ netdev3 }}"
+
+#
+- name: Get IP Address from provided network device name
+  set_fact:
+    ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
+    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+    ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev2].ipv4.address }}"
+    ipaddr3: "{{ hostvars[inventory_hostname]['ansible_'~netdev3].ipv4.address }}"
+    ipaddr4: "{{ hostvars[inventory_hostname]['ansible_'~netdev4].ipv4.address }}"
+    ipaddr5: "{{ hostvars[inventory_hostname]['ansible_'~netdev5].ipv4.address }}"
+
+#
+#- debug:
+#    var: "{{ ipaddr0 }} - {{ ipaddr1 }} - {{ ipaddr2 }} - {{ ipaddr3 }}"
 
 
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 - name: Define facts for all worker's hostname
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-    all_int1_hostnames: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-    # all_int2_hostnames: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
 - debug: msg={{ all_ext1_hostnames }}
-- debug: msg={{ all_int1_hostnames }}
-# - debug: msg={{ all_int2_hostnames }}
 
 #
-- name: Define fact for all worker's first ip addresses
+- name: Define fact for all addresses of each network devices
   set_fact:
-    all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}"
-    all_int1_ipaddrs: "{{ groups['workers01'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-    # all_int2_ipaddrs: "{{ groups['workers02'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
-- debug: msg={{ all_ext1_ipaddrs }}
-- debug: msg={{ all_int1_ipaddrs }}
-# - debug: msg={{ all_int2_ipaddrs }}
-  # all_nodes_1st_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-  # all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+    all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev0, 'ipv4', 'address']) | join(',') }}"
+    all_int1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev1, 'ipv4', 'address']) | join(',') }}"
+    all_int2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev2, 'ipv4', 'address']) | join(',') }}"
+    all_int3_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev3, 'ipv4', 'address']) | join(',') }}"
+    all_int4_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev4, 'ipv4', 'address']) | join(',') }}"
+    all_int5_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev5, 'ipv4', 'address']) | join(',') }}"
 
+- debug: msg={{ all_ext1_ipaddrs }}
+# - debug: msg={{ all_int1_ipaddrs }}
+#- debug: msg={{ all_int2_ipaddrs }}
+#- debug: msg={{ all_int3_ipaddrs }}
+
+
+#
+#- name: Define fact for all worker's second ip addresses
+#  set_fact:
+#    all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+#- debug: msg={{ all_nodes_2nd_ipaddrs }}
 
 #- name: Set fact for merge ip addresses for HA
 #  set_fact:
@@ -42,14 +66,15 @@
 #  set_fact:
 #    ha_ips: "{{ ( ha_ips | default([]) ) + [ hostvars[item].ansible_eth0.ipv4.address + '+' + hostvars[item].ansible_eth1.ipv4.address ] }}"
 #  loop: "{{ groups['workers'] }}"
-#
+
+
 #- debug:
 #var: ha_ips | join(',')
 
 #
 - name: Define fact for Weka version
   set_fact:
-    weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}.{{ weka.patch_version }}"
+    weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
 - debug: msg={{ weka_file_name }}
 
 #
@@ -57,40 +82,3 @@
   set_fact:
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
 - debug: msg={{ weka_tools_file_name }}
-
-
-#- debug: msg={{ ansible_facts }}
-
-- set_fact:
-    eth_list: "{{ ansible_facts|
-                  dict2items|
-                  json_query(query)|
-                  selectattr('ipv4')|list }}"
-  vars:
-    query: "[?value.type == 'ether'].{ device:value.device, ipv4:value.ipv4.address, netmask:value.ipv4.netmask, network:value.ipv4.network, gateway:value.ipv4.gateway }"
-#- debug:
-#    var: eth_list
-
-#
-#
-#  weka cluster o
-# If you need stdout on a line-by-line basis, with_indexed_items: "{{ vcs.stdout_lines }}" is equivalent to .split('\n') and likely simpler/clearer.
-
-
-
-#- name: Run command to cat each file and then capture that output.
-#   shell: cat {{ item.stdout_lines }}
-#   register: annoying_words
-#   with_items:
-#    - "{{ annoying.results }}"
-
-
-#- name: define traditional ethernet facts
-#  set_fact:
-#    ansible_eth: "{% set ansible_eth = ansible_eth|default([]) + [hostvars[inventory_hostname]['ansible_' + item]] %}{{ ansible_eth|list }}"
-#  when: hostvars[inventory_hostname]['ansible_' + item]['type'] == 'ether'
-#  with_items:
-#    - "{{ hostvars[inventory_hostname]['ansible_interfaces'] }}"
-#
-#- debug: msg={{ ansible_eth }}
-

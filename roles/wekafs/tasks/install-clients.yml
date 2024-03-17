@@ -1,0 +1,77 @@
+#
+- name: Define fact for weka version
+  set_fact:
+    weka_file_name: weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
+- debug: msg={{ weka_file_name }}
+
+#
+- name: Install Weka binary
+  shell: |
+    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
+  register: install_weka_binary
+  when: inventory_hostname in groups['clients']
+  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+- debug: msg={{ install_weka_binary }}
+  when: print_debug == true and inventory_hostname in groups['clients']
+  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Install WekaFS Client
+  shell: |
+    curl {{ item }}:14000/dist/v1/install | sh
+  delegate_to: "{{ hostvars[groups['clients'][0]]['ansible_hostname'] }}"
+  delegate_facts: True
+  register: install_wekafs_client
+  with_items:
+    - "{{ ipaddr0 }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ install_wekafs_client }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Create directory to mount WekaFS
+  shell: |
+    mkdir {{ wekafs.fs[1].mount_dir }}
+  register: create_wekafs_dir
+  when: inventory_hostname in groups['clients']
+- debug: msg={{ create_wekafs_dir  }}
+  when: print_debug == true and inventory_hostname in groups['clients']
+
+#
+- name: Mount WekaFS directory
+  shell: |
+    mount -t wekafs -o net=eth1 192.168.1.175/{{ wekafs.fs[1].name }} {{ wekafs.fs[1].mount_dir }}
+  delegate_to: "{{ hostvars[groups['clients'][0]]['ansible_hostname'] }}"
+  delegate_facts: True
+  register: mount_wekafs_dir
+  with_items:
+    - { netdev: "{{ netdev0 }}", ipaddr: "{{ ipaddr0 }}" }
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- debug: msg={{ mount_wekafs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Check if WekaFS directory is mounted
+  shell: |
+    df -h
+    ls -al {{ wekafs.fs[1].mount_dir }}
+  register: check_wekafs_mounted
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ check_wekafs_mounted  }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+#
+- name: Creat text file with the content
+  shell: |
+    touch {{ wekafs.fs[1].mount_dir }}/test01.txt
+    echo "hello world" >  {{ wekafs.fs[1].mount_dir }}/test01.txt
+    cat {{ wekafs.fs[1].mount_dir }}/test01.txt
+  register: create_wekafs_file
+  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+- debug: msg={{ create_wekafs_file }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+

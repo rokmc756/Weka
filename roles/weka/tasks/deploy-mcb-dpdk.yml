@@ -43,8 +43,8 @@
   shell: |
     weka local setup container --name drives0 --base-port {{ container.drives.port }} --memory {{ container.drives.memory }} \
     --cores {{ container.drives.cpu_core_num }} \
-    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --net {{ netdev1 }}/{{ ipaddr1 }}/24/192.168.1.1 \
+    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ ipaddr0 }}
   register: create_drive_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drive_container }}
@@ -65,11 +65,10 @@
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 
-
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_int1_hostnames }} --host-ips={{ all_int1_ipaddrs }} -T infinite
+    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_ext1_ipaddrs }} -T infinite
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
@@ -80,8 +79,8 @@
   shell: |
     weka local setup container --name compute0 --base-port {{ container.compute.port }} --memory {{ container.compute.memory }} \
     --cores {{ container.compute.cpu_core_num }} \
-    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --net {{ netdev2 }}/{{ ipaddr2 }}/24/192.168.2.1 \
+    --join-ips {{ all_int2_ipaddrs }} --management-ips {{ ipaddr0 }}
   register: create_compute_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_container }}
@@ -89,11 +88,8 @@
   #  --core-ids {{ container.compute.cpu_core_ids }} \
 
 
-# error: IP 192.168.1.181 is used both as part of the default-net and as HostId<0>'s IP
 # weka cluster default-net set --range 192.168.0.20-200 --gateway=192.168.0.1 --netmask-bits=24
-# weka cluster default-net set --range 192.168.1.20-200 --gateway=192.168.1.1 --netmask-bits=24
-# weka cluster default-net set --range 192.168.2.20-200 --gateway=192.168.2.1 --netmask-bits=24
-
+#
 # Need to check if it needs
 # weka cluster host
 # weka local resources
@@ -127,11 +123,11 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Get all frontend container ids
-  shell:
-     weka cluster container | frontend | awk '{print $1}'
-  register: frontend_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- name: Get all frontend container ids
+#  shell:
+#     weka cluster container | frontend | awk '{print $1}'
+#  register: frontend_container_ids
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Get all compute container ids
@@ -184,8 +180,6 @@
   # nvme format -s1 /dev/nvme0n1 -f
   # nvme format /dev/nvme4n1 -f
 
-
-
 #
 - name: Add data devices into drive containers
   shell: |
@@ -208,7 +202,7 @@
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 #- debug: msg={{ config_default_network }}
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  #  weka cluster default-net set --range 192.168.1.61-100 --gateway=192.168.1.1 --netmask-bits=24
+#  weka cluster default-net set --range 192.168.1.61-100 --gateway=192.168.1.1 --netmask-bits=24
 
 #
 - name: Configure data drives and cluster name
@@ -237,8 +231,8 @@
   shell: |
     weka local setup container --name frontend0 --base-port {{ container.frontend.port }} --memory {{ container.frontend.memory }} \
     --cores {{ container.frontend.cpu_core_num }} \
-    --net eth1/{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}/24/192.168.1.1 \
-    --join-ips {{ all_int1_ipaddrs }} --management-ips {{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+    --net {{ netdev3 }}/{{ ipaddr3 }}/24/192.168.2.1 \
+    --join-ips {{ all_int3_ipaddrs }} --management-ips {{ ipaddr0 }}
   register: create_frontend_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_container }}

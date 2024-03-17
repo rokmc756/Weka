@@ -1,2 +1,42 @@
-ansible_ssh_pass: changeme
+ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
+weka:
+  cluster_name: jack-kr-mcb
+  major_version: "4"
+  minor_version: "2"
+  build_version: "9"
+  patch_version: ".29-hcsf"
+  base_path: /root
+  admin_user: admin
+  admin_default_pass: admin
+  admin_change_pass: "Changeme12!@"
+  bin_type: tar
+  net:
+    ipaddr0: "192.168.0.17"
+    ipaddr1: "192.168.1.17"
+    ipaddr2: "192.168.1.18"
+    ipaddr3: "192.168.1.19"
+    ipaddr4: "192.168.1.20"
+    ipaddr5: "192.168.1.21"
+    data_plane: netdev2
+    gateway: "192.168.0.1"
+  backend:
+    scb: false
+    mcb: true
+  client:
+    nfs: true
+    wekafs: true
+    s3: true
+    smb: true
+  tools:                             # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
+    name: tools
+    major_version: 1
+    minor_version: 3
+    patch_version: 8
+    download: false
+    bin_type: tar.gz
+  allow_unsupported_devices: true
+  use_res_gen: true
+  install_pkgs: false
+  uninstall_pkgs: false
+

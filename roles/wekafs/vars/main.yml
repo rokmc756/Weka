@@ -15,5 +15,6 @@ wekafs:
     - { name: "jtest-s3-default-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-default-fs01" }
     - { name: "jtest-s3-config-fs01",  grp_name: "jtest-s3-grp01", size : "2GiB", mount_dir : "/mnt/jtest-s3-config-fs01" }
     - { name: "jtest-nfs-fs01",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs01" }
+    - { name: "jtest-nfs-fs02",  grp_name: "jtest-nfs-grp01", size : "6GiB", mount_dir : "/mnt/jtest-nfs-fs02" }
     - { name: "jtest-smb-fs01",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs01" }
-
+    - { name: "jtest-smb-fs02",  grp_name: "jtest-smb-grp01", size : "6GiB", mount_dir : "/mnt/jtest-smb-fs02" }

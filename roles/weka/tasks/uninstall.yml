@@ -25,17 +25,26 @@
 #  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
 
 #
-- name: Destroy Weka Cluster
-  shell: /root/tools/install/wekadestroy -f -y -u {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
-  register: destroy_weka_cluster
-  when: destroy_weka == true and inventory_hostname in groups['workers']
-  # when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # shell: /home/weka/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}
-  # shell: /home/weka/tools/install/wekadestroy --yes --force --uninstall {{ all_ext1_hostnames }}  # Back to STEM mode
-  #  {{ all_int1_ipaddrs }}
+- name: Stop and remove containers
+  shell: |
+    weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
+  register: destroy_weka_containers
+  ignore_errors: true
+  with_items:
+    - "{{ container.frontend.name }}"
+    - "{{ container.compute.name }}"
+    - "{{ container.drives.name }}"
+  when: destroy_weka == true and weka.uninstall_pkgs == false and inventory_hostname in groups['workers']
+- debug: msg={{ destroy_weka_containers }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
 
-#- debug: msg={{ check_weka_cluster }}
-#  when: print_debug == true and ( destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+#
+- name: Destroy Weka Cluster
+  shell: /root/tools/install/wekadestroy -f -y -u {{ ipaddr0 }}
+  register: destroy_weka_cluster
+  when: destroy_weka == true and weka.uninstall_pkgs == true and inventory_hostname in groups['workers']
+- debug: msg={{ destroy_weka_cluster }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
 - name: Delete tarball file and install directory
@@ -48,7 +57,9 @@
     - "{{ weka.base_path }}/{{ weka.tools.name }}"
     - "{{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}"
     - "{{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }}"
-  when: uninstall_binary == true and inventory_hostname in groups['workers']
+  when: remove_weka_binary == true and weka.uninstall_pkgs == true and inventory_hostname in groups['workers']
+- debug: msg={{ delete_install_binary_dir }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
 - name: Unmount tmpfs
@@ -57,6 +68,9 @@
   register: umount_tmpfs
   ignore_errors: true
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ umount_tmpfs }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
+
 
 #
 - name: Clear Memory Cache
@@ -65,6 +79,8 @@
   register: clear_cache_memory
   ignore_errors: true
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ clear_cache_memory }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
 #- name: Reboot required
@@ -77,3 +93,4 @@
 
 #
 #- meta: flush_handlers
+

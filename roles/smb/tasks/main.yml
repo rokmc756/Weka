@@ -7,28 +7,38 @@
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
-#- name: Set facts for Installing Weka Data Platform
-#  import_tasks: set-weka-install-facts.yml
-#  tags:
-#    - install
-#  when: inventory_hostname in groups['workers']
+- name: Set facts for Installing Weka Data Platform
+  import_tasks: set-weka-install-facts.yml
+  tags:
+    - install
 
 #
-#- name: Set facts for Uninstalling Weka Data Platform
-#  import_tasks: set-weka-uninstall-facts.yml
-#  tags:
-#    - uninstall
-#  when: inventory_hostname in groups['workers']
+- name: Set facts for Uninstalling Weka Data Platform
+  import_tasks: set-weka-uninstall-facts.yml
+  tags:
+    - uninstall
 
 #
-- name: Setup SMB Backends
+- name: Install SMB Backends
   import_tasks: install.yml
   tags: install
   when: inventory_hostname in groups['workers']
 
 #
-- name: Remove SMB Backends
+- name: Install CIFS Clients
+  import_tasks: install-clients.yml
+  tags: install
+  when: weka.client.smb == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+
+#
+- name: Uninstall CIFS Clients
+  import_tasks: uninstall-clients.yml
+  tags: uninstall
+  when: weka.client.smb == true and inventory_hostname in groups['clients']
+
+#
+- name: Uninstall SMB Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['workers']
+  when: weka.client.smb == true and inventory_hostname in groups['workers']
 

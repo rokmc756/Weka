@@ -10,7 +10,11 @@ smb:
         pass: Changeme12\!\@
   net:
     ips_range: 192.168.0.241-245
+    client_ip: 192.168.0.241
   fs:
     name: jtest-smb-fs01
+    mount_dir: /mnt/jtest-smb-fs01
+    mount_point: jtest-smb-fs01
   share:
     name: jtest-smb-share-01
+

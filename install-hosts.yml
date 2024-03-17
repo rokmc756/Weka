@@ -3,17 +3,15 @@
   become: yes
   vars:
     print_debug: true
-    install_binary: false
-    deploy_scb: false
-    deploy_mcb: false
+    setup_weka_binary: false
   roles:
-    - { role: obs }
-    # - { role: wekafs }
-    # - { role: minio }
-    # - { role: s3 }
-    # - { role: smb }
-    # - { role: nfs }
-
-# - { role: init-hosts }
-#    - { role: firewalld }
-# Need to check port for wekaconfig
+    - { role: weka }
+  #  - { role: wekafs }
+  #  - { role: init-hosts }
+  #  - { role: obs }
+  #  - { role: smb }
+  # - { role: minio }
+  # - { role: s3 }
+  # - { role: nfs }
+  # - { role: firewalld }
+  # Need to check port for wekaconfig
