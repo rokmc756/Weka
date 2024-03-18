@@ -1,55 +1,9 @@
-# weka binary check
-#
-# ./wekachecker 192.168.0.{171..175}
-# yum install -y yum-utils
-# yum-config-manager --enable devel
-# yum --disablerepo=* --enablerepo=base install perl libnl lsof tcl libxml2-python tk
-# yum install -y perl libnl lsof tcl libxml2-python tk elfutils-libelf-devel gcc glibc-headers glibc-devel make perl rpcbind xfsprogs kernel-devel
-
-#
-- name: Deploy Weka binary
-  shell: |
-    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
-  register: install_weka_binary
-  when: print_debug == true and weka.install_pkgs == true and inventory_hostname in groups['workers']
-- debug: msg={{ install_weka_binary }}
-  when: inventory_hostname in groups['workers']
-
-# weka local ps
-# weka local stop
-# weka local rm default -f
-# weka local setup host --name default --memory 5GiB
-# pdsh -w weka4-node[01-05] weka local ps
-
-#
-- name: Stop and remove local weka container
-  shell: |
-    weka local stop && weka local rm default -f
-  register: remove_default_container
-  when: print_debug == true and weka.install_pkgs == true and inventory_hostname in groups['workers']
-- debug: msg={{ remove_default_container }}
-  when: inventory_hostname in groups['workers']
-
-#
-- name: Generate json config files for drives and compute and frontend container
-  shell: |
-    {{ weka.base_path }}/tools/install/resources_generator.py -f --path /tmp \
-    --net {{ netdev1 }}/{{ ipaddr1 }}/24 {{ netdev2 }}/{{ ipaddr2 }}/24 {{ netdev3 }}/{{ ipaddr3 }}/24 {{ netdev4 }}/{{ ipaddr4 }}/24 {{ netdev5 }}/{{ ipaddr5 }}/24 \
-    --compute-dedicated-cores {{ container.compute.core_num }} --drive-dedicated-cores {{ container.drives.core_num }} --frontend-dedicated-cores {{ container.frontend.core_num }} \
-    --protocols-memory {{ container.protocol.memory }} --compute-memory {{ container.compute.memory }} --spare-memory {{ container.spare_memory }} --drives {{ container.drives.devices }}
-  register: gen_json_configs
-  when: inventory_hostname in groups['workers']
-- debug: msg={{ gen_json_configs }}
-  when: inventory_hostname in groups['workers']
-  # --minimal-memory and --compute-memory can not speicify at the same time.
-  # --weka-hugepages-memory {{ container.weka_huge_page_memory }} --drives {{ container.drives.devices }} --use-auto-failure-domain \
-
 #
 - name: Create Drive Containers
   shell: |
     weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \
     --net eth1/{{ ipaddr1 }}/24 --net eth2/{{ ipaddr2 }}/24 \
-    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr0 }}
+    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr1 }},{{ ipaddr2 }}
   register: create_drives_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drives_containers }}
@@ -60,13 +14,14 @@
 #
 - name: Create Weka Cluster
   shell: |
-    weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_ext1_ipaddrs }} -T infinite
+    weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_int5_ipaddrs }} -T infinite
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
+  #  weka cluster create {{ all_management_ipaddrs }}
 
 #
-- name: Validate if still appying
+- name: Validate if Weka Cluster is still creating
   shell: weka status
   register: check_apply_status
   until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
@@ -77,7 +32,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Get All Container IDs
+- name: Get All Drives Container IDs
   shell: |
     weka cluster container | grep drives | awk '{print $1}'
   register: all_container_ids
@@ -86,7 +41,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Set Facts into all hosts for all container ids
+- name: Set Facts of All Container IDs into all hosts
   set_fact:
     all_cont_ids: "{{ all_container_ids.stdout_lines }}"
   delegate_to: "{{ item }}"
@@ -95,7 +50,7 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Delete drive partition table
+- name: Delete Partition Table for Normal Disks
   shell: |
     dd if=/dev/zero of=/dev/sdc bs=512 count=1; dd if=/dev/zero of=/dev/sdd bs=512 count=1
     wipefs --all --force /dev/sdc; wipefs --all --force /dev/sdd
@@ -105,7 +60,7 @@
   when: print_debug == true and inventory_hostname in groups['workers']
 
 #
-- name: Add drive devices into containers
+- name: Add Devices into Drives Containers
   shell: |
     weka cluster drive add {{ item }} {{ container.drives.devices }}
   register: add_nvme_drive
@@ -120,7 +75,8 @@
     weka local setup container --name {{ container.compute.name }} --base-port {{ container.compute.port }} \
     --only-compute-cores --cores {{ container.compute.core_num }} \
     --net {{ netdev3 }}/{{ ipaddr3 }}/24 \
-    --join-ips {{ all_ext1_ipaddrs }}:{{ container.compute.port }} --management-ips={{ ipaddr0 }} \
+    --join-ips {{ all_int5_ipaddrs }}:{{ container.compute.port }} \
+    --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} --allow-mix-setting
   register: create_compute_containers
   when: inventory_hostname in groups['workers']
@@ -132,7 +88,7 @@
   shell: |
     weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
     --only-frontend-cores --cores {{ container.frontend.core_num }} --memory {{ container.frontend.memory }} \
-    --net {{ netdev4 }}/{{ ipaddr4 }}/24 --join-ips {{ all_ext1_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr0 }} \
+    --net {{ netdev4 }}/{{ ipaddr4 }}/24 --join-ips {{ all_int5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} --allow-mix-setting
   register: create_frontend_containers
   when: inventory_hostname in groups['workers']
@@ -154,7 +110,7 @@
   # weka cluster drive activate ?
 
 #
-- name: Setup local1 weka container with specific memory size
+- name: Setup drives container policy
   shell: |
     weka cluster update --data-drives={{ container.drives.data }} --parity-drives={{ container.drives.parity }}
     weka cluster hot-spare {{ container.drives.hotspare }}

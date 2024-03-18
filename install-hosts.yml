@@ -3,15 +3,14 @@
   become: yes
   vars:
     print_debug: true
-    setup_weka_binary: false
   roles:
     - { role: weka }
-  #  - { role: wekafs }
-  #  - { role: init-hosts }
+    - { role: wekafs }
+    - { role: nfs }
   #  - { role: obs }
+  #  - { role: s3 }
   #  - { role: smb }
+  #  - { role: init-hosts }
   # - { role: minio }
-  # - { role: s3 }
-  # - { role: nfs }
   # - { role: firewalld }
   # Need to check port for wekaconfig

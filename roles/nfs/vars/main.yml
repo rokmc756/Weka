@@ -4,7 +4,7 @@ nfs:
   client:
     group: client-nfs
   net:
-    ifname: eth1
+    ifname: eth5
     network: 192.168.1.0
     subnet: 255.255.255.0
     gateway: 192.168.1.1

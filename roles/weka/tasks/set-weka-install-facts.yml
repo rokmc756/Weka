@@ -44,6 +44,7 @@
     all_int3_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev3, 'ipv4', 'address']) | join(',') }}"
     all_int4_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev4, 'ipv4', 'address']) | join(',') }}"
     all_int5_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev5, 'ipv4', 'address']) | join(',') }}"
+    all_management_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev5, 'ipv4', 'address']) | join(' ') }}"
 
 - debug: msg={{ all_ext1_ipaddrs }}
 # - debug: msg={{ all_int1_ipaddrs }}

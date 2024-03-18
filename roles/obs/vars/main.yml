@@ -4,7 +4,7 @@ obs:
     name: jtest-obs-tier01
     ssd_size: 1GiB
     fs:
-      name: jtest-obs-fs02
+      name: jtest-obs-new-fs01
       size: 7GiB
     fs_group:
       name: jtest-obs-grp01

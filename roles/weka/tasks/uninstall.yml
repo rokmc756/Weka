@@ -34,16 +34,17 @@
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
-  when: destroy_weka == true and weka.uninstall_pkgs == false and inventory_hostname in groups['workers']
+  when: destroy_weka == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_containers }}
   when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
-- name: Destroy Weka Cluster
+- name: Destroy Weka Containers
   shell: /root/tools/install/wekadestroy -f -y -u {{ ipaddr0 }}
-  register: destroy_weka_cluster
-  when: destroy_weka == true and weka.uninstall_pkgs == true and inventory_hostname in groups['workers']
-- debug: msg={{ destroy_weka_cluster }}
+  register: destroy_weka_clu
+  ignore_errors: true
+  when: destroy_weka == true and inventory_hostname in groups['workers']
+- debug: msg={{ destroy_weka_clu }}
   when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
@@ -54,30 +55,31 @@
   register: delete_install_binary_dir
   with_items:
     - "{{ weka.base_path }}/{{ weka_file_name }}"
-    - "{{ weka.base_path }}/{{ weka.tools.name }}"
     - "{{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}"
+    - "{{ weka.base_path }}/{{ weka.tools.name }}"
+    - "{{ weka.base_path }}/{{ weka_tools_file_name }}"
     - "{{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }}"
-  when: remove_weka_binary == true and weka.uninstall_pkgs == true and inventory_hostname in groups['workers']
+  ignore_errors: true
+  when: remove_weka_bin == true and inventory_hostname in groups['workers']
 - debug: msg={{ delete_install_binary_dir }}
   when: inventory_hostname in groups['workers'] and print_debug == true
+  # - "{{ weka.base_path }}/{{ weka_file_name }}"
+  # - "{{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}"
 
 #
 - name: Unmount tmpfs
   shell: |
     umount /opt/weka/data/agent/tmpfss/cross-container-rpc-the-tmpfs
   register: umount_tmpfs
-  ignore_errors: true
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ umount_tmpfs }}
   when: inventory_hostname in groups['workers'] and print_debug == true
-
 
 #
 - name: Clear Memory Cache
   shell: |
     sync && echo 3 > /proc/sys/vm/drop_caches
   register: clear_cache_memory
-  ignore_errors: true
   when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ clear_cache_memory }}
   when: inventory_hostname in groups['workers'] and print_debug == true

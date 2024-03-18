@@ -33,11 +33,19 @@
 # $ weka nfs clients show
 # HOSTID  CLIENT IP  IDLE TIME  NFSV3 OPS  NFSV4 OPS  NFSV4 OPEN OPS  NFSV4 CLOSE OPS
 
-- name: Get All Container IDs
+- name: Get All Container IDs for SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed 1d
   register: all_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- name: Get All Container IDs for MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}'
+  register: all_container_ids
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

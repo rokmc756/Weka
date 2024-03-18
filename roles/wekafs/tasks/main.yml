@@ -18,22 +18,22 @@
 - name: Install WekaFS
   import_tasks: install.yml
   tags: install
-  when: inventory_hostname in groups['workers']
+  when: wekafs.clients_only == false and inventory_hostname in groups['workers']
 
 #
 - name: Install WekaFS Client
   import_tasks: install-clients.yml
   tags: install
-  when: weka.client.wekafs == true and  ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+  when: weka.client.wekafs == true and wekafs.clients_only == true and  ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
 #
 - name: Uninstall WekaFS Clients
   import_tasks: uninstall-clients.yml
   tags: uninstall
-  when: weka.client.wekafs == true and inventory_hostname in groups['clients']
+  when: weka.client.wekafs == true and wekafs.clients_only == true and inventory_hostname in groups['clients']
 
 #
 - name: Uninstall WekaFS
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['workers']
+  when: wekafs.clients_only == false and inventory_hostname in groups['workers']

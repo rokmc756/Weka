@@ -40,7 +40,7 @@
 #
 - name: Mount WekaFS directory
   shell: |
-    mount -t wekafs -o net=eth1 192.168.1.175/{{ wekafs.fs[1].name }} {{ wekafs.fs[1].mount_dir }}
+    mount -t wekafs -o net=eth1 192.168.1.201/{{ wekafs.fs[1].name }} {{ wekafs.fs[1].mount_dir }}
   delegate_to: "{{ hostvars[groups['clients'][0]]['ansible_hostname'] }}"
   delegate_facts: True
   register: mount_wekafs_dir
@@ -74,4 +74,26 @@
 
 - debug: msg={{ create_wekafs_file }}
   when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+
+# curl 192.168.0.171:14000/dist/v1/install | sh
+# weka version get 4.2.9.29-hcsf
+# weka version set 4.2.9.29-hcsf
+# weka local start client
+
+
+# ./wekadestroy -u -f -y rk8-node06
+# curl 192.168.1.211:14000/dist/v1/install | sh  # 211 is management's ip address hold by drives0 container
+#
+# mount -t wekafs -o num_cores=1 -o net=eth5/192.168.1.216/24/192.168.1.1 192.168.1.211/jtest-wekafs-fs01 /mnt/jtest-wekafs-fs01
+# eth5 is client network device which mtu must be 9000 if it's not, client will be failed
+# 211 is management's ip address hold by drives0 container
+#
+# After succesfully mounted, frontend got DPDK
+#
+# weka cluster process | grep client
+# 300         rk8-node06  client     192.168.1.186  UP      4.2.9.29-hcsf  MANAGEMENT  UDP                    0:07:20h  Configuration snapshot pulled (7 minutes ago)
+# 301         rk8-node06  client     192.168.1.216  UP      4.2.9.29-hcsf  FRONTEND    DPDK     1    1.47 GB  0:07:17h
+#
+# ******
+# Need to test switch mode of iptime in order to expand ports from 5 to 10
 

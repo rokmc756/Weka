@@ -17,11 +17,18 @@
   # failed_when: "'(Greenplum Database ' not in select_version.stdout"
 
 #
-- name: Get All SMB Contaienr IDs
+- name: Get All SMB Contaienr IDs for SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Get All SMB Contaienr IDs for MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - debug: msg={{ all_container_ids }}

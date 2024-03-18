@@ -42,7 +42,15 @@
   shell: |
     weka cluster container | awk '{print $1}' | sed 1d
   register: all_container_ids
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- name: Get All Container IDs
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}'
+  register: all_container_ids
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

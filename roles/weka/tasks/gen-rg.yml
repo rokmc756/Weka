@@ -1,0 +1,13 @@
+#
+- name: Generate json config files for drives and compute and frontend container
+  shell: |
+    {{ weka.base_path }}/tools/install/resources_generator.py -f --path /tmp \
+    --net {{ netdev1 }}/{{ ipaddr1 }}/24 {{ netdev2 }}/{{ ipaddr2 }}/24 {{ netdev3 }}/{{ ipaddr3 }}/24 {{ netdev4 }}/{{ ipaddr4 }}/24 {{ netdev5 }}/{{ ipaddr5 }}/24 \
+    --compute-dedicated-cores {{ container.compute.core_num }} --drive-dedicated-cores {{ container.drives.core_num }} --frontend-dedicated-cores {{ container.frontend.core_num }} \
+    --protocols-memory {{ container.protocol.memory }} --compute-memory {{ container.compute.memory }} --spare-memory {{ container.spare_memory }} --drives {{ container.drives.devices }}
+  register: gen_json_configs
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ gen_json_configs }}
+  when: inventory_hostname in groups['workers']
+  # --minimal-memory and --compute-memory can not speicify at the same time.
+  # --weka-hugepages-memory {{ container.weka_huge_page_memory }} --drives {{ container.drives.devices }} --use-auto-failure-domain \

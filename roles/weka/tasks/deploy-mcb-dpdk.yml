@@ -3,9 +3,7 @@
 #
 #- name: Install expect
 #  shell: |
-#    dnf -y install yum-utils
 #    yum-config-manager --enable devel
-#    yum install -y expect
 #    yum-config-manager --disable devel
 #  register: install_expect
 #- debug: msg={{ install_expect }}

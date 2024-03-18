@@ -1,3 +1,8 @@
+upload_weka_bin: false
+remove_weka_bin: false
+setup_weka_bin: true
+destroy_weka: true
+
 container:
    total_cores: "4"
    spare_memory: "8GiB"
@@ -6,33 +11,33 @@ container:
      mem_size: "3GiB"
    drives:
      name: "drives0"
-     core_num: "1"
-     memory: "2.5GiB"       # 2.3GiB default, 0 means automatical allocation
+     core_num: "2"
+     memory: "5GiB"                  # 2.3GiB default, 0 means automatical allocation
      core_ids: "1,2"
      data: "3"
      parity: "2"
-     hotspare: "4,5"          # 0 means automaical allocation
+     hotspare: "1"                   # 0 means automaical allocation
      devices: "/dev/sdc /dev/sdd"
      port: "14000"
      options:
    compute:
      name: "compute0"
      core_num: "1"
-     memory: "3.5GiB"       # 3.3GiB default, 0 means automatical allocation
+     memory: "3.5GiB"                # 3.3GiB default, 0 means automatical allocation
      core_ids: "3,4"
      port: "14200"
      options:
    frontend:
      name: "frontend0"
      core_num: "1"
-     memory: "2.5GiB"       # 2.3 GiB default
+     memory: "2.5GiB"                # 2.3 GiB default
      core_ids: "8"
      port: "14400"
      options:
    protocol:
      memory: "0GiB"
 
-# https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
 # Weka Port Ranges
 # https://docs.weka.io/install/prerequisites-and-compatibility#networking
+# https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
 

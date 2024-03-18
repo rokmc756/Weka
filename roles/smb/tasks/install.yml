@@ -44,13 +44,13 @@
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#- name: Get All Container IDs for MCB
-#  shell: |
-#    weka cluster container | grep drives0 | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
-#  register: all_container_ids
-#  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ all_container_ids }}
-#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Get All Container IDs for MCB
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_container_ids
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Create SMB Cluster

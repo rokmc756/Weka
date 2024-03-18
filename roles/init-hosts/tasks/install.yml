@@ -1,14 +1,38 @@
 ---
-
-#
+# For Weka
 - name: Install epel-release
   become: true
   yum: name={{item}} state=present
   with_items:
     - "epel-release"
+    - "wget"
+    - "yum-utils"
+    - "expect"
+    - "pdsh"
+    - "pdsh-rcmd-ssh"
+    - "install"
+    - "perl"
+    - "libnl"
+    - "lsof"
+    - "tcl"
+    - "libxml2-python"
+    - "tk"
+    - "elfutils-libelf-devel"
+    - "gcc"
+    - "glibc-headers"
+    - "glibc-devel"
+    - "make"
+    - "perl"
+    - "rpcbind"
+    - "xfsprogs"
+    - "kernel-devel"
+    - "git"
   when: ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
 
-#
+# yum --disablerepo=* --enablerepo=base install perl libnl lsof tcl libxml2-python tk
+# yum install -y perl libnl lsof tcl libxml2-python tk elfutils-libelf-devel gcc glibc-headers glibc-devel make perl rpcbind xfsprogs kernel-devel
+
+
 - name: Install sshpass
   become: true
   package: name={{item}} state=present

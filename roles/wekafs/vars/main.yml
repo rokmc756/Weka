@@ -1,4 +1,5 @@
 wekafs:
+  clients_only: false
   group:
     - { name: "jtest-default-grp01" }
     - { name: "jtest-wekafs-grp01" }
