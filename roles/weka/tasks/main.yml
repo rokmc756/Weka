@@ -30,11 +30,11 @@
   when: setup_weka_bin == true and inventory_hostname in groups['workers']
 
 #
-#- name: Deploy Single Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
-#  import_tasks: deploy-scb.yml
-#  tags: install
-#  when: weka.backend.scb == true and inventory_hostname in groups['workers']
-#
+- name: Deploy Single Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
+  import_tasks: deploy-scb.yml
+  tags: install
+  when: weka.backend.scb == true and inventory_hostname in groups['workers']
+
 ##
 #- name: Deploy Multi Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
 #  import_tasks: deploy-mcb-udp.yml

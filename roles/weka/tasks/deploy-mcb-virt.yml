@@ -77,7 +77,7 @@
     --net {{ netdev3 }}/{{ ipaddr3 }}/24 \
     --join-ips {{ all_int5_ipaddrs }}:{{ container.compute.port }} \
     --management-ips={{ ipaddr5 }} \
-    --failure-domain {{ ansible_hostname }} --allow-mix-setting
+    --failure-domain {{ ansible_hostname }} {{ container.compute.options }}
   register: create_compute_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_containers }}
@@ -89,7 +89,7 @@
     weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
     --only-frontend-cores --cores {{ container.frontend.core_num }} --memory {{ container.frontend.memory }} \
     --net {{ netdev4 }}/{{ ipaddr4 }}/24 --join-ips {{ all_int5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
-    --failure-domain {{ ansible_hostname }} --allow-mix-setting
+    --failure-domain {{ ansible_hostname }} {{ container.frontend.options }}
   register: create_frontend_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_containers }}

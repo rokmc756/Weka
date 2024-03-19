@@ -1,14 +1,16 @@
 upload_weka_bin: false
 remove_weka_bin: false
-setup_weka_bin: true
+setup_weka_bin: false
 destroy_weka: true
 
 container:
-   total_cores: "4"
+   total_cores: "4"                 # Total_cores sholud be same as number of virtual network adpaters hold by a SCB default container for DPDK in Virtual Environment
    spare_memory: "8GiB"
    weka_huge_page_memory: "1.4GiB"
    default:
+     name: "jack-kr-scb"
      mem_size: "3GiB"
+     port: 14000
    drives:
      name: "drives0"
      core_num: "2"
@@ -26,14 +28,14 @@ container:
      memory: "3.5GiB"                # 3.3GiB default, 0 means automatical allocation
      core_ids: "3,4"
      port: "14200"
-     options:
+     options:                        # "--allow-mix-setting"
    frontend:
      name: "frontend0"
      core_num: "1"
      memory: "2.5GiB"                # 2.3 GiB default
      core_ids: "8"
      port: "14400"
-     options:
+     options:                        # "--allow-mix-setting"
    protocol:
      memory: "0GiB"
 

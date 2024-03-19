@@ -1,75 +1,55 @@
 # ./wekachecker 192.168.0.{181..190}
 
-#
-#- name: Confirm if all containers ids has been set as facts in all hosts
-#  debug: msg={{ all_cont_ids }}
-#  when: inventory_hostname in groups['workers']
-#  # when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-# modprobe vfio_pci
-- name: Enable Devel Repository
-  shell: yum-config-manager --enable devel
-  when: inventory_hostname in groups['workers']
-
-#
-- name: Install Utility RPM Packages
-  yum:
-    name={{ item }}
-    state=latest
-  with_items:
-    - expect
-    - pdsh
-    - pdsh-rcmd-ssh
-  when: inventory_hostname in groups['workers']
-  # export PDSH_RCMD_TYPE='ssh'
-
-#
-- name: Deploy Weka binary
-  shell: |
-    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
-  register: install_weka_binary
-  when: inventory_hostname in groups['workers']
-- debug: msg={{ install_weka_binary }}
-  when: inventory_hostname in groups['workers']
+# shell: yum-config-manager --enable devel
+# export PDSH_RCMD_TYPE='ssh'
 
 # weka local ps
 # weka local stop
-# weka local rm default -f
-# weka local setup host --name default --memory 5GiB
-# pdsh -w weka4-node[01-05] weka local ps
 
 #
-#- name: Stop and Remove local weka container
+#- name: Configure memory size for default container
 #  shell: |
-#    weka local stop && weka local rm default -f
-#  register: remove_local_weka
+#    weka local resources -C default memory {{ container.default.mem_size }}
+#  register: config_default_cont_mem_size
 #  when: inventory_hostname in groups['workers']
-#- debug: msg={{ remove_local_weka }}
+#- debug: msg={{ config_default_cont_mem_size }}
 #  when: inventory_hostname in groups['workers']
 
 #
-#- name: Setup local Weka Container with specific memory size
+- name: Create SCB Container
+  shell: |
+    weka local setup container --name {{ container.default.name }} --base-port {{ container.default.port }} --memory {{ container.default.mem_size }}
+  register: create_scb_cont
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ create_scb_cont }}
+  when: inventory_hostname in groups['workers']
+  # weka local setup container --name {{ container.default.name }} --base-port {{ container.drives.port }} --cores {{ container.total_cores }} --memory {{ container.default.mem_size }}
+
+#
+#- name: Create Drive Containers
 #  shell: |
-#    weka local setup host --name default --memory {{ weka.default_mem_size }}
-#  register: setup_local_weka
+#    weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \
+#    --net eth1/{{ ipaddr1 }}/24 --net eth2/{{ ipaddr2 }}/24 \
+#    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr1 }},{{ ipaddr2 }}
+#  register: create_drives_containers
 #  when: inventory_hostname in groups['workers']
-#- debug: msg={{ setup_local_weka }}
+#- debug: msg={{ create_drives_containers }}
 #  when: inventory_hostname in groups['workers']
-#  weka local resources -C default memory 3GiB
+#  # pdsh -w 192.168.17[1-5] "weka local resources -C drives0"
+#  # weka local setup container --name {{ container.drives.name }} --resources-path /tmp/drives0.json --failure-domain {{ ansible_hostname }}
 
 #
 - name: Create weka cluster with all nodes and second ip addresses
   shell: |
-    weka cluster create {{ all_int1_ipaddrs1 }}
+    weka cluster create {{ all_management_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_int1_ipaddrs }}
-  # weka cluster create {{ all_ext1_hostnames }} --host-ips=192.168.1.141,192.168.1.142,192.168.1.143,192.168.2.144,192.168.2.145
 
 #
-- name: Validate if still appying
+- name: Validate if Weka Cluster is still creating
   shell: weka status
   register: check_apply_status
   until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
@@ -79,7 +59,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Get all drives container ids
+- name: Get All Container IDs
   shell:
      weka cluster container | awk '{print $1}' | sed 1d
   register: all_container_ids
@@ -88,7 +68,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Set Facts into all hosts for all container ids
+- name: Set Facts into All Hosts for All Container IDs
   set_fact:
     all_cont_ids: "{{ all_container_ids.stdout_lines }}"
   delegate_to: "{{ item }}"
@@ -97,70 +77,88 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # weka cluster container net add  0 eth0 --label mgmt
-# weka cluster container net add  0 eth0 --label mgmt
-# weka cluster container net add  0 eth0 --label mgmt
-# weka cluster container net add  0 eth0 --label mgmt
-# weka cluster container net add  0 eth0 --label mgmt
 
 #
-- name: Add networks
-  shell: |
-    weka cluster container net add  0 eth1 --ips 192.168.1.171 --netmask=24 --label mgmt
-    weka cluster container net add  1 eth1 --ips 192.168.1.172 --netmask=24 --label mgmt
-    weka cluster container net add  2 eth1 --ips 192.168.1.173 --netmask=24 --label mgmt
-    weka cluster container net add  3 eth1 --ips 192.168.1.174 --netmask=24 --label mgmt
-    weka cluster container net add  4 eth1 --ips 192.168.1.175 --netmask=24 --label mgmt
-    weka cluster container net add  0 eth2 --ips 192.168.1.181 --netmask=24
-    weka cluster container net add  1 eth2 --ips 192.168.1.182 --netmask=24
-    weka cluster container net add  2 eth2 --ips 192.168.1.183 --netmask=24
-    weka cluster container net add  3 eth2 --ips 192.168.1.184 --netmask=24
-    weka cluster container net add  4 eth2 --ips 192.168.1.185 --netmask=24
-    weka cluster container net add  0 eth3 --ips 192.168.1.191 --netmask=24
-    weka cluster container net add  1 eth3 --ips 192.168.1.192 --netmask=24
-    weka cluster container net add  2 eth3 --ips 192.168.1.193 --netmask=24
-    weka cluster container net add  3 eth3 --ips 192.168.1.194 --netmask=24
-    weka cluster container net add  4 eth3 --ips 192.168.1.195 --netmask=24
-  register: add_network_drive
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_network_drive }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#  weka cluster container net add  0 eth1 --ips 192.168.1.171 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  1 eth1 --ips 192.168.1.172 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  2 eth1 --ips 192.168.1.173 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  3 eth1 --ips 192.168.1.174 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  4 eth1 --ips 192.168.1.175 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  0 eth2 --ips 192.168.1.191 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  1 eth2 --ips 192.168.1.192 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  2 eth2 --ips 192.168.1.193 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  3 eth2 --ips 192.168.1.194 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  4 eth2 --ips 192.168.1.195 --netmask=24 --gateway=192.168.1.1
-#  weka cluster container net add  0 eth3 --ips 192.168.2.171 --netmask=24 --gateway=192.168.2.1
-#  weka cluster container net add  1 eth3 --ips 192.168.2.172 --netmask=24 --gateway=192.168.2.1
-#  weka cluster container net add  2 eth3 --ips 192.168.2.173 --netmask=24 --gateway=192.168.2.1
-#  weka cluster container net add  3 eth3 --ips 192.168.2.174 --netmask=24 --gateway=192.168.2.1
-#  weka cluster container net add  4 eth3 --ips 192.168.2.175 --netmask=24 --gateway=192.168.2.1
-
 #- name: Add networks
-#  shell:
-#    pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev1 }} --ips {{ ipaddr1 }} --netmask 24 --gateway 192.168.1.1"
-#    pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev2 }} --ips {{ ipaddr2 }} --netmask 24 --gateway 192.168.2.1"
-#    # pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev1 }} --netmask 24" # OK to start-io
-#    # pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev2 }} --netmask 24" # OK to start-io
-#    # pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev1 }} --ips {{ ipaddr1 }} --netmask 24 --gateway 192.168.1.1"
-#    # pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev2 }} --ips {{ ipaddr2 }} --netmask 24 --gateway 192.168.2.1"
-#    # pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add {{ item }} {{ netdev3 }} --ips {{ ipaddr3 }} --netmask 24 --gateway 192.168.2.1"
+#  shell: |
+#    weka cluster container net add  0 eth1 --ips 192.168.1.171 --netmask 24
+#    weka cluster container net add  1 eth1 --ips 192.168.1.172 --netmask 24
+#    weka cluster container net add  2 eth1 --ips 192.168.1.173 --netmask 24
+#    weka cluster container net add  3 eth1 --ips 192.168.1.174 --netmask 24
+#    weka cluster container net add  4 eth1 --ips 192.168.1.175 --netmask 24
+#
+#    weka cluster container net add  0 eth2 --ips 192.168.1.181 --netmask 24
+#    weka cluster container net add  1 eth2 --ips 192.168.1.182 --netmask 24
+#    weka cluster container net add  2 eth2 --ips 192.168.1.183 --netmask 24
+#    weka cluster container net add  3 eth2 --ips 192.168.1.184 --netmask 24
+#    weka cluster container net add  4 eth2 --ips 192.168.1.185 --netmask 24
+#
+#    weka cluster container net add  0 eth3 --ips 192.168.1.191 --netmask 24
+#    weka cluster container net add  1 eth3 --ips 192.168.1.192 --netmask 24
+#    weka cluster container net add  2 eth3 --ips 192.168.1.193 --netmask 24
+#    weka cluster container net add  3 eth3 --ips 192.168.1.194 --netmask 24
+#    weka cluster container net add  4 eth3 --ips 192.168.1.195 --netmask 24
+#
+#    weka cluster container net add  0 eth4 --ips 192.168.1.201 --netmask 24
+#    weka cluster container net add  1 eth4 --ips 192.168.1.202 --netmask 24
+#    weka cluster container net add  2 eth4 --ips 192.168.1.203 --netmask 24
+#    weka cluster container net add  3 eth4 --ips 192.168.1.204 --netmask 24
+#    weka cluster container net add  4 eth4 --ips 192.168.1.205 --netmask 24
+#  register: add_network_drive
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ add_network_drive }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Set Facts into All Hosts for All Container IDs
+  set_fact:
+    all_cont_ids: "{{ all_container_ids.stdout_lines }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items: "{{ groups['workers'] }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html#combining-and-selecting-data
+#- name: Add networks
+#  shell: |
+#    echo "weka cluster host net add {{ item.0 }} {{ item.1 }} --ips {{ ipaddr1 }} --netmask 24"
+#    echo "weka cluster host net add {{ item.0 }} {{ item.1 }} --ips {{ ipaddr2 }} --netmask 24"
+#    echo "weka cluster host net add {{ item.0 }} {{ item.1 }} --ips {{ ipaddr3 }} --netmask 24"
+#    echo "weka cluster host net add {{ item.0 }} {{ item.1 }} --ips {{ ipaddr4 }} --netmask 24"
+#    echo "weka cluster host net add {{ item.0 }} {{ item.1 }} --ips {{ ipaddr5 }} --netmask 24"
+#  register: add_network_drive
+#  with_items:
+
+# - debug: msg={{ all_cont_ids | map('extract', ["{{ netdev2 }}", "{{ netdev3 }}", "{{ netdev4 }}", "{{ netdev5 }}"]) | list }}
+
+# - debug: msg={{ all_cont_ids | combine( [ netdev2 , netdev3 , netdev4 ,  netdev5 ], list_merge='append' ) }}
+
+
+# when: inventory_hostname in groups['workers']
+#- debug: msg={{ add_network_drive }}
+#  when: inventory_hostname in groups['workers'] and print_debug == true
+  #  - "{{ all_cont_ids }} |  [ {{ netdev2 }}, {{ netdev3 }}, {{ netdev4 }}, {{ netdev5 }} ]"
+
+- meta: end_play
+
 #  register: add_network_drive
 #  delegate_to: "{{ inventory_hostname }}"
 #  delegate_facts: True
-#  with_items: "{{ all_cont_ids }}"
+#  with_items:
+#    - { netdev: "{{ netdev2 }}" }
+#    - { netdev: "{{ netdev3 }}" }
+#    - { netdev: "{{ netdev4 }}" }
+#    - { netdev: "{{ netdev5 }}" }
 #  when: inventory_hostname in groups['workers']
 #- debug: msg={{ add_network_drive }}
-#  when: inventory_hostname in groups['workers']
-#  # Above 3 cases is ok when using combination of ip addresses with different subnet creating cluster.
+#  when: inventory_hostname in groups['workers'] and print_debug == true
+#  # delegate_to: "{{ inventory_hostname }}"
+#  # delegate_facts: True
+# pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add 0 {{ item.netdev }} --ips {{ ipaddr1 }} --netmask 24"
 
 #
-- name: Delete partition table
+- name: Delete Partition Table
   shell: |
     dd if=/dev/zero of=/dev/sdc bs=512 count=1; dd if=/dev/zero of=/dev/sdd bs=512 count=1
     wipefs --all --force /dev/sdc; wipefs --all --force /dev/sdd
@@ -170,7 +168,7 @@
   when: print_debug == true and inventory_hostname in groups['workers']
 
 #
-- name: Add data devices into drive containers
+- name: Add Drive Devices into Drive Containers
   shell: |
     weka cluster drive add {{ item }} {{ container.drives.devices }}
   register: add_data_devices
@@ -215,14 +213,14 @@
 - debug: msg={{ dedicate_container }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#- name: Check drivers in the cluster
-#  shell: |
-#    weka cloud enable
-#  register: check_cluster_drives
-#  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
-#  #when: inventory_hostname in groups['workers']
-#- debug: msg={{ check_cluster_drives }}
-#  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
+- name: Check drivers in the cluster
+  shell: |
+    weka cloud enable
+  register: check_cluster_drives
+  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
+  #when: inventory_hostname in groups['workers']
+- debug: msg={{ check_cluster_drives }}
+  when: inventory_hostname in hostvars[groups['workers'][-1]]['ansible_hostname']
 
 #- name: Pause for 2 minutes to wait for applying changes of core numbers into containers
 #  pause:
@@ -253,7 +251,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Validate if still appying
+- name: Validate if Weka Cluster is still creating
   shell: weka status
   register: check_apply_status
   until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
@@ -263,28 +261,6 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Apply changes of core numbers for containers
-  shell: |
-    weka cluster container apply --all --force
-  register: apply_changes_core_num
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ apply_changes_core_num  }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
-- name: Validate if still appying
-  shell: weka status
-  register: check_apply_status
-  until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
-  retries: 50
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ check_apply_status }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-
-# Need to check if there are unknown status
-#  weka cluster drive
-
 - name: Start IO in the cluster
   shell: |
     weka cluster start-io

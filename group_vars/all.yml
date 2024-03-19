@@ -4,8 +4,8 @@ weka:
   cluster_name: jack-kr-mcb
   major_version: "4"
   minor_version: "2"
-  build_version: "7"
-  patch_version: ".64"
+  build_version: "9"
+  patch_version: ".29-hcsf"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
@@ -22,10 +22,10 @@ weka:
     ipaddr5: "192.168.1.21"
     data_plane: netdev2
     gateway: "192.168.0.1"
-    conn: "dpdk"               # or udp
+    conn: "dpdk"               # dpdk or udp
   backend:
-    scb: false
-    mcb: true
+    scb: true
+    mcb: false
   client:
     nfs: true
     wekafs: true

@@ -5,8 +5,8 @@
     print_debug: true
   roles:
     - { role: weka }
-    - { role: wekafs }
-    - { role: nfs }
+  #  - { role: wekafs }
+  #  - { role: nfs }
   #  - { role: obs }
   #  - { role: s3 }
   #  - { role: smb }
@@ -14,3 +14,4 @@
   # - { role: minio }
   # - { role: firewalld }
   # Need to check port for wekaconfig
+

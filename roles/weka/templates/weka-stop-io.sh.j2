@@ -1,0 +1,11 @@
+#!/usr/bin/expect -f
+set timeout 10
+
+        spawn /usr/bin/weka cluster stop-io
+
+        expect  "^Are you sure you want to continue*"
+        send    "yes\r"
+
+        interact
+
+exit

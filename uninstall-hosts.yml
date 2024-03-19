@@ -5,10 +5,9 @@
     remove_weka_binary: false
     destroy_weka: true
   roles:
-    - { role: nfs }
-    - { role: wekafs }
     - { role: weka }
-
+  #  - { role: nfs }
+  #  - { role: wekafs }
   #  - { role: s3 }
   #  - { role: obs }
   #  - { role: smb }
