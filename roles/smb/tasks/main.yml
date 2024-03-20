@@ -40,5 +40,5 @@
 - name: Uninstall SMB Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.client.smb == true and inventory_hostname in groups['workers']
+  when: inventory_hostname in groups['workers']
 

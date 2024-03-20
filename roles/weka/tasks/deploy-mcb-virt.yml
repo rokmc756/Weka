@@ -1,4 +1,9 @@
 #
+- name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
+  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  failed_when: weka.backend.mcb == true and weka.backend.scb == true
+
+#
 - name: Create Drive Containers
   shell: |
     weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \

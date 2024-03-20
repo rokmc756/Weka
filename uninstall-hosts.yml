@@ -2,15 +2,13 @@
   become: yes
   vars:
     print_debug: true
-    remove_weka_binary: false
-    destroy_weka: true
   roles:
     - { role: weka }
+  #  - { role: smb }
   #  - { role: nfs }
   #  - { role: wekafs }
   #  - { role: s3 }
   #  - { role: obs }
-  #  - { role: smb }
   #  - { role: obs }
   # - { role: minio }
   # - { role: firewalld }

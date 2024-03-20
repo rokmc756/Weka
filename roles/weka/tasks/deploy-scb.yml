@@ -17,6 +17,11 @@
 #  when: inventory_hostname in groups['workers']
 
 #
+- name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
+  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  failed_when: weka.backend.mcb == true and weka.backend.scb == true
+
+#
 - name: Create SCB Container
   shell: |
     weka local setup container --name {{ container.default.name }} --base-port {{ container.default.port }} --memory {{ container.default.mem_size }}
@@ -40,7 +45,7 @@
 #  # weka local setup container --name {{ container.drives.name }} --resources-path /tmp/drives0.json --failure-domain {{ ansible_hostname }}
 
 #
-- name: Create weka cluster with all nodes and second ip addresses
+- name: Create Weka Cluster With All Hosts and Management IP Addresses
   shell: |
     weka cluster create {{ all_management_ipaddrs }}
   register: create_weka_cluster
@@ -109,6 +114,33 @@
 #- debug: msg={{ add_network_drive }}
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+
+#    weka cluster container net add  0 eth1 --ips 192.168.1.171 --netmask 24
+#    weka cluster container net add  0 eth2 --ips 192.168.1.181 --netmask 24
+#    weka cluster container net add  0 eth3 --ips 192.168.1.191 --netmask 24
+#    weka cluster container net add  0 eth4 --ips 192.168.1.201 --netmask 24
+#
+#    weka cluster container net add  1 eth1 --ips 192.168.1.172 --netmask 24
+#    weka cluster container net add  1 eth2 --ips 192.168.1.182 --netmask 24
+#    weka cluster container net add  1 eth3 --ips 192.168.1.192 --netmask 24
+#    weka cluster container net add  1 eth4 --ips 192.168.1.202 --netmask 24
+#
+#    weka cluster container net add  2 eth1 --ips 192.168.1.173 --netmask 24
+#    weka cluster container net add  2 eth2 --ips 192.168.1.183 --netmask 24
+#    weka cluster container net add  2 eth3 --ips 192.168.1.193 --netmask 24
+#    weka cluster container net add  2 eth4 --ips 192.168.1.203 --netmask 24
+#
+#    weka cluster container net add  3 eth1 --ips 192.168.1.174 --netmask 24
+#    weka cluster container net add  3 eth2 --ips 192.168.1.184 --netmask 24
+#    weka cluster container net add  3 eth3 --ips 192.168.1.194 --netmask 24
+#    weka cluster container net add  3 eth4 --ips 192.168.1.204 --netmask 24
+#
+#    weka cluster container net add  4 eth1 --ips 192.168.1.175 --netmask 24
+#    weka cluster container net add  4 eth2 --ips 192.168.1.185 --netmask 24
+#    weka cluster container net add  4 eth3 --ips 192.168.1.195 --netmask 24
+#    weka cluster container net add  4 eth4 --ips 192.168.1.205 --netmask 24
+#
+
 #
 - name: Set Facts into All Hosts for All Container IDs
   set_fact:
@@ -131,31 +163,159 @@
 #  with_items:
 
 # - debug: msg={{ all_cont_ids | map('extract', ["{{ netdev2 }}", "{{ netdev3 }}", "{{ netdev4 }}", "{{ netdev5 }}"]) | list }}
-
 # - debug: msg={{ all_cont_ids | combine( [ netdev2 , netdev3 , netdev4 ,  netdev5 ], list_merge='append' ) }}
 
+#  vars:
+#    net_dev_list: [ "{{ netdev2 }}", "{{ netdev3 }}", "{{ netdev4 }}", "{{ netdev5 }}" ]
 
+#- set_fact:
+#    host_network_info: "{{ dict( [ netdev2, netdev3, netdev4, netdev5 ] | zip( all_cont_ids )) |
+#                         dict2items(key_name='cont_id', value_name='netdev') }}"
+#  when: print_debug == true == inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#    weka cluster container net add  0 eth1 --ips 192.168.1.171 --netmask 24
+#    weka cluster container net add  0 eth2 --ips 192.168.1.181 --netmask 24
+#    weka cluster container net add  0 eth3 --ips 192.168.1.191 --netmask 24
+#    weka cluster container net add  0 eth4 --ips 192.168.1.201 --netmask 24
+#
+#    weka cluster container net add  1 eth1 --ips 192.168.1.172 --netmask 24
+#    weka cluster container net add  1 eth2 --ips 192.168.1.182 --netmask 24
+#    weka cluster container net add  1 eth3 --ips 192.168.1.192 --netmask 24
+#    weka cluster container net add  1 eth4 --ips 192.168.1.202 --netmask 24
+#
+#    weka cluster container net add  2 eth1 --ips 192.168.1.173 --netmask 24
+#    weka cluster container net add  2 eth2 --ips 192.168.1.183 --netmask 24
+#    weka cluster container net add  2 eth3 --ips 192.168.1.193 --netmask 24
+#    weka cluster container net add  2 eth4 --ips 192.168.1.203 --netmask 24
+#
+#    weka cluster container net add  3 eth1 --ips 192.168.1.174 --netmask 24
+#    weka cluster container net add  3 eth2 --ips 192.168.1.184 --netmask 24
+#    weka cluster container net add  3 eth3 --ips 192.168.1.194 --netmask 24
+#    weka cluster container net add  3 eth4 --ips 192.168.1.204 --netmask 24
+#
+#    weka cluster container net add  4 eth1 --ips 192.168.1.175 --netmask 24
+#    weka cluster container net add  4 eth2 --ips 192.168.1.185 --netmask 24
+#    weka cluster container net add  4 eth3 --ips 192.168.1.195 --netmask 24
+#    weka cluster container net add  4 eth4 --ips 192.168.1.205 --netmask 24
+
+#- name: Test
+#  shell: |
+#    echo "{{ item[0] }} {{ item[1].netdev }} {{ item.1.ipaddr }} "
+#  delegate_to: "{{ inventory_hostname }}"
+#  delegate_facts: True
+#  with_nested:
+#   - "{{ all_cont_ids }}"
+#   - "{{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
+#  when: print_debug == true and inventory_hostname in groups['workers']
+  # when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#  #  # - "{{ all_cont_ids }}"
+
+#
+#- name: Test
+#  shell: |
+#    echo "{{ item[1] }} {{ item[0].netdev }} {{ item[0].ipaddr }} "
+#  delegate_to: "{{ inventory_hostname }}"
+#  delegate_facts: True
+#  with_nested:
+#   - "{{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }} + {{ all_cont_ids }}"
+#  when: print_debug == true and inventory_hostname in groups['workers']
+  # when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # - "{{ all_cont_ids }}"
+
+
+#- vars:
+#    var1: "{{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
+
+#
+- name: Set Facts to combine netdevs and ipaddrs
+  set_fact:
+    netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4, netdev5 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
+  when: inventory_hostname in groups['workers']
+
+
+# - debug: msg={{ all_cont_ids }}
+
+# - debug: msg={{ netinfo + all_cont_ids }}
+
+- debug: msg={{ netinfo }}
+- debug: msg={{ all_cont_ids }}
+
+
+#- name: Test 1
+#  debug: msg={{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }} + {{ all_cont_ids }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
 # when: inventory_hostname in groups['workers']
 #- debug: msg={{ add_network_drive }}
 #  when: inventory_hostname in groups['workers'] and print_debug == true
   #  - "{{ all_cont_ids }} |  [ {{ netdev2 }}, {{ netdev3 }}, {{ netdev4 }}, {{ netdev5 }} ]"
 
-- meta: end_play
+#- vars:
+#    test1: ""
 
-#  register: add_network_drive
-#  delegate_to: "{{ inventory_hostname }}"
-#  delegate_facts: True
-#  with_items:
-#    - { netdev: "{{ netdev2 }}" }
-#    - { netdev: "{{ netdev3 }}" }
-#    - { netdev: "{{ netdev4 }}" }
-#    - { netdev: "{{ netdev5 }}" }
-#  when: inventory_hostname in groups['workers']
-#- debug: msg={{ add_network_drive }}
-#  when: inventory_hostname in groups['workers'] and print_debug == true
-#  # delegate_to: "{{ inventory_hostname }}"
-#  # delegate_facts: True
-# pdsh -w {{ hostvars[groups['workers'][0]]['ansible_hostname'] }} "weka cluster host net add 0 {{ item.netdev }} --ips {{ ipaddr1 }} --netmask 24"
+
+- name: Build Dict
+  set_fact:
+    cont_ids: >-
+      {%- set results = [] -%}
+      {%- for item in all_cont_ids -%}
+      {%-   set _ = results.append({ 'cont_id': item, 'option': '' }) -%}
+      {%- endfor -%}
+      {{ results }}
+
+
+# - debug: msg={{ cont_ids }}
+
+
+#- name: My dict
+#  set_fact:
+#    all_netinfo: "{{ all_netinfo | default([]) | combine(cont_ids, netinfo) }}"
+#    # all_netinfo: "{{ netinfo | map(cont_ids) | list }}"
+
+# - debug: msg={{ all_netinfo }}
+
+# - meta: end_play
+
+# https://stackoverflow.com/questions/75812817/converting-list-to-list-of-dictionaries-in-ansible-adding-constant-fields-using
+# https://serverfault.com/questions/988278/converting-two-lists-into-a-specific-dictionary-so-it-can-be-sorted
+
+    # all_netinfo: "{{ netinfo | product(all_cont_ids) | list }}"
+    # all_netinfo: "{{ all_netinfo | default([]) | combine(all_cont_ids, netinfo) }}"
+    # all_netinfo: "{{ netinfo | zip( netinfo | map('extract', dict(all_cont_ids) ) | list ) }}"
+    # all_netinfo: "{{ netinfo | map('extract', dict(all_cont_ids)) | list }}"
+    # all_netinfo: "{{ all_cont_ids | map('extract', dict(netinfo)) | list }}"
+    # all_netinfo: "{{ all_cont_ids | zip( all_cont_ids | map('extract', dict(netinfo) ) | list ) }}"
+    # all_netinfo: "{{ all_cont_ids | zip(netinfo) |  list }}"
+    # all_netinfo: "{{ netinfo | zip(all_cont_ids) |  list }}"
+    # all_netinfo: "{{ dict( all_cont_ids | zip(netinfo) ) }}"
+    # all_netinfo: "{{ all_cont_ids | zip(netinfo) | sort(attribute='0') | map(attribute='1') | list }}"
+    # l3: "{{ l1 | zip( l1 | map('extract', dict(l2) ) | list ) }}"
+
+#
+#- debug: msg={{ all_netinfo }}
+
+# - debug: msg={{ all_cont_ids | zip(netinfo) | list }}
+# - debug: msg={{ all_cont_ids | zip(netinfo) | list }}
+
+- name: My dict
+  set_fact:
+    all_netinfo: "{{ all_netinfo | default([]) | combine(cont_ids, netinfo) }}"
+#
+#
+- name: Add networks
+  shell: |
+    echo "weka cluster host net add {{ item.cont_id }} {{ item.ipaddr }} --ips {{ item.netdev }} --netmask 24"
+  register: add_network_drive
+  with_items:
+    - "{{ all_cont_ids | zip(netinfo) | list }}"
+  when: inventory_hostname in groups['workers']
+  # my_dict: "{{ all_cont_ids | zip(netinfo) | sort(attribute='1') | map(attribute='0') | list }}"
+  #  echo "weka cluster host net add {{ item.0 }} {{ item.1.ipaddr }} --ips {{ item.1.netdev }} --netmask 24"
+  # - "{{ all_cont_ids | zip(netinfo) | list }}"
+  # - "{{ all_netinfo | default([]) | combine(cont_ids, netinfo) }}"
+  #  - "{{ combine(cont_ids, netinfo) }}"
+
+#
+- meta: end_play
 
 #
 - name: Delete Partition Table

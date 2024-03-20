@@ -35,7 +35,7 @@
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Stop and remove containers
+- name: Stop and Remove MCB Containers
   shell: |
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
@@ -49,7 +49,7 @@
   when: inventory_hostname in groups['workers'] and print_debug == true
 
 #
-- name: Stop and remove containers
+- name: Stop and Remove SCB Container
   shell: |
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
@@ -62,7 +62,7 @@
   # - "default"
 
 #
-- name: Destroy Weka Containers
+- name: Destroy Weka Containers in All Hosts
   shell: /root/tools/install/wekadestroy -f -y -u {{ ipaddr0 }}
   register: destroy_weka_clu
   ignore_errors: true
