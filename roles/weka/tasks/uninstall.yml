@@ -1,28 +1,9 @@
 #
-#- name: Check the status of Weka Cluster
-#  shell: |
-#    weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
-#  register: check_weka_cluster
-#  ignore_errors: true
-#  when: destroy_weka == true and inventory_hostname in groups['workers']
-
-#    print_debug: true
-#    uninstall_pkgs: true
-#    unconfig_client: false
-#    delete_wekafs: false
-#    destroy_weka: true
-
-#- debug: msg={{ check_weka_cluster }}
-#  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
-
+# weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
 #
-# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
-#- set_fact:
-#    all_nodes_hostname: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-#  when: destroy_weka == true and inventory_hostname in groups['workers']
-#
-#- debug: msg={{ all_nodes_hostname }}
-#  when: inventory_hostname in groups['workers'] and ( print_debug == true and destroy_weka == true )
+- name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
+  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  failed_when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
 - name: Copy expect script file to stop io operation

@@ -9,8 +9,8 @@ smb:
         id: Administrator
         pass: Changeme12\!\@
   net:
-    ips_range: 192.168.0.241-245
-    client_ip: 192.168.0.241
+    ips_range: 192.168.1.241-245
+    client_ip: 192.168.1.241
   fs:
     name: jtest-smb-fs01
     mount_dir: /mnt/jtest-smb-fs01

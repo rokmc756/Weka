@@ -1,7 +1,7 @@
 ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 weka:
-  cluster_name: jack-kr-mcb
+  cluster_name: jack-kr-scb
   major_version: "4"
   minor_version: "2"
   build_version: "9"
@@ -22,16 +22,16 @@ weka:
     ipaddr5: "192.168.1.21"
     data_plane: netdev2
     gateway: "192.168.0.1"
-    conn: "dpdk"               # dpdk or udp
+    conn: "dpdk"                # dpdk or udp
   backend:
-    scb: true
-    mcb: false
+    scb: false
+    mcb: true
   client:
-    nfs: true
-    wekafs: true
-    s3: true
+    nfs: false
+    wekafs: false
+    s3: false
     smb: false
-  tools:                     # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
+  tools:                        # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1
     minor_version: 3
@@ -42,3 +42,4 @@ weka:
     download_url: "get.weka.io/api/v1/wsa/4.2.9.28/"
   wma:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
+
