@@ -17,6 +17,7 @@ nmcli connection modify conn2 802-3-ethernet.mtu 9000
 
 nmcli con modify conn3 ipv4.method manual ipv4.address 192.168.1.$(( 14$ENDIP + 10 ))/24
 nmcli con modify conn3 ipv4.gateway 192.168.1.141
+
 nmcli connection modify conn1 ipv4.dns 192.168.0.100,192.168.0.90,8.8.8.8,168.126.63.1 ipv4.dns-search jtest.weka.io
 nmcli connection modify conn2 ipv4.dns 192.168.0.100,192.168.0.90,8.8.8.8,168.126.63.1 ipv4.dns-search jtest.weka.io
 nmcli connection modify conn3 ipv4.dns 192.168.0.100,192.168.0.90,8.8.8.8,168.126.63.1 ipv4.dns-search jtest.weka.io

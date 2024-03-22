@@ -1,0 +1,17 @@
+# Install WekaFS client
+
+cd /root/weka-4.0.1; ./install.sh
+curl 172.29.0.111:14000/dist/v1/install | sh
+
+# WekaFS mount
+mount -t wekafs -o net=ens1f0np0 10.0.98.111/jtest-fs-fs01 /mnt/weka
+
+# S3 upload and download
+s3cmd --config ~/.s3cfg put /root/part*.gz.parquet s3://jtest-s3-bucket01
+s3cmd --config ~/.s3cfg get s3://jtest-s3-bucket01/*.gz.parquet .
+
+# nfs mount
+mount -t nfs 10.0.98.120:/jtest-nfs-fs01 /mnt/jtest-nfs
+
+# force nfs umount
+umount -f -l /mnt/jtest-nfs

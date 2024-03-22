@@ -185,27 +185,27 @@
 #- debug: msg={{ check_apply_status }}
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-
-# weka cluster process
-# Need to check if all processes are up before start meeting UP, DOWN, SYNC
-
-# weka cluster license payg ####
+#
 - name: Start IO in the cluster
   shell: |
     weka cluster start-io
   register: start_cluster_io
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ start_cluster_io }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # weka cluster failure-domain
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true
 
 #
 - name: Copy expect script file to change admin password
-  template: src=change-admin-pass.sh.j2 dest=/root/change-admin-pass.sh owner=root group=root mode=755 force=yes
+  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
+  register: copy_expect_file
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ copy_expect_file }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true
 
 #
 - name: Change admin password
   shell: /root/change-admin-pass.sh
+  register: change_admin_pass
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
+- debug: msg={{ change_admin_pass }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true
