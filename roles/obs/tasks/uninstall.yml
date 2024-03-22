@@ -41,7 +41,6 @@
     umount /mnt/{{ obs.fs.name }}
     rm -rf /mnt/{{ obs.fs.name }}
   register: delete_obsfs_dir
-  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_obsfs_dir  }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -49,9 +48,8 @@
 #
 - name:  Delete WekaFS attached into Object Store Tier
   shell: |
-    weka fs delete {{ obs.tier.fs.name }} --force
+    weka fs delete {{ obs.tier.fs.name }} -f --purge-from-obs
   register: update_obs_fs_grp
-  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ update_obs_fs_grp }}
 
@@ -62,7 +60,6 @@
   shell: |
     weka fs tier s3 delete {{ obs.tier.name }}
   register: delete_obs_tier
-  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_obs_tier }}
 
@@ -71,7 +68,6 @@
   shell: |
     weka fs tier obs delete {{ obs.name }}
   register: delete_obs
-  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_obs }}
 

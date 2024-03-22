@@ -1,16 +1,16 @@
 obs:
-  name: jtest-obs01
+  name: obs01
   tier:
-    name: jtest-obs-tier01
+    name: obs-tier01
     ssd_size: 1GiB
     fs:
-      name: jtest-obs-new-fs01
+      name: obs-new-fs01
       size: 7GiB
     fs_group:
-      name: jtest-obs-grp01
+      name: obs-g01
     demote: 30
   fs:
-    name: jtest-obs-fs01
+    name: obs-fs01
     size: 10GiB
   site:
     name: local                                                 # default-local or default-remote

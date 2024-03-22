@@ -19,7 +19,7 @@
 #
 - name: Create Custom WekaFS with the specific capacity
   shell: |
-    weka fs create {{ item.name }} {{ item.grp_name }} {{ item.size }}
+    weka fs create {{ item.name }} {{ item.group }} {{ item.size }}
   register: create_custom_wekafs
   with_items: "{{ wekafs.fs }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -40,4 +40,3 @@
   register: check_wekafs_container
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_wekafs_container }}
-

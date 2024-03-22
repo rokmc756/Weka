@@ -10,4 +10,4 @@ nfs:
     gateway: 192.168.1.1
     iprange: 192.168.1.241-245
   fs:
-    config: jtest-default-fs01
+    config: default-fs01

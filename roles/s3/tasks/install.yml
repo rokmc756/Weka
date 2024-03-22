@@ -19,7 +19,7 @@
 # Arguments:
 # default-fs-name   S3 default filesystem name
 # config-fs-name    S3 config filesystem name
-- name: Create S3 Cluster
+- name: Create S3 Backend Containers
   shell: |
     weka s3 cluster create {{ s3.fs.default.name }} {{ s3.fs.config.name }} --container {{ all_container_ids.stdout }}
   register: create_s3_cluster
@@ -28,7 +28,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Validate if S3 Cluster is Online
+- name: Validate if S3 Backedn Containers are Online
   shell: weka s3 cluster status
   register: check_s3_cluster_status
   until: check_s3_cluster_status.stdout.find("Not Ready") == -1
@@ -48,21 +48,33 @@
 
 #
 - name: Copy expect script file to add s3 user
-  template: src=add-s3-user.sh.j2 dest=/root/add-s3-user.sh owner=root group=root mode=755 force=yes
+  template: src=add-s3-user.sh.j2 dest={{ weka.base_path }}/add-s3-user.sh owner=root group=root mode=755 force=yes
+  register: copy_expect_script
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ copy_expect_script }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Add s3 user
-  shell: /root/add-s3-user.sh
+  shell: |
+    {{ weka.base_path }}/add-s3-user.sh
+  register: add_s3_user
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_s3_user }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Attache readwrite permission
+- name: Attache Read-Write Permission
   shell: weka s3 policy attach readwrite {{ s3.users.name }}
+  register: attach_rw_perm
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ attach_rw_perm }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Remove add s3 user script
-  shell: rm -f /root/add-s3-user.sh
+- name: Remove Add S3 User Script
+  shell: rm -f {{ weka.base_path }}/add-s3-user.sh
+  register: remove_add_s3_user_script
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
+- debug: msg={{ remove_add_s3_user_script }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

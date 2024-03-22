@@ -26,7 +26,7 @@
 - debug: msg={{ destroy_s3_bucket }}
 
 #
-- name: Remove S3 Cluster Container
+- name: Remove S3 Backend Containers
   shell: |
     weka s3 cluster containers remove {{ item }}
   register: remove_s3_cluster_container
@@ -35,7 +35,7 @@
 - debug: msg={{ remove_s3_cluster_container }}
 
 #
-- name: Destroy S3 Clsuter
+- name: Destroy S3 Backend Containers
   shell: |
     weka s3 cluster destroy --force
   register: destroy_s3_cluster

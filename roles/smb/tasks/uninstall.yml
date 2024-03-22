@@ -34,7 +34,6 @@
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
 # - name: Remove SMB Containers
 #   shell: |
 #    weka smb cluster containers remove --container-ids {{ all_container_ids.stdout }} --force

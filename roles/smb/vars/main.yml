@@ -1,6 +1,6 @@
 smb:
   cluster:
-    name: jtest-smb-clu01
+    name: smb-clu01
   ad:
     domain: jtest.weka.io
     netbios: JTEST
@@ -12,9 +12,9 @@ smb:
     ips_range: 192.168.1.241-245
     client_ip: 192.168.1.241
   fs:
-    name: jtest-smb-fs01
-    mount_dir: /mnt/jtest-smb-fs01
-    mount_point: jtest-smb-fs01
+    name: smb-fs01
+    mount_dir: /mnt/smb-fs01
+    mount_point: smb-fs01
   share:
-    name: jtest-smb-share-01
+    name: smb-share-01
 
