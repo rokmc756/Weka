@@ -4,9 +4,8 @@ remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
 [workers]
-rk8-node01 ansible_ssh_host=192.168.0.171 host_id=0
-rk8-node02 ansible_ssh_host=192.168.0.172 host_id=1
-rk8-node03 ansible_ssh_host=192.168.0.173 host_id=2
-rk8-node04 ansible_ssh_host=192.168.0.174 host_id=3
-rk8-node05 ansible_ssh_host=192.168.0.175 host_id=4
-
+rk8-node01 ansible_ssh_host=192.168.0.171
+rk8-node02 ansible_ssh_host=192.168.0.172
+rk8-node03 ansible_ssh_host=192.168.0.173
+rk8-node04 ansible_ssh_host=192.168.0.174
+rk8-node05 ansible_ssh_host=192.168.0.175

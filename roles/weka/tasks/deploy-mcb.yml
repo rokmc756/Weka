@@ -4,50 +4,6 @@
   failed_when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
-#- name: Set Facts of Drives Container Net into all hosts
-#  set_fact:
-#    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Drives Container Net into all hosts
-#  set_fact:
-#    drives_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Compute Container Net into all hosts
-#  set_fact:
-#    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Compute Container Net into all hosts
-#  set_fact:
-#    compute_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
-#
-#
-##
-#- name: Set Facts of Frontend Container Net into all hosts
-#  set_fact:
-#    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Frontend Container Net into all hosts
-#  set_fact:
-#    frontend_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
-
-
-#
 - name: Create Drive Containers
   shell: |
     weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \
@@ -64,11 +20,13 @@
 #
 - name: Create Weka Cluster
   shell: |
-    weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_int5_ipaddrs }} -T infinite
+    weka cluster create {{ all_management_ipaddrs }}
   register: create_weka_cluster
+  retries: 10
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
-  #  weka cluster create {{ all_management_ipaddrs }}
+  # weka cluster create {{ all_management_ipaddrs }}
+  # weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_net5_ipaddrs }} -T infinite
 
 #
 - name: Validate if Weka Cluster is still creating
@@ -124,7 +82,7 @@
   shell: |
     weka local setup container --name {{ container.compute.name }} --base-port {{ container.compute.port }} \
     --only-compute-cores --cores {{ container.compute.core_num }} \
-    --join-ips {{ all_int5_ipaddrs }}:{{ container.compute.port }} \
+    --join-ips {{ all_net5_ipaddrs }}:{{ container.compute.port }} \
     --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} {{ container.compute.options }} \
     {{ compute_net }} \
@@ -140,7 +98,7 @@
   shell: |
     weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
     --only-frontend-cores --cores {{ container.frontend.core_num }} --memory {{ container.frontend.memory }} \
-    --join-ips {{ all_int5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
+    --join-ips {{ all_net5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} {{ container.frontend.options }} \
     {{ frontend_net }}
   register: create_frontend_containers

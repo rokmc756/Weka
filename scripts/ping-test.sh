@@ -1,4 +1,4 @@
-for i in `seq 1 5`
+for i in `seq 1 9`
 do
 
     sudo ping -c 1 192.168.0.17$i

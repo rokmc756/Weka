@@ -15,7 +15,7 @@
 - name: Define facts for all worker's hostname
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-#- debug: msg={{ all_ext1_hostnames }}
+- debug: msg={{ all_ext1_hostnames }}
 
 #
 - name: Define fact for all addresses of each network devices
@@ -35,47 +35,4 @@
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
 - debug: msg={{ weka_tools_file_name }}
 
-
-################################################################################################################################################
-#
-#- name: Set Facts of Drives Container Net into all hosts
-#  set_fact:
-#    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Drives Container Net into all hosts
-#  set_fact:
-#    drives_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Compute Container Net into all hosts
-#  set_fact:
-#    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Compute Container Net into all hosts
-#  set_fact:
-#    compute_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Frontend Container Net into all hosts
-#  set_fact:
-#    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
-#  delegate_facts: True
-#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-##
-#- name: Set Facts of Frontend Container Net into all hosts
-#  set_fact:
-#    frontend_net: ""
-#  delegate_facts: True
-#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
