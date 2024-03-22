@@ -4,8 +4,8 @@ weka:
   cluster_name: jack-kr-scb
   major_version: "4"
   minor_version: "2"
-  build_version: "8"
-  patch_version: ".66"
+  build_version: "9"
+  patch_version: ".29-hcsf"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
@@ -23,6 +23,8 @@ weka:
     data_plane: netdev2
     gateway: "192.168.0.1"
     conn: "dpdk"                # dpdk or udp
+    ha1: 1
+    ha2: 2
   backend:
     scb: false
     mcb: true
