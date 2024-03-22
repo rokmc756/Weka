@@ -4,17 +4,62 @@
   failed_when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
+#- name: Set Facts of Drives Container Net into all hosts
+#  set_fact:
+#    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Drives Container Net into all hosts
+#  set_fact:
+#    drives_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Compute Container Net into all hosts
+#  set_fact:
+#    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Compute Container Net into all hosts
+#  set_fact:
+#    compute_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
+#
+#
+##
+#- name: Set Facts of Frontend Container Net into all hosts
+#  set_fact:
+#    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Frontend Container Net into all hosts
+#  set_fact:
+#    frontend_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
+
+
+#
 - name: Create Drive Containers
   shell: |
     weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \
-    --net eth1/{{ ipaddr1 }}/24 --net eth2/{{ ipaddr2 }}/24 \
-    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr1 }},{{ ipaddr2 }}
+    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr5 }} \
+    {{ container.drives.options }} \
+    {{ drives_net }}
   register: create_drives_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_drives_containers }}
   when: inventory_hostname in groups['workers']
   # pdsh -w 192.168.17[1-5] "weka local resources -C drives0"
-  # weka local setup container --name {{ container.drives.name }} --resources-path /tmp/drives0.json --failure-domain {{ ansible_hostname }}
+  # --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr1 }},{{ ipaddr2 }}
 
 #
 - name: Create Weka Cluster
@@ -79,28 +124,32 @@
   shell: |
     weka local setup container --name {{ container.compute.name }} --base-port {{ container.compute.port }} \
     --only-compute-cores --cores {{ container.compute.core_num }} \
-    --net {{ netdev3 }}/{{ ipaddr3 }}/24 \
     --join-ips {{ all_int5_ipaddrs }}:{{ container.compute.port }} \
     --management-ips={{ ipaddr5 }} \
-    --failure-domain {{ ansible_hostname }} {{ container.compute.options }}
+    --failure-domain {{ ansible_hostname }} {{ container.compute.options }} \
+    {{ compute_net }} \
+    {{ container.compute.options }}
   register: create_compute_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_compute_containers }}
   when: inventory_hostname in groups['workers']
+  # --net {{ netdev3 }}/{{ ipaddr3 }}/24 
 
 #
 - name: Create Frontend Containers
   shell: |
     weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
     --only-frontend-cores --cores {{ container.frontend.core_num }} --memory {{ container.frontend.memory }} \
-    --net {{ netdev4 }}/{{ ipaddr4 }}/24 --join-ips {{ all_int5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
-    --failure-domain {{ ansible_hostname }} {{ container.frontend.options }}
+    --join-ips {{ all_int5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
+    --failure-domain {{ ansible_hostname }} {{ container.frontend.options }} \
+    {{ frontend_net }}
   register: create_frontend_containers
   when: inventory_hostname in groups['workers']
 - debug: msg={{ create_frontend_containers }}
   when: inventory_hostname in groups['workers']
   # weka local setup container --name {{ container.frontend.name }} --join-ips {{ all_int3_ipaddrs }} --memory 0 \
   # --management-ips={{ ipaddr0 }}
+  # --net {{ netdev4 }}/{{ ipaddr4 }}/24
 
 #
 - name: Enable Cloud for Weka

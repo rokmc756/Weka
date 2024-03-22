@@ -24,23 +24,6 @@
 - debug: msg={{ all_ext1_ipaddrs }}
 
 #
-#- name: Define fact for all worker's second ip addresses
-#  set_fact:
-#    all_nodes_2nd_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-#- debug: msg={{ all_nodes_2nd_ipaddrs }}
-
-#- name: Set fact for merge ip addresses for HA
-#  set_fact:
-#    ha_ips: {% for h in groups['workers'] %}{{hostvars[h]['ansible_eth0']['ipv4']['address']}}+{{ hostvars[h]['ansible_eth1']['ipv4']['address'])}}{% if not loop.last %},{% endif %}{% endfor %}
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#- name: Set fact for merge ip addresses for HA
-#  set_fact:
-#    ha_ips: "{{ ( ha_ips | default([]) ) + [ hostvars[item].ansible_eth0.ipv4.address + '+' + hostvars[item].ansible_eth1.ipv4.address ] }}"
-#  loop: "{{ groups['workers'] }}"
-#- debug: msg={{ var: ha_ips | join(',') }}
-
-#
 - name: Define fact for Weka version
   set_fact:
     weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
@@ -51,4 +34,48 @@
   set_fact:
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
 - debug: msg={{ weka_tools_file_name }}
+
+
+################################################################################################################################################
+#
+#- name: Set Facts of Drives Container Net into all hosts
+#  set_fact:
+#    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Drives Container Net into all hosts
+#  set_fact:
+#    drives_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Compute Container Net into all hosts
+#  set_fact:
+#    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Compute Container Net into all hosts
+#  set_fact:
+#    compute_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Frontend Container Net into all hosts
+#  set_fact:
+#    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+#
+##
+#- name: Set Facts of Frontend Container Net into all hosts
+#  set_fact:
+#    frontend_net: ""
+#  delegate_facts: True
+#  when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
