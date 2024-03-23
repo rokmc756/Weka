@@ -137,18 +137,48 @@
     msg: "{{ left1 }} {{ right1 }}"
   when: ( rs1|int != 0 )
 
+
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
     all_net1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
     all_net2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
   when: ( rs1|int != 0 ) and inventory_hostname in groups['workers']
-  # with_sequence: start=1 end={{ left1 }}
-
 
 # https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times
 # https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
-# - debug: msg={{ all_net1_ipaddrs }}
-# - debug: msg={{ all_net2_ipaddrs }}
+# https://stackoverflow.com/questions/43281212/ansible-include-with-array-slices
+
+# msg: "{{ dict( [ all_net1_ipaddrs.split(',') | list ] | slice(2) ) }}"
+# msg: "{{ dict( list_t1 | slice(2) ) }}"
+- set_fact:
+    list_t1: "{{ all_net1_ipaddrs.split(',') | list }}"
+    list_t2: "{{ all_net2_ipaddrs.split(',') | list }}"
+
+- debug:
+    msg: "{{ list_t1[0:left1|int] }}"
+
+- debug:
+    msg: "{{ list_t1[left1|int:weka.host_num|int] }}"
+
+- debug:
+    msg: "{{ list_t2[0:left1|int] }}"
+
+- debug:
+    msg: "{{ list_t2[left1|int:weka.host_num|int] }}"
+
+
+# 목록에서 사전 만들기
+# 대부분의 언어에서는 쌍 목록에서 사전(맵/연관 배열/해시 등)을 만드는 것이 쉽습니다. Ansible 에는 이를 수행하는 몇 가지 방법이 있으며 가장 적합한 방법은 소스에 따라 달라질 수 있습니다. 당신의 데이터.
+# 이 예에서는 {"a": "b", "c": "d"} 를 생성합니다.
+#
+# 목록이 [key, value, key, value, …]라고 가정하여 구술하는 간단한 목록입니다.
+# vars:
+#     single_list: [ 'a', 'b', 'c', 'd' ]
+#     mydict: "{{ dict(single_list | slice(2)) }}"
+# 쌍 목록이 있으면 더 간단합니다.
+# vars:
+#     list_of_pairs: [ ['a', 'b'], ['c', 'd'] ]
+#     mydict: "{{ dict(list_of_pairs) }}"
 
 - meta: end_play
 
