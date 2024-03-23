@@ -1,4 +1,3 @@
---hhhhhhhhhhhhhh
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 # Find all network device names
 # find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n' | sort
@@ -7,6 +6,11 @@
     netord: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]$' ) | sort }}"
     netdevs: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | sort }}"
     netfix: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '^[a-zA-Z][a-zA-Z][a-zA-Z]' ) | sort | first }}"
+  when: inventory_hostname in groups['workers']
+
+#- debug: msg={{ netord }}
+#- debug: msg={{ netdevs }}
+#- debug: msg={{ netfix }}
 
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
@@ -14,29 +18,61 @@
     "{{ 'ipaddr'~item }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item ].ipv4.address }}"
     "{{ 'all_net'~item~'_ipaddrs' }}": "{{ groups['workers'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item, 'ipv4', 'address']) | join(',') }}"
   with_items: "{{ netord }}"
+  when: inventory_hostname in groups['workers']
 
 - name: Define Facts for All Hostnames and Management IP Addresses
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
     all_management_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ '5', 'ipv4', 'address']) | join(' ') }}"
+  when: inventory_hostname in groups['workers']
 
+# Example of print Facts
+#- debug: msg="{{ 'netdev'~item }}"
+#  with_items: "{{ netord }}"
+#
+#- debug: msg="{{ 'ipaddr'~item }}"
+#  with_items: "{{ netord }}"
+#
+#- debug: msg="{{ 'all_net'~item~'_ipaddrs' }}"
+#  with_items: "{{ netord }}"
+
+# Examle
 #- name: Set HA Fact to Merge IP Addresses
 #  set_fact:
 #    ha_ips: {% for h in groups['workers'] %}{{hostvars[h]['ansible_' ~ netfix ~ weka.net.ha1]['ipv4']['address']}}+{{ hostvars[h]['ansible_' ~ netfix ~ weka.net.ha2]['ipv4']['address'])}}{% if not loop.last %},{% endif %}{% endfor %}
 #  when: inventory_hostname in groups['workers']
-#- debug: msg="{{ ha_ips | join(',') }}"
-#  ha_ips: "{{ ha_ips | default([]) + [ ipaddr1 + '+' + ipaddr2 ] | join(',') }}"
 
-# ipaddr1 / 2
-# ipaddr2
+# Example of define variables repeatedly with with_items
+#- name: Set individual facts for individual HA IPs
+#  set_fact:
+#    "{{ 'ha_ips'~item }}": "{{ ipaddr1 }}+{{ ipaddr2 }}"
+#  with_items: "{{ netord }}"
+#  when: inventory_hostname in groups['workers']
 
-- name: Define Facts for All Hostnames and Management IP Addresses
+
+- name: Set Facts for HA IP Addresses of Individual Hosts
   set_fact:
-    ha_ips: "{{ ha_ips | default([]) | join(item.0, item.1, '+') | join(',') }}"
-  with_items:
-    - { "{{ netdev1 }}", "{{ netdev1 }}" }
+    ha_ips0: "{{ ipaddr1 }}+{{ ipaddr2 }}"
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ ha_ips0 }}
+  when: print_debug == true and inventory_hostname in groups['workers']
 
+- name: Set Facts for HA IP Addresses of All Hosts
+  set_fact:
+    ha_ips: "{{ groups['workers'] | map('extract', hostvars, ['ha_ips0']) | join(',') }}"
+  when: inventory_hostname in groups['workers']
 - debug: msg={{ ha_ips }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+
+# Example of variable appended with_items
+#- debug:
+#    msg: "{{ vars['ha_ips'~item] }}"
+#  with_items: "{{ netord }}"
+#  when: inventory_hostname in groups['workers']
+#
+# Example of cut last a character in a line
+# ha_ips: "{{ ha_ips0[:-1] }}"
 
 #
 - name: Define fact for Weka version

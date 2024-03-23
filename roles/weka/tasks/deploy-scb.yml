@@ -83,7 +83,6 @@
 # - debug: "{{ netinfo | zip( netinfo | map('extract', dict(all_cont_ids) ) | list ) }}"
 # - debug: "{{ all_cont_ids | zip( all_cont_ids | map('extract', dict(netinfo) ) | list ) }}"
 # - debug: "{{ all_cont_ids | zip(netinfo) | sort(attribute='0') | map(attribute='1') | list }}"
-# - debug: "{{ all_cont_ids | zip(netinfo) | sort(attribute='1') | map(attribute='0') | list }}"
 # - debug: "{{ netinfo | combine(cont_ids, recursive=true) }}"
 # - debug: msg={{ all_cont_ids | map('extract', ["{{ netdev2 }}", "{{ netdev3 }}", "{{ netdev4 }}", "{{ netdev5 }}"]) | list }}
 # - debug: msg={{ all_cont_ids | combine( [ netdev2 , netdev3 , netdev4 ,  netdev5 ], list_merge='append' ) }}
