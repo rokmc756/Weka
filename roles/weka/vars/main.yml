@@ -2,6 +2,8 @@ upload_weka_bin: false
 remove_weka_bin: false
 setup_weka_bin: false
 destroy_weka: true
+# first_addrs_num: "{{ weka.host_num|int % 2 | int }}"
+# second_addrs_num: "{{ weka.host_num|int % 2 | int }}"
 
 container:
    total_cores: "4"                 # Total_cores sholud be same as number of virtual network adpaters hold by a SCB default container for DPDK in Virtual Environment

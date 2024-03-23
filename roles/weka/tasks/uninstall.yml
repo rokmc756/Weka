@@ -7,13 +7,15 @@
 
 #
 - name: Copy expect script file to stop io operation
-  template: src=weka-stop-io.sh.j2 dest=/root/weka-stop-io.sh owner=root group=root mode=755 force=yes
+  template: src=weka-stop-io.sh.j2 dest={{ weka.base_path }}/weka-stop-io.sh owner=root group=root mode=755 force=yes
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Stop IO
-#  shell: /root/weka-stop-io.sh
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Stop IO
+  shell: |
+    sh {{ weka.base_path }}/weka-stop-io.sh
+  ignore_errors: true
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Stop and Remove MCB Containers
@@ -24,11 +26,11 @@
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
+    - "{{ container.envoy.name }}"
   ignore_errors: true
   when: destroy_weka == true and weka.backend.mcb == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_containers }}
   when: inventory_hostname in groups['workers'] and print_debug == true
-  # - "{{ container.envoy.name }}"
 
 #
 - name: Stop and Remove SCB Container

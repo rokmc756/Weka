@@ -1,7 +1,5 @@
-# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
-# Find all network device names
 # find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n' | sort
-- name: Set Facts for Network Devices, Order and Prefix
+- name: Set Facts for Network Devices, Order and Prefix after finding alll network devices except lo
   set_fact:
     netord: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]$' ) | sort }}"
     netdevs: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | sort }}"
@@ -49,10 +47,11 @@
 #  with_items: "{{ netord }}"
 #  when: inventory_hostname in groups['workers']
 
-
+# weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
+# ha_ips0: "{{ ipaddr1 }}+{{ ipaddr2 }}"
 - name: Set Facts for HA IP Addresses of Individual Hosts
   set_fact:
-    ha_ips0: "{{ ipaddr1 }}+{{ ipaddr2 }}"
+    ha_ips0: "{{ vars['ipaddr'~weka.net.ha1] }}+{{ vars['ipaddr'~weka.net.ha2] }}"
   when: inventory_hostname in groups['workers']
 - debug: msg={{ ha_ips0 }}
   when: print_debug == true and inventory_hostname in groups['workers']
@@ -63,7 +62,6 @@
   when: inventory_hostname in groups['workers']
 - debug: msg={{ ha_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
-
 
 # Example of variable appended with_items
 #- debug:
@@ -97,6 +95,62 @@
   delegate_facts: True
   when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
+
+#- name: Set Fact to Split IP Addresses
+#- set_fact:
+    # even: "{{ groups['workers'][::2] }}"
+    # odd: "{{ groups['workers'][1::2] }}"
+
+#- debug: msg={{ even }}
+#- debug: msg={{ odd }}
+
+- debug:
+    msg: "{{ vars['all_net'~item~'_ipaddrs'].split(',')[0] }}"
+  with_items:
+    - "{{ weka.net.ha1 }}"
+    - "{{ weka.net.ha2 }}"
+
+- name: Check if the rest value exists
+  set_fact:
+    rs1: "{{ 5 % 2 }}"
+- debug: msg={{ rs1 }}
+
+- name: Set number divided in case that rest value equals to 0
+  set_fact:
+    dvn: "{{ 5 / 2 }}"
+  when: ( rs1|int == 0 )
+- debug: msg={{ dvn }}
+  when: ( rs1|int == 0 )
+
+- name: Set number divided in case that rest value not equals to 0
+  set_fact:
+    left1: "{{ ( 5 / 2 - 0.5 )|int }}"
+  when: ( rs1|int != 0 )
+
+- name: Set Facts for left numbers divded in case that rest value not equals to 0
+  set_fact:
+    right1: "{{ ( 5 - left1|int )|int }}"
+  when: ( rs1|int != 0 )
+
+- name: Set Facts for right numbers divded in case that rest value not equals to 0
+  debug:
+    msg: "{{ left1 }} {{ right1 }}"
+  when: ( rs1|int != 0 )
+
+- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
+  set_fact:
+    all_net1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
+    all_net2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
+  when: ( rs1|int != 0 ) and inventory_hostname in groups['workers']
+  # with_sequence: start=1 end={{ left1 }}
+
+
+# https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times
+# https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
+# - debug: msg={{ all_net1_ipaddrs }}
+# - debug: msg={{ all_net2_ipaddrs }}
+
+- meta: end_play
 
 #############################################################################################################################################################
 # Network IP Address Combination when two network interfaces is applied

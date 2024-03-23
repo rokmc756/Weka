@@ -13,6 +13,7 @@ weka:
   admin_default_pass: admin
   admin_change_pass: "Changeme12!@"
   bin_type: tar
+  host_num: "{{ groups['workers'] | length }}"
   net:
     ipaddr0: "192.168.0.17"
     ipaddr1: "192.168.1.17"
@@ -27,7 +28,7 @@ weka:
     ha2: 2
   backend:
     scb: false
-    mcb: true
+    mcb: false
   client:
     nfs: false
     wekafs: false
@@ -44,4 +45,3 @@ weka:
     download_url: "get.weka.io/api/v1/wsa/4.2.9.28/"
   wma:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
-
