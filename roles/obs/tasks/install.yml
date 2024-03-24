@@ -20,15 +20,8 @@
   register: reduce_obs_fs_size
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ reduce_obs_fs_size }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   #  weka fs update --total-capacity 10GB jtest-obs-fs01
-
-#
-- name: Add Customer Object Store
-  shell: |
-    weka fs tier obs add {{ obs.name }}
-  register: add_custom_obs
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ add_custom_obs }}
 
 #
 - name:  Check WekaFS
@@ -37,6 +30,27 @@
   register: check_wekafs
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_wekafs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Add Customer Object Store
+  shell: |
+    weka fs tier obs add {{ obs.name }} --site {{ obs.site.name }}
+  register: add_custom_obs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_custom_obs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+
+- name: Create a File System with a smallish capacity that is tiered to your bucket.
+  shell: |
+    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }}
+  register: create_obs_weka_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obs_weka_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  #  --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
+
 
 #
 - name: Attach and Object Store Bucket. (Use your own bucket details)
@@ -48,6 +62,16 @@
   register: attach_obs_bucket
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ attach_obs_bucket }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+#- name: Create a File System with a smallish capacity that is tiered to your bucket.
+#  shell: |
+#    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
+#  register: create_obs_weka_fs
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ create_obs_weka_fs }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 #- name: Reduce the size of the 'jtest-obs-fs02' file system if present
@@ -56,22 +80,7 @@
 #  register: reduce_obs_fs02_size
 #  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 #- debug: msg={{ reduce_obs_fs02_size }}
-
-#
-- name: Create a File System with a smallish capacity that is tiered to your bucket.
-  shell: |
-    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
-  register: create_obs_weka_fs
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_obs_weka_fs }}
-
-#
-#- name: For this example make the Tiering policy more aggressive. (30s in this case).
-#  shell: |
-#    weka fs group update jtest-obs-grp01 --start-demote=10
-#  register: update_obs_fs_grp
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ update_obs_fs_grp }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: For this example make the Tiering policy more aggressive. (30s in this case).
@@ -80,6 +89,8 @@
   register: update_obs_fs_grp
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ update_obs_fs_grp }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka fs group update {{ obs.tier.fs_group.name }} --start-demote={{ obs.tier.demote }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
 
 #
 - name: Create OBS directory to mount WekaFS
@@ -149,7 +160,7 @@
 #If you’re sure the currently running containers are not in use anymore, you can stop and delete them by running ‘weka local stop’ and ‘weka local rm’.
 #Please note that running these commands on backend hosts could cause data loss.
 
-#[root@cst2 ~]# weka fs tier s3 -v --name=jtest-obs-tier01
+# weka fs tier s3 -v --name=jtest-obs-tier01
 #UID                                   OBS ID  OBS NAME     OBS BUCKET ID  OBS BUCKET NAME   SITE   UPLOAD  DOWNLOAD  REMOVE  NODES UP  NODES DOWN  NODES UNKNOWN  LAST ERRORS  PROTOCOL  HOSTNAME                         PORT  BUCKET            AUTH METHOD    REGION          ACCESS KEY ID         SECRET KEY  STATUS  UPTIME    DOWNLOAD BANDWIDTH  UPLOAD BANDWIDTH   REMOVE BANDWIDTH   ERRORS TIMEOUT  PREFETCH MB  MAX CONCURRENT DOWNLOADS  MAX CONCURRENT UPLOADS  MAX CONCURRENT REMOVALS  MAX EXTENTS PER UPLOAD  MAX DATA UPLOAD SIZE  UPLOAD TAGS
 #ce27d195-b405-9049-7b54-c526e26c21a1  4       jtest-obs01  3              jtest-obs-tier01  LOCAL  UP      UP        UP      80        0           0                           HTTPS     s3.ap-northeast-2.amazonaws.com  443   jack-kr-bucket02  AWSSignature4  ap-northeast-2  changeme              changeme  UP      0:40:06h  _mbps: 4294967295   _mbps: 4294967295  _mbps: 4294967295  300             0            64                        64                      64                                                                     Disabled
 
@@ -175,7 +186,6 @@
 # Where ever this command is ran it must be mounted to Weka. <path> is the full path of the file.
 # fetch      Fetch object-stored files to SSD storage
 # weka fs tier fetch /mnt/jtest-obs-fs02
-
 
 # weka fs tier location /mnt/jtest-obs-fs02/1.txt
 # PATH                       FILE TYPE  FILE SIZE  CAPACITY IN SSD (WRITE-CACHE)  CAPACITY IN SSD (READ-CACHE)  CAPACITY IN OBJECT STORAGE  CAPACITY IN REMOTE STORAGE

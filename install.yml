@@ -6,10 +6,10 @@
   roles:
     - { role: weka }
   #  - { role: smb }
-  #  - { role: nfs }
   #  - { role: s3 }
   #  - { role: obs }
   #  - { role: wekafs }
+  #  - { role: nfs }
   #  - { role: init-hosts }
   #  - { role: minio }
   #  - { role: firewalld }

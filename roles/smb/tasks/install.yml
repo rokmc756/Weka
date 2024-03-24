@@ -77,9 +77,16 @@
   shell: |
     weka smb domain join {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }}
   register: login_ad
+  until: login_ad is succeeded
+  retries: 10
+  delay: 180
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ login_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  #      "stderr_lines": [],
+  #      "stdout": "Domain join timed out",
+  #      "stdout_lines": [
+  #          "Domain join timed out"
 
 #
 - name: Add SMB Share
@@ -89,7 +96,6 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_smb_share }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
 
 # It works in Rocky 9 Client
 # dnf install -y cifs-utils

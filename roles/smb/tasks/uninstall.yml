@@ -52,6 +52,9 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ leave_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # until: leave_ad is succeeded
+  # retries: 10
+  # delay: 180
 
 #
 - name: Destroy SMB Cluster
