@@ -95,12 +95,10 @@
   delegate_facts: True
   when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
-
 #- name: Set Fact to Split IP Addresses
-#- set_fact:
-    # even: "{{ groups['workers'][::2] }}"
-    # odd: "{{ groups['workers'][1::2] }}"
-
+#  set_fact:
+#    even: "{{ groups['workers'][::2] }}"
+#    odd: "{{ groups['workers'][1::2] }}"
 #- debug: msg={{ even }}
 #- debug: msg={{ odd }}
 
@@ -112,60 +110,66 @@
 
 - name: Check if the rest value exists
   set_fact:
-    rs1: "{{ 5 % 2 }}"
-- debug: msg={{ rs1 }}
-
-- name: Set number divided in case that rest value equals to 0
-  set_fact:
-    dvn: "{{ 5 / 2 }}"
-  when: ( rs1|int == 0 )
-- debug: msg={{ dvn }}
-  when: ( rs1|int == 0 )
+    rest: "{{ weka.host_num|int % 2 }}"
+- debug: msg={{ rest }}
 
 - name: Set number divided in case that rest value not equals to 0
   set_fact:
-    left1: "{{ ( 5 / 2 - 0.5 )|int }}"
-  when: ( rs1|int != 0 )
+    llen: "{{ ( weka.host_num|int / 2 ) | int }}"
+  when: ( rest|int == 0 )
+
+- name: Set number divided in case that rest value not equals to 0
+  set_fact:
+    llen: "{{ ( weka.host_num|int / 2 - 0.5 ) | int }}"
+  when: ( rest|int != 0 )
 
 - name: Set Facts for left numbers divded in case that rest value not equals to 0
   set_fact:
-    right1: "{{ ( 5 - left1|int )|int }}"
-  when: ( rs1|int != 0 )
+    rlen: "{{ ( weka.host_num|int - llen|int ) | int }}"
 
 - name: Set Facts for right numbers divded in case that rest value not equals to 0
   debug:
-    msg: "{{ left1 }} {{ right1 }}"
-  when: ( rs1|int != 0 )
+    msg: "{{ llen }} {{ rlen }}"
 
-
+#
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
-    all_net1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | join(',') }}"
-    all_net2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_eth2', 'ipv4', 'address']) | join(',') }}"
-  when: ( rs1|int != 0 ) and inventory_hostname in groups['workers']
+    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha1, 'ipv4', 'address']) | join(',') }}"
+    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha2, 'ipv4', 'address']) | join(',') }}"
+  when: inventory_hostname in groups['workers']
 
-# https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times
-# https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
-# https://stackoverflow.com/questions/43281212/ansible-include-with-array-slices
-
+# Examples
 # msg: "{{ dict( [ all_net1_ipaddrs.split(',') | list ] | slice(2) ) }}"
-# msg: "{{ dict( list_t1 | slice(2) ) }}"
-- set_fact:
-    list_t1: "{{ all_net1_ipaddrs.split(',') | list }}"
-    list_t2: "{{ all_net2_ipaddrs.split(',') | list }}"
+- name: Convert strings seperated with comma to list
+  set_fact:
+    list_all_ha1: "{{ all_ha1_ipaddrs.split(',') | list }}"
+    list_all_ha2: "{{ all_ha2_ipaddrs.split(',') | list }}"
 
-- debug:
-    msg: "{{ list_t1[0:left1|int] }}"
+- debug: msg={{ list_all_ha1[0:llen|int] }}
+- debug: msg={{ list_all_ha1[llen|int:weka.host_num|int] }}
+- debug: msg={{ list_all_ha2[0:llen|int] }}
+- debug: msg={{ list_all_ha2[llen|int:weka.host_num|int] }}
 
-- debug:
-    msg: "{{ list_t1[left1|int:weka.host_num|int] }}"
+- name: Split HA IP Addresses from two network interfaces
+  set_fact:
+    ha1_left: "{{ list_all_ha1[0:llen|int] }}"
+    ha1_right: "{{ list_all_ha1[llen|int:weka.host_num|int] }}"
+    ha2_left: "{{ list_all_ha2[0:llen|int] }}"
+    ha2_right: "{{ list_all_ha2[llen|int:weka.host_num|int] }}"
 
-- debug:
-    msg: "{{ list_t2[0:left1|int] }}"
+- debug: msg={{ ha1_left }}
+- debug: msg={{ ha1_right }}
+- debug: msg={{ ha2_left }}
+- debug: msg={{ ha2_right }}
 
-- debug:
-    msg: "{{ list_t2[left1|int:weka.host_num|int] }}"
+# Combine two list
+- name: Paste HA IP Addresses splitted from two network interfaces
+  set_fact:
+    ha1_ips: "{{ [ ha1_left + ha2_right ] | flatten | join(',') }}"
+    ha2_ips: "{{ [ ha2_left + ha1_right ] | flatten | join(',') }}"
 
+- debug: msg={{ ha1_ips }}
+- debug: msg={{ ha2_ips }}
 
 # 목록에서 사전 만들기
 # 대부분의 언어에서는 쌍 목록에서 사전(맵/연관 배열/해시 등)을 만드는 것이 쉽습니다. Ansible 에는 이를 수행하는 몇 가지 방법이 있으며 가장 적합한 방법은 소스에 따라 달라질 수 있습니다. 당신의 데이터.
@@ -180,7 +184,12 @@
 #     list_of_pairs: [ ['a', 'b'], ['c', 'd'] ]
 #     mydict: "{{ dict(list_of_pairs) }}"
 
-- meta: end_play
+# - meta: end_play
+
+# Reference
+# https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times
+# https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
+# https://stackoverflow.com/questions/43281212/ansible-include-with-array-slices
 
 #############################################################################################################################################################
 # Network IP Address Combination when two network interfaces is applied
