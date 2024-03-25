@@ -184,7 +184,7 @@
 #     list_of_pairs: [ ['a', 'b'], ['c', 'd'] ]
 #     mydict: "{{ dict(list_of_pairs) }}"
 
-# - meta: end_play
+- meta: end_play
 
 # Reference
 # https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times

@@ -5,9 +5,9 @@
     print_debug: true
   roles:
     - { role: weka }
+  #  - { role: obs }
   #  - { role: smb }
   #  - { role: s3 }
-  #  - { role: obs }
   #  - { role: wekafs }
   #  - { role: nfs }
   #  - { role: init-hosts }

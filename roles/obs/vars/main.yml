@@ -13,7 +13,7 @@ obs:
     name: obs-fs01
     size: 10GiB
   site:
-    name: remote                                                # local or remote
+    name: local                                                # local or remote
   s3:
     hostname: minio.jtest.weka.io
     port: 9001                                                  # 80 or 443 or 8443
@@ -25,15 +25,18 @@ obs:
     protocol: HTTPS_UNVERIFIED                                  # HTTP or HTTPS or HTTPS_UNVERIFIED
     access_key: minioadmin
     secret_key: changeme
+    options: "--errors-timeout 15minute --skip-verification --verbose-errors"
 
 #  s3:
 #    hostname: s3.ap-northeast-2.amazonaws.com
 #    port: 443                                                  # 80
+#    type: AWS
 #    bucket:
 #      name: jack-kr-bucket02
 #    auth_method: AWSSignature4                                 # AWSSignature4 or AWSSignature2 or none
 #    region: ap-northeast-2                                     #
 #    protocol: HTTPS                                            # HTTP or HTTPS
 #    access_key: ""
-#    secret_key: ""     #
+#    secret_key: ""
+#    options: "--errors-timeout 15minute --verbose-errors"
 

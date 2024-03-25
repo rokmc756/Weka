@@ -41,17 +41,6 @@
 - debug: msg={{ add_custom_obs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-
-- name: Create a File System with a smallish capacity that is tiered to your bucket.
-  shell: |
-    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }}
-  register: create_obs_weka_fs
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ create_obs_weka_fs }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  #  --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
-
-
 #
 - name: Attach and Object Store Bucket. (Use your own bucket details)
   shell: |
@@ -65,13 +54,13 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-#- name: Create a File System with a smallish capacity that is tiered to your bucket.
-#  shell: |
-#    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
-#  register: create_obs_weka_fs
-#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#- debug: msg={{ create_obs_weka_fs }}
-#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- name: Create a File System with a smallish capacity that is tiered to your bucket.
+  shell: |
+    weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
+  register: create_obs_weka_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_obs_weka_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 #- name: Reduce the size of the 'jtest-obs-fs02' file system if present
@@ -96,11 +85,11 @@
 - name: Create OBS directory to mount WekaFS
   shell: |
     mkdir /mnt/{{ obs.fs.name }}
-    mount -t wekafs {{ obs.fs.name }} /mnt/{{ obs.fs.name }}
   register: create_obsfs_dir
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_obsfs_dir  }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # mount -t wekafs {{ obs.fs.name }} /mnt/{{ obs.fs.name }}
 
 #
 ################################################################################
