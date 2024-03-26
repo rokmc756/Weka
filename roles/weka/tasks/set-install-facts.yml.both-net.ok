@@ -1,36 +1,71 @@
 # find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n' | sort
-- name: Set Facts for Network Devices, Sequence and Prefix after finding alll network devices except lo
+- name: Set Facts for Network Devices, Order and Prefix after finding alll network devices except lo
   set_fact:
-    netseq: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort }}"
+    netord: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort }}"
     netdevs: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | sort }}"
     netfix: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '^[a-zA-Z][a-zA-Z][a-zA-Z]' ) | sort | first }}"
     netcnt: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort | count|int - 1 }}"
   when: inventory_hostname in groups['workers']
 
-#- debug: msg={{ netseq }}
+#- debug: msg={{ netord }}
 #- debug: msg={{ netdevs }}
 #- debug: msg={{ netfix }}
-#- debug: msg={{ netcnt }}
+- debug: msg={{ netcnt }}
+
+#    "{{ 'netdev'~item }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
+- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
+  set_fact:
+    "{{ 'ipaddr'~item }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item ].ipv4.address }}"
+    "{{ 'all_net'~item~'_ipaddrs' }}": "{{ groups['workers'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item, 'ipv4', 'address']) | join(',') }}"
+    "{{ 'netdev'~item }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
+  with_items: "{{ netord }}"
+  when: netfix == "eth" and inventory_hostname in groups['workers']
+
+#- name: X
+#  set_fact:
+#    netdev_ord: "{{ netdev_ord | default({}) | combine({ item.0: item.1 }) }}"
+#  loop: "{{ query('together', range(0, netcnt|int+1 ), netord) }}"
+#  when: netfix != "eth" and inventory_hostname in groups['workers']
 
 - set_fact:
-    netdev_seq: "{{ dict( range(0,netcnt|int+1) | zip(netseq)) | dict2items(key_name='seq', value_name='end_seq') }}"
-- debug: msg={{ netdev_seq }}
-  when: print_debug == true and inventory_hostname in groups['workers']
+    netdev_ord: "{{ dict( range(0,netcnt|int+1) | zip(netord)) | dict2items(key_name='ord', value_name='net_ord') }}"
+
+#- debug: msg={{ netdev_ord }}
+#- meta: end_play
 
 #
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
-    "{{ 'ipaddr'~item.seq }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item.end_seq ].ipv4.address }}"
-    "{{ 'all_net'~item.seq~'_ipaddrs' }}": "{{ groups['workers'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item.end_seq, 'ipv4', 'address']) | join(',') }}"
-    "{{ 'netdev'~item.seq }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net['ipaddr'~item.seq] ) | map(attribute='device') | first }}"
-  with_items: "{{ netdev_seq }}"
-  when: inventory_hostname in groups['workers']
+    "{{ 'ipaddr'~item.ord }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item.net_ord ].ipv4.address }}"
+    "{{ 'all_net'~item.ord~'_ipaddrs' }}": "{{ groups['workers'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item.net_ord, 'ipv4', 'address']) | join(',') }}"
+    "{{ 'netdev'~item.ord }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net['ipaddr'~item.ord] ) | map(attribute='device') | first }}"
+  with_items: "{{ netdev_ord }}"
+  when: netfix != "eth" and inventory_hostname in groups['workers']
+
 
 - name: Define Facts for All Hostnames and Management IP Addresses
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
     all_management_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netdev5, 'ipv4', 'address']) | join(' ') }}"
   when: inventory_hostname in groups['workers']
+  #  all_management_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ '5', 'ipv4', 'address']) | join(' ') }}"
+
+# Example of print Facts
+#- debug: msg={{ 'netdev'~item.ord }}
+#  with_items: "{{ netdev_ord }}"
+#  when: netfix != "eth" and inventory_hostname in groups['workers']
+#  with_sequence: start=0 end={{ netcnt|int - 1 }}
+
+#- debug: msg={{ 'ipaddr'~item.ord }}
+#  with_items: "{{ netdev_ord }}"
+#  when: netfix != "eth" and inventory_hostname in groups['workers']
+#  with_sequence: start=0 end={{ netcnt|int - 1 }}
+
+#- debug: msg={{ 'all_net'~item~'_ipaddrs' }}
+#  with_items: "{{ netdev_ord.ord }}"
+#  when: netfix != "eth" and inventory_hostname in groups['workers']
+#  with_sequence: start=0 end={{ netcnt|int - 1 }}
+
 
 # Examle
 #- name: Set HA Fact to Merge IP Addresses
@@ -42,10 +77,11 @@
 #- name: Set individual facts for individual HA IPs
 #  set_fact:
 #    "{{ 'ha_ips'~item }}": "{{ ipaddr1 }}+{{ ipaddr2 }}"
-#  with_items: "{{ netseq }}"
+#  with_items: "{{ netord }}"
 #  when: inventory_hostname in groups['workers']
 
 # weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
+# ha_ips0: "{{ ipaddr1 }}+{{ ipaddr2 }}"
 - name: Set Facts for HA IP Addresses of Individual Hosts
   set_fact:
     ha_ips0: "{{ vars['ipaddr'~weka.net.ha1] }}+{{ vars['ipaddr'~weka.net.ha2] }}"
@@ -60,10 +96,11 @@
 - debug: msg={{ ha_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
+
 # Example of variable appended with_items
 #- debug:
 #    msg: "{{ vars['ha_ips'~item] }}"
-#  with_items: "{{ netseq }}"
+#  with_items: "{{ netord }}"
 #  when: inventory_hostname in groups['workers']
 #
 # Example of cut last a character in a line
@@ -109,7 +146,6 @@
   set_fact:
     rest: "{{ weka.host_num|int % 2 }}"
 - debug: msg={{ rest }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 
 - name: Set number divided in case that rest value not equals to 0
   set_fact:
@@ -130,18 +166,18 @@
     msg: "{{ llen }} {{ rlen }}"
 
 #
-#- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
-#  set_fact:
-#    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha1, 'ipv4', 'address']) | join(',') }}"
-#    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha2, 'ipv4', 'address']) | join(',') }}"
-#  when: netfix == "eth" and inventory_hostname in groups['workers']
+- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
+  set_fact:
+    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha1, 'ipv4', 'address']) | join(',') }}"
+    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha2, 'ipv4', 'address']) | join(',') }}"
+  when: netfix == "eth" and inventory_hostname in groups['workers']
 
 #
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
-    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netseq.1, 'ipv4', 'address']) | join(',') }}"
-    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netseq.2, 'ipv4', 'address']) | join(',') }}"
-  when: inventory_hostname in groups['workers']
+    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netord.1, 'ipv4', 'address']) | join(',') }}"
+    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netord.2, 'ipv4', 'address']) | join(',') }}"
+  when: netfix != "eth" and inventory_hostname in groups['workers']
 
 # Examples
 # msg: "{{ dict( [ all_net1_ipaddrs.split(',') | list ] | slice(2) ) }}"
@@ -151,13 +187,9 @@
     list_all_ha2: "{{ all_ha2_ipaddrs.split(',') | list }}"
 
 - debug: msg={{ list_all_ha1[0:llen|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ list_all_ha1[llen|int:weka.host_num|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ list_all_ha2[0:llen|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ list_all_ha2[llen|int:weka.host_num|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 
 - name: Split HA IP Addresses from two network interfaces
   set_fact:
@@ -167,13 +199,9 @@
     ha2_right: "{{ list_all_ha2[llen|int:weka.host_num|int] }}"
 
 - debug: msg={{ ha1_left }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ ha1_right }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ ha2_left }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ ha2_right }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 
 # Combine two list
 - name: Paste HA IP Addresses splitted from two network interfaces
@@ -182,9 +210,7 @@
     ha2_ips: "{{ [ ha2_left + ha1_right ] | flatten | join(',') }}"
 
 - debug: msg={{ ha1_ips }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 - debug: msg={{ ha2_ips }}
-  when: print_debug == true and inventory_hostname in groups['workers']
 
 # 목록에서 사전 만들기
 # 대부분의 언어에서는 쌍 목록에서 사전(맵/연관 배열/해시 등)을 만드는 것이 쉽습니다. Ansible 에는 이를 수행하는 몇 가지 방법이 있으며 가장 적합한 방법은 소스에 따라 달라질 수 있습니다. 당신의 데이터.
@@ -198,6 +224,8 @@
 # vars:
 #     list_of_pairs: [ ['a', 'b'], ['c', 'd'] ]
 #     mydict: "{{ dict(list_of_pairs) }}"
+
+- meta: end_play
 
 # Reference
 # https://stackoverflow.com/questions/57596946/ansible-looping-over-with-items-n-times
@@ -228,4 +256,3 @@
 # SSDNetCapacity = 20TB * (20-2)/20*16/(16+2)*0.9 = 14.4 TB
 #
 #############################################################################################################################################################
-
