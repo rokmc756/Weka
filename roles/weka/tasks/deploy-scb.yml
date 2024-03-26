@@ -122,7 +122,7 @@
 #
 - name: Delete Partition Table
   shell: |
-    dd if=/dev/zero of=/dev/sdc bs=512 count=1; dd if=/dev/zero of=/dev/sdd bs=512 count=1
+    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1
     wipefs --all --force /dev/sdc; wipefs --all --force /dev/sdd
   register: del_part_table
   when: inventory_hostname in groups['workers']

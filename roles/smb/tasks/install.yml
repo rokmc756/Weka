@@ -15,7 +15,8 @@
 #   Domain Admin Username:   Administrator
 #   Domain Netbios Name:     ad
 
-# Optional, but useful: setting up DNS A records for either the SMB-running Backends or the Floating IPs allows you to access the SMB service by name (and also allows the use of the strongly-preferred later authentication algorithms).
+# Optional, but useful: setting up DNS A records for either the SMB-running Backends or
+# the Floating IPs allows you to access the SMB service by name (and also allows the use of the strongly-preferred later authentication algorithms).
 # PS C:\Users\Administrator> Add-DnsServerResourceRecordA -Name "wekasmb" -ZoneName "ad.example.com" -AllowUpdateAny -IPv4Address "192.168.114.100"
 # https://www.notion.so/wekaio/Multi-protocol-SMB-and-NFS-single-filesystem-access-8abcd9d23e004549a66e2e98fbcbd787?pvs=4
 
@@ -44,6 +45,7 @@
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
 - name: Get All Container IDs for MCB
   shell: |
     weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
@@ -79,10 +81,12 @@
   register: login_ad
   until: login_ad is succeeded
   retries: 10
-  delay: 180
+  delay: 420
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ login_ad }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka smb domain join Administrator --debug --extra-options --domain-ou "jtest.weka.io"
+  #  weka smb domain join {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }} --debug --extra-options --domain-ou "jtest.weka.io"
   #      "stderr_lines": [],
   #      "stdout": "Domain join timed out",
   #      "stdout_lines": [
@@ -91,11 +95,20 @@
 #
 - name: Add SMB Share
   shell: |
-    weka smb share add {{ smb.share.name }} {{ smb.fs.name }} --acl on
+    weka smb share add smb-share-01 smb-fs01 --acl on --encryption cluster_default --internal-path /smb-share-01 --file-create-mask 0744 \
+    --directory-create-mask 0755 --description 'Default SMB Share 01'
   register: add_smb_share
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_smb_share }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  #    weka smb share add smb-share-02 smb-fs02 --acl on --encryption cluster_default --internal-path /smb-share-02 --file-create-mask 0744 --directory-create-mask 0755 --description TEST
+  #  weka smb share add {{ smb.share.name }} {{ smb.fs.name }} --acl on
+
+# *******************************
+# Need to add mount -t wekafs smb-fs01 /mnt/weka
+# and mkdir smb-share-01
+# chmod 777 /mnt/weka/smb-share-01
+
 
 # It works in Rocky 9 Client
 # dnf install -y cifs-utils
@@ -114,3 +127,32 @@
 
 # On Freeipa
 # ipa-adtrust-install --netbios-name JTEST -a changeme
+
+
+# osuse15-temp:~ # adcli join --domain jtest.weka.io --service-name=cifs --computer-name smb-clu01 --host-fqdn jtest.weka.io -v --domain-ou ou=production,dc=jtest,dc=weka,dc=io -U jomoon
+# * Using fully qualified name: jtest.weka.io
+# * Using domain name: jtest.weka.io
+# * Using computer account name: smb-clu01
+# * Calculated domain realm from name: JTEST.WEKA.IO
+# * Discovering domain controllers: _ldap._tcp.jtest.weka.io
+# * Sending netlogon pings to domain controller: cldap://192.168.0.100
+# * Sending netlogon pings to domain controller: cldap://192.168.2.100
+# * Sending netlogon pings to domain controller: cldap://192.168.1.100
+# * Received NetLogon info from: WIN-R7SUOA8CDHH.jtest.weka.io
+# * Wrote out krb5.conf snippet to /tmp/adcli-krb5-qaY8Dm/krb5.d/adcli-krb5-conf-uPd9um
+#Password for jomoon@JTEST.WEKA.IO:
+# * Authenticated as user: jomoon@JTEST.WEKA.IO
+# * Using GSS-SPNEGO for SASL bind
+# * Looked up short domain name: JTEST
+# * Looked up domain SID: S-1-5-21-499262619-3455209110-3023308476
+# * Using fully qualified name: jtest.weka.io
+# * Using domain name: jtest.weka.io
+# * Using computer account name: smb-clu01
+# * Using domain realm: jtest.weka.io
+# * Enrolling computer name: smb-clu01
+# * Generated 120 character computer password
+# * Using keytab: FILE:/etc/krb5.keytab
+# * Found computer account for smb-clu01$ at: CN=SMB-CLU01,CN=Computers,DC=jtest,DC=weka,DC=io
+# ! The computer account smb-clu01 already exists, but is not in the desired organizational unit.
+#adcli: joining domain jtest.weka.io failed: The computer account smb-clu01 already exists, but is not in the desired organizational unit.
+

@@ -53,6 +53,7 @@
 - debug: msg={{ ha_ips0 }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
+#
 - name: Set Facts for HA IP Addresses of All Hosts
   set_fact:
     ha_ips: "{{ groups['workers'] | map('extract', hostvars, ['ha_ips0']) | join(',') }}"
@@ -60,6 +61,24 @@
 - debug: msg={{ ha_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
+#
+# weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
+- name: Set Facts for HA Join IP Addresses of Individual Hosts
+  set_fact:
+    ha_join_ips0: "{{ vars['ipaddr'~weka.net.ha1] }},{{ vars['ipaddr'~weka.net.ha2] }}"
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ ha_join_ips0 }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts for HA Join IP Addresses of All Hosts
+  set_fact:
+    ha_join_ips: "{{ groups['workers'] | map('extract', hostvars, ['ha_join_ips0']) | join(',') }}"
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ ha_join_ips }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+#
 # Example of variable appended with_items
 #- debug:
 #    msg: "{{ vars['ha_ips'~item] }}"
@@ -129,7 +148,6 @@
   debug:
     msg: "{{ llen }} {{ rlen }}"
 
-#
 #- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
 #  set_fact:
 #    all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha1, 'ipv4', 'address']) | join(',') }}"
@@ -150,15 +168,16 @@
     list_all_ha1: "{{ all_ha1_ipaddrs.split(',') | list }}"
     list_all_ha2: "{{ all_ha2_ipaddrs.split(',') | list }}"
 
-- debug: msg={{ list_all_ha1[0:llen|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ list_all_ha1[llen|int:weka.host_num|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ list_all_ha2[0:llen|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ list_all_ha2[llen|int:weka.host_num|int] }}
-  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ list_all_ha1[0:llen|int] }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ list_all_ha1[llen|int:weka.host_num|int] }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ list_all_ha2[0:llen|int] }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ list_all_ha2[llen|int:weka.host_num|int] }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
 
+#
 - name: Split HA IP Addresses from two network interfaces
   set_fact:
     ha1_left: "{{ list_all_ha1[0:llen|int] }}"
@@ -166,14 +185,14 @@
     ha2_left: "{{ list_all_ha2[0:llen|int] }}"
     ha2_right: "{{ list_all_ha2[llen|int:weka.host_num|int] }}"
 
-- debug: msg={{ ha1_left }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ ha1_right }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ ha2_left }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ ha2_right }}
-  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha1_left }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha1_right }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha2_left }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha2_right }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
 
 # Combine two list
 - name: Paste HA IP Addresses splitted from two network interfaces
@@ -181,10 +200,10 @@
     ha1_ips: "{{ [ ha1_left + ha2_right ] | flatten | join(',') }}"
     ha2_ips: "{{ [ ha2_left + ha1_right ] | flatten | join(',') }}"
 
-- debug: msg={{ ha1_ips }}
-  when: print_debug == true and inventory_hostname in groups['workers']
-- debug: msg={{ ha2_ips }}
-  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha1_ips }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
+#- debug: msg={{ ha2_ips }}
+#  when: print_debug == true and inventory_hostname in groups['workers']
 
 # 목록에서 사전 만들기
 # 대부분의 언어에서는 쌍 목록에서 사전(맵/연관 배열/해시 등)을 만드는 것이 쉽습니다. Ansible 에는 이를 수행하는 몇 가지 방법이 있으며 가장 적합한 방법은 소스에 따라 달라질 수 있습니다. 당신의 데이터.

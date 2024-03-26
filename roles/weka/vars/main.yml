@@ -21,7 +21,7 @@ container:
      data: "3"
      parity: "2"
      hotspare: "1"                   # 0 means automaical allocation
-     devices: "/dev/sdc /dev/sdd"
+     devices: "/dev/sdb /dev/sdc"
      port: "14000"
      options:
    compute:
