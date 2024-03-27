@@ -12,7 +12,7 @@
   # umount -f -l {{ smb.fs.mount_dir }}
 
 #
-- name: Delete text file
+- name: Delete mounted directory
   file:
     state: absent
     path: "{{ smb.fs.mount_dir }}"

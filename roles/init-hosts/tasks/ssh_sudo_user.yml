@@ -84,6 +84,14 @@
   shell: usermod -aG "{{ wheel_group }}" "{{ sudo_user }}"
   args:
     executable: /bin/bash
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Rocky'
+
+#
+- name: Add user to "{{ wheel_group }}" group
+  shell: usermod -aG "sudo" "{{ sudo_user }}"
+  args:
+    executable: /bin/bash
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 #
 - name: Check ssh to remote hosts works

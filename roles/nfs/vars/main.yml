@@ -8,6 +8,9 @@ nfs:
     network: 192.168.1.0
     subnet: 255.255.255.0
     gateway: 192.168.1.1
-    iprange: 192.168.1.241-245
+    ips_range: 192.168.1.241-245
   fs:
     config: default-fs01
+    mount_dir: /mnt/nfs-fs01
+    wekafs: nfs-fs01
+

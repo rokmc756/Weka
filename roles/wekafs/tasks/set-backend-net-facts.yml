@@ -1,0 +1,30 @@
+---
+# https://serverfault.com/questions/1040246/how-to-select-network-interface-given-ip-address-in-ansible-across-debian-and-fr
+#
+- name: Get interface name from provided IP
+  set_fact:
+    netdev_ep: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr5 ) | map(attribute='device') | first }}"
+
+- name: Delegate network device name to Clients
+  set_fact:
+    endpoint_netdev: "{{ netdev_ep }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items:
+    - "groups['all']"
+
+#- debug: var="{{ netdev0 }}"
+
+#
+- name: Get IP Address from provided network device name
+  set_fact:
+    ipaddr_ep: "{{ hostvars[inventory_hostname]['ansible_'~netdev_ep].ipv4.address }}"
+
+#
+- name: Get IP Address from provided network device name
+  set_fact:
+    endpoint_ipaddr: "{{ ipaddr_ep }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items:
+    - "groups['all']"

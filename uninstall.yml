@@ -3,12 +3,12 @@
   vars:
     print_debug: true
   roles:
-    - { role: smb }
-  #  - { role: weka }
+    - { role: weka }
   #  - { role: wekafs }
+  #  - { role: smb }
+  #  - { role: nfs }
   #  - { role: obs }
   #  - { role: s3 }
-  #  - { role: nfs }
   #  - { role: weka }
   #  - { role: obs }
   # - { role: minio }

@@ -1,0 +1,19 @@
+rh_common_pkgs: ""
+rh_common_devel_pkgs: ""
+
+rh7_common_devel_pkgs: ""
+rh8_common_devel_pkgs: ""
+rh9_common_devel_pkgs: ""
+
+ubt_common_pkgs: ""
+ubt_common_devel_pkgs: ""
+
+ubt20_common_devel_pkgs: ""
+ubt22_common_devel_pkgs: ""
+ubt23_common_devel_pkgs: ""
+
+official_rh_pkgs: ""
+official_ubt_pkgs: ""
+
+update_cache: false
+upgrade_packages: false

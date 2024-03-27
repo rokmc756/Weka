@@ -38,6 +38,7 @@
 # weka nfs clients show
 # HOSTID  CLIENT IP  IDLE TIME  NFSV3 OPS  NFSV4 OPS  NFSV4 OPEN OPS  NFSV4 CLOSE OPS
 
+#
 - name: Get All Container IDs
   shell: |
     weka cluster container | awk '{print $1}' | sed 1d
@@ -46,6 +47,7 @@
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
 - name: Get All Container IDs
   shell: |
     weka cluster container | grep frontend | awk '{print $1}'
@@ -88,7 +90,7 @@
 #
 - name: Add NFS configuration filesystem
   shell: |
-    weka nfs interface-group port add {{ nfs.interface.group }} {{ item }} {{ nfs.net.ifname }}
+    weka nfs interface-group port add {{ nfs.interface.group }} {{ item }} {{ netdev5 }}
   register: add_ifg_grp_port
   with_items: "{{ all_container_ids.stdout_lines }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
@@ -109,7 +111,7 @@
 #
 - name: Add IPs for group
   shell: |
-    weka nfs interface-group ip-range add {{ nfs.interface.group }} {{ nfs.net.iprange }}
+    weka nfs interface-group ip-range add {{ nfs.interface.group }} {{ nfs.net.ips_range }}
   register: add_ips_grp
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ add_ips_grp }}

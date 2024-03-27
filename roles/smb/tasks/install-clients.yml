@@ -35,7 +35,6 @@
     fstype: cifs
     state: ephemeral
   register: mount_cifs_dir
-  when: inventory_hostname in groups['clients']
 - debug: msg={{ mount_cifs_dir }}
   when: print_debug == true
   # mount -t cifs -o username=jomoon,password=Changeme12\!\@,domain=JTEST,vers=3.0 //192.168.1.241/smb-share-01 /mnt/smb/ # ephemeral does not work with uid=1100,gid=1100

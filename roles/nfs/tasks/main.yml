@@ -7,40 +7,34 @@
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
-#- name: Set facts for Installing Weka Data Platform
-#  import_tasks: set-weka-install-facts.yml
-#  tags:
-#    - install
-#  when: inventory_hostname in groups['workers']
+- name: Set facts
+  import_tasks: set-facts.yml
+  tags:
+    - install
+    - uninstall
+  when: inventory_hostname in groups['workers']
 
 #
-#- name: Set facts for Uninstalling Weka Data Platform
-#  import_tasks: set-weka-uninstall-facts.yml
-#  tags:
-#    - uninstall
-#  when: inventory_hostname in groups['workers']
-
-#
-- name: Setup NFS Backends
+- name: Install NFS Backends
   import_tasks: install.yml
   tags: install
-  when: inventory_hostname in groups['workers']
+  when: weka.backend.nfs == true and inventory_hostname in groups['workers']
 
 #
-#- name: Enable NFS Client
-#  import_tasks: enable-nfs-client.yml
-#  tags: install
-#  when: enable_nfs_client == true and inventory_hostname in groups['workers']
+- name: Install NFS Clients
+  import_tasks: install-clients.yml
+  tags: install
+  when: weka.client.nfs == true and inventory_hostname in groups['clients']
 
 #
-#- name: Disable NFS Client
-#  import_tasks: disable-nfs-client.yml
-#  tags: uninstall
-#  when: disable_nfs_client == true and inventory_hostname in groups['workers']
+- name: Uninstall NFS Clients
+  import_tasks: uninstall-clients.yml
+  tags: uninstall
+  when: weka.client.nfs == true and inventory_hostname in groups['clients']
 
 #
-- name: Remove NFS Backends
+- name: Uninstall NFS Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['workers']
+  when: weka.backend.nfs == true and inventory_hostname in groups['workers']
 

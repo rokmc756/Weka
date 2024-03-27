@@ -15,7 +15,7 @@ weka:
   bin_type: tar
   host_num: "{{ groups['workers'] | length }}"
   net:
-    ipaddr0: "192.168.0.17"
+    ipaddr0: "192.168.0."
     ipaddr1: "192.168.1.17"
     ipaddr2: "192.168.1.18"
     ipaddr3: "192.168.1.19"
@@ -31,12 +31,18 @@ weka:
     mcb: true
     s3: false
     nfs: false
-    smb: true
-  client:
-    nfs: false
-    wekafs: false
-    s3: false
     smb: false
+    wekafs: true
+  client:
+    wekafs: false
+    smb: false
+    nfs: false
+    s3: false
+    net:
+      ipaddr0: "192.168.0.6"
+      ipaddr1: "192.168.1.6"
+      ipaddr2: "192.168.1.7"
+      ipaddr3: "192.168.1.8"
   tools:                        # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1

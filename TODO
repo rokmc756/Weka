@@ -1,0 +1,3 @@
+
+wekafs for smb and nfs file system should be umounted when destroying it
+

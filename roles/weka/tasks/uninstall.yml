@@ -23,10 +23,10 @@
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
   with_items:
+    - "smbw"
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
-    - "{{ container.envoy.name }}"
   ignore_errors: true
   when: destroy_weka == true and weka.backend.mcb == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_containers }}
@@ -37,6 +37,7 @@
 # OPERATION FAILED: THERE ARE ACTIVE WEKA MOUNTS ON THIS HOST.\n    
 # Stopping local Weka processes without unmounting all Weka filesystems first might render host unresponsive.\n
 # Please unmount all filesystems or use 'weka local stop -f' to stop local Weka processes anyway.\n\u0000",
+# - "{{ container.envoy.name }}"
 
 #
 - name: Stop and Remove SCB Container
