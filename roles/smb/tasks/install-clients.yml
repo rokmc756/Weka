@@ -1,57 +1,52 @@
 #
-- name:  Enable Devel Package Repository
-  shell: |
-    dnf config-manager --set-enabled devel
-  register: enable_devel_repo
-- debug: msg={{ enable_devel_repo }}
-  when: print_debug == true
+#- name:  Enable Devel Package Repository
+#  shell: |
+#    dnf config-manager --set-enabled devel
+#  register: enable_devel_repo
+#- debug: msg={{ enable_devel_repo }}
+#  when: print_debug == true
 
 #
-- name: Install CIFS Client
-  shell: |
-    yum install -y cifs-utils
-  register: install_cifs_client
-- debug: msg={{ install_cifs_client }}
-  when: print_debug == true
+- name: Install SMB Client Packages for Linux
+  become: true
+  package: name={{item}} state=present
+  with_items:
+    - "cifs-utils"
 
 #
 - name: Create directory to mount CIFS
-  shell: |
-    mkdir -p {{ smb.fs.mount_dir }}
-    chmod 777 {{ smb.fs.mount_dir }}
+  file:
+    path: "{{ smb.fs.mount_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+    recurse: yes
   register: create_cifs_dir
 - debug: msg={{ create_cifs_dir }}
   when: print_debug == true
 
-#
-- name: Mount CIFS Directory
-  shell: |
-    mount -t cifs //{{ smb.net.client_ip }}/{{ smb.share.name }} {{ smb.fs.mount_dir }} -o domain=jtest.weka.io,username=jomoon,password=Changeme12\!\@,vers=2.1,uid=1100,gid=1100 # --verbose or 3.0 version is OK
-  delegate_to: "{{ inventory_hostname }}"
-  delegate_facts: True
+# https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
+- name: Mount ephemeral SMB volume
+  mount:
+    src: "//{{ smb.net.ips_range | split('-') | first }}/{{ smb.share.name }}"
+    path: "{{ smb.fs.mount_dir }}"
+    opts: "username={{ smb.ad.users.normal.id }},password={{ smb.ad.users.normal.pass }},domain={{ smb.ad.netbios }},vers={{ smb.version }}"
+    fstype: cifs
+    state: ephemeral
   register: mount_cifs_dir
-  with_items:
-    - { netdev: "{{ netdev0 }}", ipaddr: "{{ ipaddr0 }}" }
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  when: inventory_hostname in groups['clients']
 - debug: msg={{ mount_cifs_dir }}
   when: print_debug == true
+  # mount -t cifs -o username=jomoon,password=Changeme12\!\@,domain=JTEST,vers=3.0 //192.168.1.241/smb-share-01 /mnt/smb/ # ephemeral does not work with uid=1100,gid=1100
+  # opts: "rw,file_mode=0600,dir_mode=0700"
 
 #
-- name: Creat text file
-  shell: |
-    touch {{ smb.fs.mount_dir }}/test-smb01.txt ; echo "Hellow SMBW world!"
-  register: create_cifs_file
-- debug: msg={{ create_cifs_file }}
-  when: print_debug == true
-
-#[root@rk8-node01 ~]# mount -t wekafs smb-fs01 /mnt/weka/
-#wekafs_mount_helper: Mounting smb-fs01 on /mnt/weka
-#Basing mount on container frontend0
-#This is legacy mount, will wait for the driver before calling directly
-#wekafs_mount_helper: Executing `mount --no-canonicalize -i -t wekafs -o inode_bits=auto,dentry_max_age_positive=1000,dentry_max_age_negative=0,readahead_kb=32768,container_name=frontend0,writecache,relatime,rw,relatime_threshold=0,token=eyJhbGciOiJSUzI1NiIsIml0dCI6IkNMSUVOVCIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0Nzg4OTAsImlhdCI6MTcxMTQ3NzY5MCwiaXR0IjoiQ0xJRU5UIiwic3ViIjp7ImZzSWQiOiJGU0lkPDk-IiwidWlkIjoiNjc2MzQ5OTQtYTQ4Zi03YWYzLWU2N2QtZjBjNjcyN2E4NjlhIn19.hKOztcIi2J5TSJAHSKCsA8f3l1i4cbWvL9oazhVsJyrUyo7EH0tgPbO35aFpaBgzRFfBd9cxR_tyW8Hna9hDkVvgFQxbipf3LYtOdyfH65SRUIN4TvEV8spO0jpofuebxeIIhby1aOdCqXcHZb8D3RccQQ4BsCUwmbVsVHrnMjkALfKDjtAbhsz91aRexkfyCzMSMkQh95_7-Cb-_pDPdzj3rrFG0GrjLqSfdwrmi9pxFtaNO9JjJ9VxfQbbdnZx0f-FeegyJHe2PI90ZXxtwZc0N9L0XGeijYnvfou4VVOI0eRuVogqjJ_2CrVqy7MG2ztBnpbJkwnrqHkAiWm0uA smb-fs01 /mnt/weka`
-#Mount completed successfully
-#[root@rk8-node01 ~]# cd /mnt/weka/
-#[root@rk8-node01 weka]# ls
-#[root@rk8-node01 weka]# mkdir smb-share-01
-#[root@rk8-node01 weka]# chmod 777 smb-share-01/
-
+- name: Conditionally create a file if it does not exist
+  copy:
+    content: "Hellow Weka SMB World!"
+    dest: "{{ smb.fs.mount_dir }}/test-smb01.txt"
+    force: no
+    owner: root
+    group: root
+    mode: 0644

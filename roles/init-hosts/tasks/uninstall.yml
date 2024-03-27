@@ -35,7 +35,7 @@
     state: absent
     backup: yes
   register: hosts_deleted
-  when: hostvars[item]['ansible_eth0']['ipv4']['address'] is defined
+  when: hostvars[item]['ansible_ens192']['ipv4']['address'] is defined
   with_items:
     - "{{ groups['all'] }}"
 

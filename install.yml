@@ -4,13 +4,13 @@
   vars:
     print_debug: true
   roles:
-    - { role: weka }
-  #  - { role: smb }
+    - { role: smb }
+  #  - { role: init-hosts }
   #  - { role: wekafs }
+  #  - { role: weka }
   #  - { role: obs }
   #  - { role: s3 }
   #  - { role: nfs }
-  #  - { role: init-hosts }
   #  - { role: minio }
   #  - { role: firewalld }
   # Need to check port for wekaconfig

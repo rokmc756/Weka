@@ -1,4 +1,27 @@
 #
+- name: Umount SMB directory
+  mount:
+    path: "{{ smb.fs.mount_dir }}"
+    state: unmounted
+  retries: 10
+  delay: 10
+  register: umount_smb_wekafs
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ umount_smb_wekafs }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+  # umount -f -l {{ smb.fs.mount_dir }}
+
+#
+- name: Delete text file
+  file:
+    state: absent
+    path: "{{ smb.fs.mount_dir }}"
+  register: delete_smb_files
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ delete_smb_files }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+#
 - name: Get All Share IDs
   shell: |
     weka smb share | sed 1d | awk '{print $2}'

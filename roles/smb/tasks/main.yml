@@ -8,27 +8,29 @@
 
 #
 - name: Set facts for Installing Weka Data Platform
-  import_tasks: set-weka-install-facts.yml
+  import_tasks: set-install-facts.yml
   tags:
     - install
+  when: inventory_hostname in groups['workers']
 
 #
 - name: Set facts for Uninstalling Weka Data Platform
-  import_tasks: set-weka-uninstall-facts.yml
+  import_tasks: set-uninstall-facts.yml
   tags:
     - uninstall
+  when: inventory_hostname in groups['workers']
 
 #
 - name: Install SMB Backends
   import_tasks: install.yml
   tags: install
-  when: inventory_hostname in groups['workers']
+  when: weka.backend.smb == true and inventory_hostname in groups['workers']
 
 #
 - name: Install CIFS Clients
   import_tasks: install-clients.yml
   tags: install
-  when: weka.client.smb == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+  when: weka.client.smb == true and inventory_hostname in groups['clients']
 
 #
 - name: Uninstall CIFS Clients
@@ -40,5 +42,4 @@
 - name: Uninstall SMB Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['workers']
-
+  when: weka.backend.smb == true and inventory_hostname in groups['workers']

@@ -29,6 +29,9 @@ weka:
   backend:
     scb: false
     mcb: true
+    s3: false
+    nfs: false
+    smb: true
   client:
     nfs: false
     wekafs: false
