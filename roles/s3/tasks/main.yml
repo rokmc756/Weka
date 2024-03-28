@@ -7,11 +7,11 @@
 #    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
-#- name: Set facts for Installing Weka Data Platform
-#  import_tasks: set-weka-install-facts.yml
-#  tags:
-#    - install
-#  when: inventory_hostname in groups['workers']
+- name: Set facts for Installing Weka Data Platform
+  import_tasks: set-s3-facts.yml
+  tags:
+    - install
+  when: weka.client.s3 == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
 #
 #- name: Set facts for Uninstalling Weka Data Platform
@@ -28,9 +28,20 @@
   # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
 
 #
+- name: Install S3 Clients
+  import_tasks: install-clients.yml
+  tags: install
+  when: weka.client.s3 == true and inventory_hostname in groups['clients']
+
+#
+- name: Uninstall S3 Clients
+  import_tasks: uninstall-clients.yml
+  tags: uninstall
+  when: weka.client.s3 == true and inventory_hostname in groups['clients']
+
+#
 - name: Remove S3 Backends
   import_tasks: uninstall.yml
   tags: uninstall
   when: weka.protocol.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
-

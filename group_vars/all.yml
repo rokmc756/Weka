@@ -33,7 +33,7 @@ weka:
   fs: false
   obs: false
   protocol:
-    s3: true
+    s3: false
     nfs: false
     smb: false
   client:
@@ -43,9 +43,9 @@ weka:
       ipaddr2: "192.168.1.7"
       ipaddr3: "192.168.1.8"
     nfs: false
-    s3: false
     smb: false
     wekafs: false
+    s3: true
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1

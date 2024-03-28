@@ -4,12 +4,13 @@ s3:
     - { name: s3-bucket02, perm: readwrite, fs: s3-fs02 }
     - { name: s3-bucket03, perm: readwrite, fs: s3-fs03 }
   users:
-    - { name: jomoon, pass: Changeme12\!\@, perm: readwrite }
-    - { name: romoon, pass: Changeme12\!\@, perm: readwrite }
-    - { name: s3adm, pass: Changeme12\!\@, perm: readwrite }
+    - { name: jomoon, pass: Changeme12\!\@, s3_pass: Changeme12!@, perm: readwrite, bucket: s3-bucket01 }
+    - { name: romoon, pass: Changeme12\!\@, s3_pass: Changeme12!@, perm: readwrite, bucket: s3-bucket02 }
+    - { name: s3adm, pass: Changeme12\!\@, s3_pass: Changeme12!@, perm: readwrite, bucket: s3-bucket03 }
   fs:
     default:
       name: s3-default-fs01
     config:
       name: s3-fs01
-
+  endpoint:
+    port: 9000
