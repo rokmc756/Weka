@@ -4,6 +4,8 @@
     weka cluster container | awk '{print $1}' | sed 1d
   register: all_container_ids
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka s3 cluster containers list
 
 #
@@ -12,32 +14,79 @@
     weka cluster container | grep frontend | awk '{print $1}'
   register: all_container_ids
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-
-#
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+# weka s3 policy detach <user>
+# weka s3 sts assume-role
+# weka s3 sts assume-role <--access-key access-key> [--secret-key secret-key] [--policy-file policy-file] <--duration duration>
+# Access-Key: JR9O0U6V42KLPFQDO2Z3
+# Secret-Key: wM0QMWuQ04WHlByj2SlEyuNrWoliMaCoVPmRsKbH
+# Session-Token: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NLZXkiOiJKUjlPMFU2VjQyS0xQRlFETz
+
+# weka s3 policy remove
+# weka s3 policy remove <policy-name>
+# weka s3 policy add
+# weka s3 policy add <policy-name> <policy-file>
+# weka s3 policy list
+# weka s3 policy show <policy-name>
+# weka s3 service-account list
+# weka s3 service-account add
+# weka s3 service-account add <policy-file>
+# weka s3 service-account show <access-key>
+# weka s3 service-account remove <access-key>
+
+#
+- name: Detach Read-Write Permission
+  shell: weka s3 policy detach {{ item.name }}
+  register: detach_perm_user
+  ignore_errors: true
+  with_items:
+    - "{{ s3.users }}"
+- debug: msg={{ detach_perm_user }}
+  when: print_debug == true
+
+#
+- name: Delete S3 User
+  shell: |
+    /usr/bin/weka user delete {{ item.name }}
+  register: del_s3_user
+  ignore_errors: true
+  with_items:
+    - "{{ s3.users }}"
+- debug: msg={{ del_s3_user }}
+  when: print_debug == true
 
 #
 - name: Destroy S3 Bucket
   shell: |
-    weka s3 bucket destroy {{ s3.buckets.name }} -f
+    weka s3 bucket destroy {{ item.name }} -f
   register: destroy_s3_bucket
+  ignore_errors: true
+  with_items:
+    - "{{ s3.buckets }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ destroy_s3_bucket }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Remove S3 Backend Containers
   shell: |
     weka s3 cluster containers remove {{ item }}
   register: remove_s3_cluster_container
+  ignore_errors: true
   with_items: "{{ all_container_ids.stdout_lines }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ remove_s3_cluster_container }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Destroy S3 Backend Containers
   shell: |
     weka s3 cluster destroy --force
   register: destroy_s3_cluster
+  ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ destroy_s3_cluster }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+

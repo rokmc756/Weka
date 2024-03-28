@@ -33,7 +33,7 @@ weka:
   fs: false
   obs: false
   protocol:
-    s3: false
+    s3: true
     nfs: false
     smb: false
   client:
@@ -45,7 +45,7 @@ weka:
     nfs: false
     s3: false
     smb: false
-    wekafs: true
+    wekafs: false
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1

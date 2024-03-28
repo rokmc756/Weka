@@ -1,11 +1,15 @@
 s3:
   buckets:
-    name: s3-bucket01
+    - { name: s3-bucket01, perm: readwrite, fs: s3-fs01 }
+    - { name: s3-bucket02, perm: readwrite, fs: s3-fs02 }
+    - { name: s3-bucket03, perm: readwrite, fs: s3-fs03 }
   users:
-    name: jomoon
-    pass: Changeme12\!\@
+    - { name: jomoon, pass: Changeme12\!\@, perm: readwrite }
+    - { name: romoon, pass: Changeme12\!\@, perm: readwrite }
+    - { name: s3adm, pass: Changeme12\!\@, perm: readwrite }
   fs:
     default:
       name: s3-default-fs01
     config:
       name: s3-fs01
+

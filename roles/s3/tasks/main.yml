@@ -24,11 +24,13 @@
 - name: Setup S3 Backends
   import_tasks: install.yml
   tags: install
-  when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
+  when: weka.protocol.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
 
 #
 - name: Remove S3 Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
+  when: weka.protocol.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
 
