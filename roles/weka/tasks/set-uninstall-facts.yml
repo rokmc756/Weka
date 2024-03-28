@@ -2,7 +2,7 @@
 #
 - name: Get interface name from provided IP
   set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net.ipaddr0 ) | map(attribute='device') | first }}"
 #- debug: msg={{ netdev0 }}
 
 #
@@ -27,12 +27,6 @@
 - name: Define fact for Weka version
   set_fact:
     weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
-- debug: msg={{ weka_file_name }}
-
-#
-- name: Define fact for Weka tools version
-  set_fact:
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
+- debug: msg={{ weka_file_name }}
 - debug: msg={{ weka_tools_file_name }}
-
-

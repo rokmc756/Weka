@@ -4,11 +4,11 @@
     print_debug: true
   roles:
     - { role: wekafs }
+    - { role: weka }
   #  - { role: s3 }
   #  - { role: obs }
   #  - { role: smb }
   #  - { role: nfs }
-  #  - { role: weka }
   #  - { role: weka }
   #  - { role: obs }
   # - { role: minio }
