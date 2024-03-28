@@ -69,6 +69,27 @@
   when: inventory_hostname in groups['clients']
 
 #
+- name: Remove Directory to be mount by WekaFS POSIX Clients
+  shell: |
+    rm -rf {{ item.mount_dir }}
+  register: remove_wekafs_dir
+  with_items:
+    - "{{ wekafs.fs.filesystem }}"
+  when: inventory_hostname in groups['clients']
+- debug: msg={{ remove_wekafs_dir  }}
+  when: print_debug == true and inventory_hostname in groups['clients']
+
+#
+- name: Clear Memory Cache
+  shell: |
+    sync && echo 3 > /proc/sys/vm/drop_caches
+  register: clear_cache_memory
+  ignore_errors: true
+  when: inventory_hostname in groups['clients']
+- debug: msg={{ clear_cache_memory }}
+  when: print_debug == true and inventory_hostname in groups['clients']
+
+#
 #- name: Reboot required
 #  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
 #  async: 1200

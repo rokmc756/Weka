@@ -31,16 +31,16 @@ weka:
       ipaddr5: "192.168.1.21"
       data_plane: netdev2
   obs: false
-  fs: true
+  fs: false
   protocol:
     nfs: false
     smb: false
-    s3: true
+    s3: false
   client:
+    wekafs: true
     s3: false
     nfs: false
     smb: false
-    wekafs: false
     net:
       ipaddr0: "192.168.0.6"
       ipaddr1: "192.168.1.6"

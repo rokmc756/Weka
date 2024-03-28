@@ -26,4 +26,3 @@
   set_fact:
     all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev0, 'ipv4', 'address']) | join(',') }}"
 - debug: msg={{ all_ext1_ipaddrs }}
-

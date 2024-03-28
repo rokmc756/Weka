@@ -13,7 +13,7 @@
 # 192.168.1.211 is a ip address of froentend contatiners
 - name: Install WekaFS POSIX Stateless Clients
   shell: |
-    curl 192.168.1.211:14000/dist/v1/install | sh
+    curl {{ feip0 }}:14000/dist/v1/install | sh
   register: install_wekafs_client
   when: inventory_hostname in groups['clients']
 - debug: msg={{ install_wekafs_client }}
@@ -36,17 +36,18 @@
 #
 - name: Mount Stateless WekaFS Clients
   shell: |
-    mount -t wekafs -o verbose -o num_cores=1 -o \
-    net={{ netdev1 }}/{{ ipaddr1 }}/24 \
-    192.168.1.211/{{ wekafs.fs.filesystem[1].name }} {{ wekafs.fs.filesystem[1].mount_dir }}
+    mount -t wekafs -o verbose -o num_cores=1 \
+    {{ clients_net }} \
+    {{ feip0 }}/{{ wekafs.fs.filesystem[1].name }} {{ wekafs.fs.filesystem[1].mount_dir }}
   register: mount_wekafs_dir
   when: print_debug == true and inventory_hostname in groups['clients']
+  #  -o net={{ netdev1 }}/{{ ipaddr1 }}/24 \
 - debug: msg={{ mount_wekafs_dir }}
   when: print_debug == true and inventory_hostname in groups['clients']
+  # 192.168.1.211
   #  -o net={{ netdev1 }}/{{ ipaddr1 }}/24 -o net={{ netdev2 }}/{{ ipaddr2 }}/24 \
   # mount -t wekafs -o verbose -o num_cores=2 -o net=ens193/192.168.1.61/24 -o net=ens224/192.168.1.71/24 192.168.1.211/wekafs-fs01 /mnt/wekafs-fs01
   # netdev1 should be network device of client which mtu must be 9000 if it's not, client will be failed
-  #
   # After succesfully mounted, frontend got DPDK
   # weka cluster process | grep client
   # 300         rk8-node06  client     192.168.1.186  UP      4.2.9.29-hcsf  MANAGEMENT  UDP                    0:07:20h  Configuration snapshot pulled (7 minutes ago)
@@ -76,3 +77,4 @@
   when: print_debug == true and inventory_hostname in groups['clients']
 
 # Need to test switch mode of iptime in order to expand ports from 5 to 10
+

@@ -8,15 +8,15 @@
 
 #
 - name: Set facts for Setup and Remove Weka File Sysetm and Clients
-  import_tasks: set-weka-facts.yml
+  import_tasks: set-net-facts.yml
   tags:
     - install
     - uninstall
-  when: inventory_hostname in groups['workers']
+  when: weka.client.wekafs == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
 #
-#- name: Set facts for Delegating Network Device Name and IP Address of Endpoint to Connect from Clients
-#  import_tasks: set-backend-net-facts.yml
+#- name: Set facts for Setup and Remove Weka File Sysetm and Clients
+#  import_tasks: set-wekafs-facts.yml
 #  tags:
 #    - install
 #    - uninstall
@@ -39,7 +39,6 @@
   import_tasks: install-clients.yml
   tags: install
   when: weka.client.wekafs == true and inventory_hostname in groups['clients']
-  # when: weka.client.wekafs == true and wekafs.clients_only == true and  ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
 #
 - name: Uninstall WekaFS Clients
