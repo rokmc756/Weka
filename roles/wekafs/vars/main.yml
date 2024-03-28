@@ -1,5 +1,4 @@
 wekafs:
-  clients_only: false
   group:
     - { name: "default-g01" }
     - { name: "wekafs-g01" }

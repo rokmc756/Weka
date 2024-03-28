@@ -1,10 +1,10 @@
 ---
 # For now fail if it's not suppoted OS
-- name: Check OS
-  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
-  when:
-    - ansible_distribution_major_version|int >= 8
-    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+#- name: Check OS
+#  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+#  when:
+#    - ansible_distribution_major_version|int >= 8
+#    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
 #
 - name: Set facts for Installing Weka Data Platform
@@ -24,7 +24,7 @@
 - name: Install SMB Backends
   import_tasks: install.yml
   tags: install
-  when: weka.backend.smb == true and inventory_hostname in groups['workers']
+  when: weka.protocol.smb == true and inventory_hostname in groups['workers']
 
 #
 - name: Install CIFS Clients
@@ -42,4 +42,5 @@
 - name: Uninstall SMB Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.backend.smb == true and inventory_hostname in groups['workers']
+  when: weka.protocol.smb == true and inventory_hostname in groups['workers']
+

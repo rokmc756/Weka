@@ -22,7 +22,7 @@
   set_fact:
     "{{ 'ipaddr'~item.seq }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item.end_seq ].ipv4.address }}"
     "{{ 'all_net'~item.seq~'_ipaddrs' }}": "{{ groups['workers'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item.end_seq, 'ipv4', 'address']) | join(',') }}"
-    "{{ 'netdev'~item.seq }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net['ipaddr'~item.seq] ) | map(attribute='device') | first }}"
+    "{{ 'netdev'~item.seq }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net['ipaddr'~item.seq] ) | map(attribute='device') | first }}"
   with_items: "{{ netdev_seq }}"
   when: inventory_hostname in groups['workers']
 

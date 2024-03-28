@@ -15,12 +15,12 @@
   when: inventory_hostname in groups['workers']
 
 #
-- name: Set facts for Delegating Network Device Name and IP Address of Endpoint to Connect from Clients
-  import_tasks: set-backend-net-facts.yml
-  tags:
-    - install
-    - uninstall
-  when: inventory_hostname in groups['workers']
+#- name: Set facts for Delegating Network Device Name and IP Address of Endpoint to Connect from Clients
+#  import_tasks: set-backend-net-facts.yml
+#  tags:
+#    - install
+#    - uninstall
+#  when: inventory_hostname in groups['workers']
 
 #
 - name: Set facts for Setup and Remove Weka File Sysetm and Clients
@@ -32,7 +32,7 @@
 - name: Install WekaFS
   import_tasks: install.yml
   tags: install
-  when: weka.backend.wekafs == true and inventory_hostname in groups['workers']
+  when: weka.fs == true and inventory_hostname in groups['workers']
 
 #
 - name: Install WekaFS Client
@@ -51,5 +51,5 @@
 - name: Uninstall WekaFS
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.backend.wekafs == true and inventory_hostname in groups['workers']
+  when: weka.fs == true and inventory_hostname in groups['workers']
 

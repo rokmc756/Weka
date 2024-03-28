@@ -1,3 +1,3 @@
 
-wekafs for smb and nfs file system should be umounted when destroying it
+- WekaFS for smb and nfs file system should be umounted when destroying it - Done, 27, Mar 2024
 

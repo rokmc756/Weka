@@ -1,29 +1,4 @@
 #
-#- name: Define fact for weka version
-#  set_fact:
-#    weka_file_name: weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
-#- debug: msg={{ weka_file_name }}
-
-# https://serverfault.com/questions/1040246/how-to-select-network-interface-given-ip-address-in-ansible-across-debian-and-fr
-#- name: Get interface name from provided IP
-#  set_fact:
-#    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.client.net.ipaddr0 ) | map(attribute='device') | first }}"
-#    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.client.net.ipaddr1 ) | map(attribute='device') | first }}"
-
-#- debug: msg={{ netdev0 }}
-#- debug: msg={{ netdev1 }}
-
-#
-#- name: Get IP Address from provided network device name
-#  set_fact:
-#    ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
-#    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
-#
-#- debug: msg={{ ipaddr0 }}
-#- debug: msg={{ ipaddr1 }}
-
-
-#
 #- name: Install Weka binary
 #  shell: |
 #    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
@@ -32,13 +7,12 @@
 #  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 #- debug: msg={{ install_weka_binary }}
 #  when: print_debug == true and inventory_hostname in groups['clients']
-#  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-
-# weka version set 4.2.9.29-hcsf
-# weka local start client
+# # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+# wka version set 4.2.9.29-hcsf
+# weka local start
 
 #
-- name: Install WekaFS Client
+- name: Install WekaFS POSIX Stateless Clients
   shell: |
     curl 192.168.1.211:14000/dist/v1/install | sh
   register: install_wekafs_client
@@ -47,18 +21,7 @@
   when: print_debug == true and inventory_hostname in groups['clients']
 
 #
-#- name: Start WekaFS Client Container
-#  shell: |
-#    weka version set 4.2.9.29-hcsf
-#    weka local start
-#  register: start_wekafs_client
-#  when: inventory_hostname in groups['clients']
-#- debug: msg={{ start_wekafs_client }}
-#  when: print_debug == true and inventory_hostname in groups['clients']
-#  #  weka local start
-
-#
-- name: Create directory to mount WekaFS
+- name: Create Directory to Mount WekaFS for POSIX Client
   shell: |
     mkdir {{ wekafs.fs[1].mount_dir }}
   register: create_wekafs_dir
@@ -66,30 +29,32 @@
 - debug: msg={{ create_wekafs_dir  }}
   when: print_debug == true and inventory_hostname in groups['clients']
 
-- debug: msg={{ netdev1 }}
-  when: print_debug == true and inventory_hostname in groups['clients']
-- debug: msg={{ netdev2 }}
-  when: print_debug == true and inventory_hostname in groups['clients']
-- debug: msg={{ ipaddr1 }}
-  when: print_debug == true and inventory_hostname in groups['clients']
-- debug: msg={{ ipaddr2 }}
-  when: print_debug == true and inventory_hostname in groups['clients']
+#- debug: msg={{ netdev1 }}
+#  when: print_debug == true and inventory_hostname in groups['clients']
+#- debug: msg={{ netdev2 }}
+#  when: print_debug == true and inventory_hostname in groups['clients']
+#- debug: msg={{ ipaddr1 }}
+#  when: print_debug == true and inventory_hostname in groups['clients']
+#- debug: msg={{ ipaddr2 }}
+#  when: print_debug == true and inventory_hostname in groups['clients']
 
-# mount -t wekafs -o verbose -o num_cores=2 -o net=ens193/192.168.1.61/24 -o net=ens224/192.168.1.71/24 192.168.1.211/wekafs-fs01 /mnt/wekafs-fs01
-- name: Mount WekaFS directory
+
+- name: Mount Stateless WekaFS Clients
   shell: |
-    mount -t wekafs -o verbose -o num_cores=1 -o net={{ netdev1 }}/{{ ipaddr1 }}/24 \
+    mount -t wekafs -o verbose -o num_cores=1 -o \
+    net={{ netdev1 }}/{{ ipaddr1 }}/24 \
     192.168.1.211/{{ wekafs.fs[1].name }} {{ wekafs.fs[1].mount_dir }}
   register: mount_wekafs_dir
   when: print_debug == true and inventory_hostname in groups['clients']
   #  -o net={{ netdev1 }}/{{ ipaddr1 }}/24 -o net={{ netdev2 }}/{{ ipaddr2 }}/24 \
+  # mount -t wekafs -o verbose -o num_cores=2 -o net=ens193/192.168.1.61/24 -o net=ens224/192.168.1.71/24 192.168.1.211/wekafs-fs01 /mnt/wekafs-fs01
 
 #
 - debug: msg={{ mount_wekafs_dir }}
   when: print_debug == true and inventory_hostname in groups['clients']
 
 #
-- name: Check if WekaFS directory is mounted
+- name: Check if WekaFS Directory is Mounted
   shell: |
     df -h
     ls -al {{ wekafs.fs[1].mount_dir }}
@@ -134,3 +99,4 @@
 #
 # ******
 # Need to test switch mode of iptime in order to expand ports from 5 to 10
+

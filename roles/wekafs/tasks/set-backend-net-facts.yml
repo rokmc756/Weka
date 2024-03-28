@@ -3,7 +3,7 @@
 #
 - name: Get interface name from provided IP
   set_fact:
-    netdev_ep: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr5 ) | map(attribute='device') | first }}"
+    netdev_ep: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net.ipaddr3 ) | map(attribute='device') | first }}"
 
 - name: Delegate network device name to Clients
   set_fact:

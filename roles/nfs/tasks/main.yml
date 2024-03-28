@@ -18,7 +18,7 @@
 - name: Install NFS Backends
   import_tasks: install.yml
   tags: install
-  when: weka.backend.nfs == true and inventory_hostname in groups['workers']
+  when: weka.protocol.nfs == true and inventory_hostname in groups['workers']
 
 #
 - name: Install NFS Clients
@@ -36,5 +36,5 @@
 - name: Uninstall NFS Backends
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.backend.nfs == true and inventory_hostname in groups['workers']
+  when: weka.protocol.nfs == true and inventory_hostname in groups['workers']
 

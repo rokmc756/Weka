@@ -24,7 +24,7 @@
 - name: Setup Object Storage Tier
   import_tasks: install.yml
   tags: install
-  when: inventory_hostname in groups['workers']
+  when: weka.obs == true and inventory_hostname in groups['workers']
 
 #
 #- name: Enable Object Storage Tier Client
@@ -42,5 +42,4 @@
 - name: Remove S3 Object Storage Tier
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['workers']
-
+  when: weka.obs == true and inventory_hostname in groups['workers']

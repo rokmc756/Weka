@@ -3,8 +3,8 @@
 #
 - name: Get interface name from provided IP
   set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr0 ) | map(attribute='device') | first }}"
-    netdev5: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.net.ipaddr5 ) | map(attribute='device') | first }}"
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev5: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net.ipaddr5 ) | map(attribute='device') | first }}"
 #- debug: var="{{ netdev0 }}"
 
 #
