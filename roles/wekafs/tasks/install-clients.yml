@@ -1,4 +1,3 @@
-#
 #- name: Install Weka binary
 #  shell: |
 #    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
@@ -11,7 +10,7 @@
 # wka version set 4.2.9.29-hcsf
 # weka local start
 
-#
+# 192.168.1.211 is a ip address of froentend contatiners
 - name: Install WekaFS POSIX Stateless Clients
   shell: |
     curl 192.168.1.211:14000/dist/v1/install | sh
@@ -23,80 +22,57 @@
 #
 - name: Create Directory to Mount WekaFS for POSIX Client
   shell: |
-    mkdir {{ wekafs.fs[1].mount_dir }}
+    mkdir {{ item.mount_dir }}
   register: create_wekafs_dir
+  with_items:
+    - "{{ wekafs.fs.filesystem }}"
   when: inventory_hostname in groups['clients']
 - debug: msg={{ create_wekafs_dir  }}
   when: print_debug == true and inventory_hostname in groups['clients']
 
-#- debug: msg={{ netdev1 }}
-#  when: print_debug == true and inventory_hostname in groups['clients']
-#- debug: msg={{ netdev2 }}
-#  when: print_debug == true and inventory_hostname in groups['clients']
-#- debug: msg={{ ipaddr1 }}
-#  when: print_debug == true and inventory_hostname in groups['clients']
-#- debug: msg={{ ipaddr2 }}
+#- debug: msg={{ netdev1 netdev2 ipaddr1 ipaddr2 }}
 #  when: print_debug == true and inventory_hostname in groups['clients']
 
-
+#
 - name: Mount Stateless WekaFS Clients
   shell: |
     mount -t wekafs -o verbose -o num_cores=1 -o \
     net={{ netdev1 }}/{{ ipaddr1 }}/24 \
-    192.168.1.211/{{ wekafs.fs[1].name }} {{ wekafs.fs[1].mount_dir }}
+    192.168.1.211/{{ wekafs.fs.filesystem[1].name }} {{ wekafs.fs.filesystem[1].mount_dir }}
   register: mount_wekafs_dir
+  when: print_debug == true and inventory_hostname in groups['clients']
+- debug: msg={{ mount_wekafs_dir }}
   when: print_debug == true and inventory_hostname in groups['clients']
   #  -o net={{ netdev1 }}/{{ ipaddr1 }}/24 -o net={{ netdev2 }}/{{ ipaddr2 }}/24 \
   # mount -t wekafs -o verbose -o num_cores=2 -o net=ens193/192.168.1.61/24 -o net=ens224/192.168.1.71/24 192.168.1.211/wekafs-fs01 /mnt/wekafs-fs01
-
-#
-- debug: msg={{ mount_wekafs_dir }}
-  when: print_debug == true and inventory_hostname in groups['clients']
+  # netdev1 should be network device of client which mtu must be 9000 if it's not, client will be failed
+  #
+  # After succesfully mounted, frontend got DPDK
+  # weka cluster process | grep client
+  # 300         rk8-node06  client     192.168.1.186  UP      4.2.9.29-hcsf  MANAGEMENT  UDP                    0:07:20h  Configuration snapshot pulled (7 minutes ago)
+  # 301         rk8-node06  client     192.168.1.216  UP      4.2.9.29-hcsf  FRONTEND    DPDK     1    1.47 GB  0:07:17h
 
 #
 - name: Check if WekaFS Directory is Mounted
   shell: |
     df -h
-    ls -al {{ wekafs.fs[1].mount_dir }}
+    ls -al {{ item.mount_dir }}
   register: check_wekafs_mounted
+  with_items:
+    - "{{ wekafs.fs.filesystem }}"
   when: inventory_hostname in groups['clients']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-
 - debug: msg={{ check_wekafs_mounted  }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+  when: print_debug == true and inventory_hostname in groups['clients']
 
 #
 - name: Creat text file with the content
   shell: |
-    touch {{ wekafs.fs[1].mount_dir }}/test01.txt
-    echo "hello world" >  {{ wekafs.fs[1].mount_dir }}/test01.txt
-    cat {{ wekafs.fs[1].mount_dir }}/test01.txt
+    touch {{ wekafs.fs.filesystem[1].mount_dir }}/test01.txt
+    echo "hello world" >  {{ wekafs.fs.filesystem[1].mount_dir }}/test01.txt
+    cat {{ wekafs.fs.filesystem[1].mount_dir }}/test01.txt
   register: create_wekafs_file
   when: inventory_hostname in groups['clients']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-
 - debug: msg={{ create_wekafs_file }}
   when: print_debug == true and inventory_hostname in groups['clients']
-  # when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
-# curl 192.168.0.171:14000/dist/v1/install | sh
-# weka version get 4.2.9.29-hcsf
-# weka version set 4.2.9.29-hcsf
-# weka local start client
-
-# ./wekadestroy -u -f -y rk8-node06
-# curl 192.168.1.211:14000/dist/v1/install | sh  # 211 is management's ip address hold by drives0 container
-#
-# mount -t wekafs -o num_cores=1 -o net=eth5/192.168.1.216/24/192.168.1.1 192.168.1.211/jtest-wekafs-fs01 /mnt/jtest-wekafs-fs01
-# eth5 is client network device which mtu must be 9000 if it's not, client will be failed
-# 211 is management's ip address hold by drives0 container
-#
-# After succesfully mounted, frontend got DPDK
-#
-# weka cluster process | grep client
-# 300         rk8-node06  client     192.168.1.186  UP      4.2.9.29-hcsf  MANAGEMENT  UDP                    0:07:20h  Configuration snapshot pulled (7 minutes ago)
-# 301         rk8-node06  client     192.168.1.216  UP      4.2.9.29-hcsf  FRONTEND    DPDK     1    1.47 GB  0:07:17h
-#
-# ******
 # Need to test switch mode of iptime in order to expand ports from 5 to 10
-

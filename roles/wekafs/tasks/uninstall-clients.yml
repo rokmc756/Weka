@@ -1,81 +1,50 @@
-#
-- name: Define fact for weka version
-  set_fact:
-    weka_file_name: weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
-- debug: msg={{ weka_file_name }}
-
-# https://serverfault.com/questions/1040246/how-to-select-network-interface-given-ip-address-in-ansible-across-debian-and-fr
-- name: Get interface name from provided IP
-  set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.client.net.ipaddr0 ) | map(attribute='device') | first }}"
-
-- debug: msg={{ netdev0 }}
-#- debug: msg={{ netdev1 }}
-
-#
-- name: Get IP Address from provided network device name
-  set_fact:
-    ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
-
-- debug: msg={{ ipaddr0 }}
-
 #- name: Delete text file with the content
 #  shell: |
-#    rm -f {{ wekafs.fs[1].mount_dir }}/test01.txt
+#    rm -f {{ wekafs.fs.filesystem[1].mount_dir }}/test01.txt
 #  register: delete_wekafs_file
 #  ignore_errors: true
 #  when: inventory_hostname in groups['clients']
 #- debug: msg={{ delete_wekafs_file }}
 #  when: print_debug == true and inventory_hostname in groups['clients']
-#
-#  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-#  when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
 #
 - name: Check if WekaFS directory is mounted
   shell: |
     df -h
-    ls -al {{ wekafs.fs[1].mount_dir }}
+    ls -al {{ wekafs.fs.filesystem[1].mount_dir }}
   register: check_wekafs_mounted
   ignore_errors: true
   when: inventory_hostname in groups['clients']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-
 - debug: msg={{ check_wekafs_mounted  }}
   when: print_debug == true and inventory_hostname in groups['clients']
-  # when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
 #
 - name: Unmount WekaFS directory
   shell: |
-    umount {{ wekafs.fs[1].mount_dir }}
+    umount {{ wekafs.fs.filesystem[1].mount_dir }}
   register: unmount_wekafs_dir
   ignore_errors: true
   when: inventory_hostname in groups['clients']
 - debug: msg={{ unmount_wekafs_dir }}
   when: print_debug == true and inventory_hostname in groups['clients']
-  # when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
 #
 - name: Delete directory to mount WekaFS
   shell: |
-    rm -rf {{ wekafs.fs[1].mount_dir }}
+    rm -rf {{ wekafs.fs.filesystem[1].mount_dir }}
   register: delete_wekafs_dir
   ignore_errors: true
   when: inventory_hostname in groups['clients']
 - debug: msg={{ delete_wekafs_dir }}
   when: print_debug == true and inventory_hostname in groups['clients']
-  # when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
+#
 - name: Stop and Remove SCB Container
   shell: |
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
   with_items:
     - "client"
-    - "default"
   ignore_errors: true
   when: inventory_hostname in groups['clients']
 - debug: msg={{ destroy_weka_containers }}
@@ -90,8 +59,6 @@
   when: inventory_hostname in groups['clients']
 - debug: msg={{ destroy_weka_client }}
   when: print_debug == true and inventory_hostname in groups['clients']
-  # when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
 #
 - name: Unmount tmpfs
@@ -100,20 +67,21 @@
   register: umount_tmpfs
   ignore_errors: true
   when: inventory_hostname in groups['clients']
-  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 
 #
 #- name: Reboot required
 #  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
 #  async: 1200
 #  poll: 0
-#  when: ( print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname'] ) and ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" )
+#  when: print_debug == true and inventory_hostname in groups['clients']
 #  notify:
 #    - Waiting for server to come back after reboot
 
 #- meta: flush_handlers
-#  when: print_debug == true and inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
+#  when: print_debug == true and inventory_hostname in groups['clients']
 
+
+#########################################################################################################
 # Force uninstall Weka Client
 # cat /proc/mounts | grep wekafs
 #

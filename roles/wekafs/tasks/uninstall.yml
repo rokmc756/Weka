@@ -3,7 +3,13 @@
   shell: |
     weka fs delete {{ item.name }} -f
   register: delete_custom_wekafs
-  with_items: "{{ wekafs.fs }}"
+  with_items:
+    - "{{ wekafs.fs.default }}"
+    - "{{ wekafs.fs.filesystem }}"
+    - "{{ wekafs.fs.obs }}"
+    - "{{ wekafs.fs.s3 }}"
+    - "{{ wekafs.fs.nfs }}"
+    - "{{ wekafs.fs.smb }}"
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_custom_wekafs }}

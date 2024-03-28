@@ -30,7 +30,7 @@ weka:
       data_plane: netdev2
     scb: false
     mcb: true
-  fs: true
+  fs: false
   obs: false
   protocol:
     s3: false
@@ -45,7 +45,7 @@ weka:
     nfs: false
     s3: false
     smb: false
-    wekafs: false
+    wekafs: true
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1
