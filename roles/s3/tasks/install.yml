@@ -46,16 +46,9 @@
   when: print_debug == true
 
 #
-- name: Copy expect script file to add s3 user
-  template: src=add-s3-user.sh.j2 dest={{ weka.base_path }}/add-s3-user.sh owner=root group=root mode=755 force=yes
-  register: copy_expect_script
-- debug: msg={{ copy_expect_script }}
-  when: print_debug == true
-
-#
 - name: Add s3 user
   shell: |
-    {{ weka.base_path }}/add-s3-user.sh {{ item.name }} {{ item.pass }}
+    weka user add {{ item.name }} s3 {{ item.pass }}
   register: add_s3_user
   with_items:
     - "{{ s3.users }}"
@@ -72,11 +65,18 @@
   when: print_debug == true
 
 #
-- name: Remove Add S3 User Script
-  file:
-    state: absent
-    path: "{{ weka.base_path }}/add-s3-user.sh"
-  register: remove_add_s3_user_script
-- debug: msg={{ remove_add_s3_user_script }}
-  when: print_debug == true
+#- name: Copy expect script file to add s3 user
+#  template: src=add-s3-user.sh.j2 dest={{ weka.base_path }}/add-s3-user.sh owner=root group=root mode=755 force=yes
+#  register: copy_expect_script
+#- debug: msg={{ copy_expect_script }}
+#  when: print_debug == true
 
+#
+#- name: Remove Add S3 User Script
+#  file:
+#    state: absent
+#    path: "{{ weka.base_path }}/add-s3-user.sh"
+#  register: remove_add_s3_user_script
+#- debug: msg={{ remove_add_s3_user_script }}
+#  when: print_debug == true
+#
