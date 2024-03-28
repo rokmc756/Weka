@@ -1,5 +1,5 @@
 #
-- name: Get All Container IDs for SCB Cluster
+- name: Get All Container IDs for Weka SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
@@ -8,7 +8,7 @@
   when: print_debug == true
 
 #
-- name: Get All Container IDs for MCB Cluster
+- name: Get All Container IDs for Weka MCB Cluster
   shell: |
     weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
@@ -36,7 +36,7 @@
   when: print_debug == true
 
 #
-- name: Create S3 Bucket
+- name: Create S3 Buckets
   shell: |
     weka s3 bucket create {{ item.name }} --fs-name {{ item.fs }}
   register: create_s3_bucket
@@ -46,7 +46,7 @@
   when: print_debug == true
 
 #
-- name: Add s3 user
+- name: Add S3 Users
   shell: |
     weka user add {{ item.name }} s3 {{ item.pass }}
   register: add_s3_user
@@ -56,15 +56,14 @@
   when: print_debug == true
 
 #
-- name: Attach Read-Write Permission
+- name: Attach Permission to Users
   shell: weka s3 policy attach {{ item.perm }} {{ item.name }}
-  register: attach_rw_perm
+  register: attach_perms
   with_items:
     - "{{ s3.users }}"
-- debug: msg={{ attach_rw_perm }}
+- debug: msg={{ attach_perms }}
   when: print_debug == true
 
-#
 #- name: Copy expect script file to add s3 user
 #  template: src=add-s3-user.sh.j2 dest={{ weka.base_path }}/add-s3-user.sh owner=root group=root mode=755 force=yes
 #  register: copy_expect_script
@@ -79,4 +78,3 @@
 #  register: remove_add_s3_user_script
 #- debug: msg={{ remove_add_s3_user_script }}
 #  when: print_debug == true
-#

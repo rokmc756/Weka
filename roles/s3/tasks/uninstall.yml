@@ -37,7 +37,7 @@
 # weka s3 service-account remove <access-key>
 
 #
-- name: Detach Read-Write Permission
+- name: Detach Read-Write Permission to S3 Users
   shell: weka s3 policy detach {{ item.name }}
   register: detach_perm_user
   ignore_errors: true
@@ -47,7 +47,7 @@
   when: print_debug == true
 
 #
-- name: Delete S3 User
+- name: Delete S3 Users
   shell: |
     /usr/bin/weka user delete {{ item.name }}
   register: del_s3_user
@@ -58,7 +58,7 @@
   when: print_debug == true
 
 #
-- name: Destroy S3 Bucket
+- name: Destroy S3 Buckets
   shell: |
     weka s3 bucket destroy {{ item.name }} -f
   register: destroy_s3_bucket
