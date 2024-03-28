@@ -20,6 +20,8 @@ weka:
     ha1: 1
     ha2: 2
   backend:
+    scb: false
+    mcb: true
     net:
       ipaddr0: "192.168.0."
       ipaddr1: "192.168.1.17"
@@ -28,24 +30,22 @@ weka:
       ipaddr4: "192.168.1.20"
       ipaddr5: "192.168.1.21"
       data_plane: netdev2
-    scb: false
-    mcb: true
-  fs: false
   obs: false
+  fs: true
   protocol:
-    s3: true
     nfs: false
     smb: false
+    s3: true
   client:
+    s3: false
+    nfs: false
+    smb: false
+    wekafs: false
     net:
       ipaddr0: "192.168.0.6"
       ipaddr1: "192.168.1.6"
       ipaddr2: "192.168.1.7"
       ipaddr3: "192.168.1.8"
-    nfs: false
-    smb: false
-    wekafs: false
-    s3: false
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1

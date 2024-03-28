@@ -1,13 +1,14 @@
 #
-- name: Get IP Address of Frontend who has most highest CPU usage
+- name: Get IP Address of Frontend who has most Lowest CPU usage
   shell: |
     weka cluster container | grep frontend \
-    | grep `weka cluster process | grep $(weka stats realtime --sort cpu -F role=FRONTEND | sed 1d | awk '{print $1" "$11 }' | sort -r -k2,2 | head -1 | awk '{print $1}') | awk '{print $2}'` \
+    | grep `weka cluster process | grep $(weka stats realtime --sort cpu -F role=FRONTEND | sed 1d | awk '{print $1" "$11 }' | sort -k2,2 | head -1 | awk '{print $1}') | awk '{print $2}'` \
     | awk '{print $4}'
   register: fe_ip_high_cpu
   when: weka.client.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ fe_ip_high_cpu }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # Highest CPU Usage : sort -r -k2,2 
 
 #
 - debug: msg={{ fe_ip_high_cpu.stdout }}

@@ -38,12 +38,20 @@
 #
 - name: Create S3 Buckets
   shell: |
-    weka s3 bucket create {{ item.name }} --fs-name {{ item.fs }}
+    weka s3 bucket create {{ item.name }}
   register: create_s3_bucket
   with_items:
     - "{{ s3.buckets }}"
 - debug: msg={{ create_s3_bucket }}
   when: print_debug == true
+#
+# weka s3 bucket create {{ item.name }} --fs-name {{ item.fs }}
+# Need to check the meaning of --fs-name exactly especailly which bucket is relevant with
+#
+# weka s3 bucket create s3-bucket01 --fs-name s3-fs01
+# error: An error occurred (InvalidBucketState) when calling the CreateBucket operation:
+# Unable to create bucket because the folder path already exists and contains data objects.
+# Use Weka-CLI --existing-path <path> for explicit path selection
 
 #
 - name: Add S3 Users

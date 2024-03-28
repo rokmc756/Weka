@@ -57,6 +57,72 @@
 - debug: msg={{ del_s3_user }}
   when: print_debug == true
 
+##########################################################################################################
+# Start to avoid failure to not destroy Buckets
+##########################################################################################################
+#
+- name: Create S3 Default WekaFS Directory
+  file:
+    path: "/mnt/{{ s3.fs.default.name }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  register: create_s3_default_fs_dir
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_s3_default_fs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Mount S3 Default WekaFS
+  mount:
+    src: "{{ s3.fs.default.name }}"
+    path: "/mnt/{{ s3.fs.default.name }}"
+    opts: ""
+    fstype: wekafs
+    state: ephemeral
+  register: mount_s3_default_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ mount_s3_default_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete Hidden Buckets in S3 Default WekaFS
+  file:
+    path: "/mnt/{{ s3.fs.default.name }}/{{ item.name }}"
+    state: absent
+  register: delete_hidden_buckets
+  with_items: "{{ s3.buckets }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_hidden_buckets }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Umount S3 Default WekaFS
+  mount:
+    path: "/mnt/{{ s3.fs.default.name }}"
+    state: unmounted
+  retries: 3
+  delay: 10
+  register: umount_s3_default_fs
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ umount_s3_default_fs }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete S3 Default WekaFS Directory
+  file:
+    path: "/mnt/{{ s3.fs.default.name }}"
+    state: absent
+  register: delete_s3_default_fs_dir
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ delete_s3_default_fs_dir }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#
+##########################################################################################################
+# End to avoid failure to not destroy Buckets
+##########################################################################################################
+
 #
 - name: Destroy S3 Buckets
   shell: |
@@ -68,6 +134,7 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ destroy_s3_bucket }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  #  weka s3 bucket policy unset {{ item.name }}
 
 #
 - name: Remove S3 Backend Containers
