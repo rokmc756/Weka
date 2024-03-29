@@ -1,12 +1,12 @@
 #
 - name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
-  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
-  failed_when: weka.backend.mcb == true and weka.backend.scb == true
+  fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
 - name: Create Drive Containers
   shell: |
-    weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.core_num }} --only-drives-cores \
+    weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.cores }} --only-drives-cores \
     --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr5 }} \
     {{ container.drives.options }} \
     {{ drives_net }}
@@ -81,7 +81,7 @@
 - name: Create Compute Containers
   shell: |
     weka local setup container --name {{ container.compute.name }} --base-port {{ container.compute.port }} \
-    --only-compute-cores --cores {{ container.compute.core_num }} \
+    --only-compute-cores --cores {{ container.compute.cores }} \
     --join-ips {{ all_net5_ipaddrs }}:{{ container.compute.port }} \
     --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} {{ container.compute.options }} \
@@ -97,7 +97,7 @@
 - name: Create Frontend Containers
   shell: |
     weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
-    --only-frontend-cores --cores {{ container.frontend.core_num }} --memory {{ container.frontend.memory }} \
+    --only-frontend-cores --cores {{ container.frontend.cores }} --memory {{ container.frontend.memory }} \
     --join-ips {{ all_net5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
     --failure-domain {{ ansible_hostname }} {{ container.frontend.options }} \
     {{ frontend_net }}

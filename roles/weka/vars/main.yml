@@ -15,8 +15,8 @@ container:
      port: 14000
    drives:
      name: "drives0"
-     core_num: "2"
-     memory: "4.8GiB"                # 2.3GiB default, 0 means automatical allocation
+     cores: "1"
+     memory: "2.4GiB"                # 2.3GiB default, 0 means automatical allocation
      core_ids: "1,2"
      data: "3"
      parity: "2"
@@ -26,14 +26,14 @@ container:
      options:
    compute:
      name: "compute0"
-     core_num: "1"
+     cores: "1"
      memory: "3.4GiB"                # 3.3GiB default, 0 means automatical allocation
      core_ids: "3,4"
      port: "14200"
      options:                        # "--allow-mix-setting"
    frontend:
      name: "frontend0"
-     core_num: "1"
+     cores: "1"
      memory: "2.4GiB"                # 2.3 GiB default
      core_ids: "8"
      port: "14400"

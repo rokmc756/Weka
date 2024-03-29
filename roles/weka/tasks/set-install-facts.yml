@@ -7,6 +7,16 @@
     netcnt: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort | count|int - 1 }}"
   when: inventory_hostname in groups['workers']
 
+- name: Set Facts for Number of Total Cores and Virtual Network Adapters
+  set_fact:
+    tcores: "{{ container.drives.cores|int + container.compute.cores|int + container.frontend.cores|int }}"
+  when: inventory_hostname in groups['workers']
+
+#
+- name: Check if the number of virtual network adapters is larger than number of cores to assign into all containers"
+  fail: msg="The number of virtual network adapters should be larger than number of cores to assign into all containers"
+  when: tcores|int >= netcnt|int
+
 #- debug: msg={{ netseq }}
 #- debug: msg={{ netdevs }}
 #- debug: msg={{ netfix }}
@@ -78,7 +88,6 @@
 - debug: msg={{ ha_join_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
 # Example of variable appended with_items
 #- debug:
 #    msg: "{{ vars['ha_ips'~item] }}"
@@ -94,14 +103,55 @@
     weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
 
-# Set facts for network adapter, address, netmask
-- name: Set Facts of Drives Container Net into all hosts
+#
+- name: Set Facts of Drives Container Network into all Hosts
   set_fact:
-    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
-    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
-    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
-  delegate_facts: True
+    drives_net0: "{{ drives_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start=1 end={{ container.drives.cores|int }}
   when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Drives Container Network into all Hosts
+  set_fact:
+    drives_net: "{{ drives_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Compute Container Network into all Hosts
+  set_fact:
+    compute_net0: "{{ compute_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start={{ container.drives.cores|int + 1 }} end={{ container.compute.cores|int + container.drives.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Compute Container Network into all Hosts
+  set_fact:
+    compute_net: "{{ compute_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Frontend Container Network into all Hosts
+  set_fact:
+    frontend_net0: "{{ frontend_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start={{ container.compute.cores|int + container.drives.cores|int + 1 }} end={{ container.frontend.cores|int }} end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Frontend Container Network into all Hosts
+  set_fact:
+    frontend_net: "{{ frontend_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+
+# Set facts for network adapter, address, netmask
+#- name: Set Facts of Drives Container Net into all hosts
+#  set_fact:
+#    drives_net: "--net {{ netdev1 }}/{{ ipaddr1 }}/24 --net {{ netdev2 }}/{{ ipaddr2 }}/24"
+#    compute_net: "--net {{ netdev3 }}/{{ ipaddr3 }}/24"
+#    frontend_net: "--net {{ netdev4 }}/{{ ipaddr4 }}/24"
+#  delegate_facts: True
+#  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
 
 - name: Set Facts of Drives Container Net into all hosts
   set_fact:
@@ -111,12 +161,9 @@
   delegate_facts: True
   when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
-#- name: Set Fact to Split IP Addresses
-#  set_fact:
+#- set_fact: # Set Fact to Split IP Addresses
 #    even: "{{ groups['workers'][::2] }}"
 #    odd: "{{ groups['workers'][1::2] }}"
-#- debug: msg={{ even }}
-#- debug: msg={{ odd }}
 
 - debug:
     msg: "{{ vars['all_net'~item~'_ipaddrs'].split(',')[0] }}"

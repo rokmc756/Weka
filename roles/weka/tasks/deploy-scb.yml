@@ -154,7 +154,7 @@
 #
 - name: Assign Number of Cores into Each Compute/Drives/Frontends Containers
   shell: |
-    weka cluster container cores {{ cont_id }} {{ container.total_cores }} --drives-dedicated-cores {{ container.drives.core_num }} --frontend-dedicated-cores {{ container.frontend.core_num }}
+    weka cluster container cores {{ cont_id }} {{ container.total_cores }} --drives-dedicated-cores {{ container.drives.cores }} --frontend-dedicated-cores {{ container.frontend.cores }}
   register: assign_cores_num
   when: inventory_hostname in groups['workers']
 - debug: msg={{ assign_cores_num  }}
