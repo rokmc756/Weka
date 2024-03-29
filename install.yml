@@ -4,8 +4,8 @@
   vars:
     print_debug: true
   roles:
-    - { role: weka }
     - { role: wekafs }
+  #  - { role: weka }
   #  - { role: s3 }
   #  - { role: obs }
   #  - { role: smb }
