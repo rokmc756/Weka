@@ -5,13 +5,13 @@ obs:
     ssd_size: 1GiB
     fs:
       name: obs-new-fs01
-      size: 7GiB
+      size: 1.5GiB
     fs_group:
       name: obs-g01
     demote: 30
   fs:
     name: obs-fs01
-    size: 10GiB
+    size: 1.5GiB
   site:
     name: local                                                # local or remote
   s3:

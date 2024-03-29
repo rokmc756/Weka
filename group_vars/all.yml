@@ -34,17 +34,17 @@ weka:
   obs: false
   fs: false
   protocol:
-    nfs: false
     smb: false
-    s3: true
+    nfs: false
+    s3: false
   client:
-    s3: true
-    nfs: false
-    wekafs: false
     smb: false
+    s3: false
+    nfs: false
+    wekafs: true
     net:
       type: "virtual"               # or physical
-      cores: 2
+      cores: 1
       ipaddr0: "192.168.0.6"
       ipaddr1: "192.168.1.6"
       ipaddr2: "192.168.1.7"
