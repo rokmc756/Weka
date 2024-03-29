@@ -12,6 +12,12 @@
   when: inventory_hostname in groups['workers']
 
 #
+- name: Set facts for Virtual Network Adapters Such as VMware or Public Clouds
+  import_tasks: set-virt-net-facts.yml
+  tags: install
+  when: weka.backend.net.type == "virtual" and inventory_hostname in groups['workers']
+
+#
 - name: Set facts for Uninstalling Weka Data Platform
   import_tasks: set-uninstall-facts.yml
   tags: uninstall

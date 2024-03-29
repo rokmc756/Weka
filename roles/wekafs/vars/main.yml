@@ -8,9 +8,9 @@ wekafs:
     - { name: "smb-g01" }
   fs:
     default:
-      - { name: "default-fs01",  group: "default-g01", size : "2GiB", mount_dir : "/mnt/default-fs01" }
-      - { name: "default-fs02",  group: "default-g01", size : "2GiB", mount_dir : "/mnt/default-fs02" }
-      - { name: "default-fs03",  group: "default-g01", size : "2GiB", mount_dir : "/mnt/default-fs03" }
+      - { name: "default-fs01",  group: "default-g01", size : "6GiB", mount_dir : "/mnt/default-fs01" }
+      - { name: "default-fs02",  group: "default-g01", size : "4GiB", mount_dir : "/mnt/default-fs02" }
+      - { name: "default-fs03",  group: "default-g01", size : "3GiB", mount_dir : "/mnt/default-fs03" }
     filesystem:
       - { name: "wekafs-fs01",  group: "wekafs-g01", size : "2GiB", mount_dir : "/mnt/wekafs-fs01" }
       - { name: "wekafs-fs02",  group: "wekafs-g01", size : "2GiB", mount_dir : "/mnt/wekafs-fs02" }
@@ -26,9 +26,9 @@ wekafs:
       - { name: "s3-fs02",  group: "s3-g01", size : "2GiB", mount_dir : "/mnt/s3-fs02" }
       - { name: "s3-fs03",  group: "s3-g01", size : "2GiB", mount_dir : "/mnt/s3-fs03" }
     nfs:
-      - { name: "nfs-fs01",  group: "nfs-g01", size : "2GiB", mount_dir : "/mnt/nfs-fs01" }
-      - { name: "nfs-fs02",  group: "nfs-g01", size : "2GiB", mount_dir : "/mnt/nfs-fs02" }
-      - { name: "nfs-fs03",  group: "nfs-g01", size : "2GiB", mount_dir : "/mnt/nfs-fs03" }
+      - { name: "nfs-fs01",  group: "nfs-g01", size : "6GiB", mount_dir : "/mnt/nfs-fs01" }
+      - { name: "nfs-fs02",  group: "nfs-g01", size : "6GiB", mount_dir : "/mnt/nfs-fs02" }
+      - { name: "nfs-fs03",  group: "nfs-g01", size : "6GiB", mount_dir : "/mnt/nfs-fs03" }
     smb:
       - { name: "smb-fs01",  group: "smb-g01", size : "2GiB", mount_dir : "/mnt/smb-fs01" }
       - { name: "smb-fs02",  group: "smb-g01", size : "2GiB", mount_dir : "/mnt/smb-fs02" }

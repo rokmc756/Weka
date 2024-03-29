@@ -1,0 +1,27 @@
+#
+- name: Set Facts of DPDK Clients Network into all Hosts
+  set_fact:
+    clients_net0: "{{ clients_net0 | default([]) + [ '-o net=' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start=1 end={{ weka.client.net.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['clients']
+
+#
+- name: Set Facts of DPDK Clients Network into all Hosts
+  set_fact:
+    clients_net: "{{ clients_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['clients']
+
+#
+- name: Set Facts of UDP Clients Network into all Hosts
+  set_fact:
+    clients_net0: "{{ clients_net0 | default([]) + [ '-o udp=' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start=1 end={{ weka.client.net.cores|int }}
+  when: weka.net.conn == "udp" and inventory_hostname in groups['clients']
+
+#
+- name: Set Facts of UDP Clients Network into all Hosts
+  set_fact:
+    clients_net: "{{ clients_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "udp" and inventory_hostname in groups['clients']
+
+#- debug: msg={{ clients_net }}

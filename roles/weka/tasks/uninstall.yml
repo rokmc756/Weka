@@ -1,6 +1,4 @@
 #
-# weka user login {{ weka.admin_user }} {{ weka.admin_default_pass }} && weka status
-#
 - name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
   debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
   failed_when: weka.backend.mcb == true and weka.backend.scb == true
@@ -13,7 +11,8 @@
 #
 - name: Stop IO
   shell: |
-    sh {{ weka.base_path }}/weka-stop-io.sh
+    weka user login {{ weka.admin_user }} {{ weka.admin_change_pass }} && weka status
+    {{ weka.base_path }}/weka-stop-io.sh
   ignore_errors: true
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 

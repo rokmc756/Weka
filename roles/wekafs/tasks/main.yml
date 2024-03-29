@@ -23,10 +23,16 @@
 #  when: inventory_hostname in groups['workers']
 
 #
-- name: Set facts for Setup and Remove Weka File Sysetm and Clients
+- name: Set facts for Setup WekaFS and POSIX Clients
   import_tasks: set-clients-facts.yml
   tags: install
   when: weka.client.wekafs == true and inventory_hostname in groups['clients']
+
+#
+- name: Set facts for WekaFS POSIX Clients at Virtualization such as VMware and Public Cloud
+  import_tasks: set-virt-clients-facts.yml
+  tags: install
+  when: weka.client.wekafs == true and weka.client.net.type == "virtual" and inventory_hostname in groups['clients']
 
 #
 - name: Install WekaFS

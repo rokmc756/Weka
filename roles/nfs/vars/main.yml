@@ -14,3 +14,6 @@ nfs:
     mount_dir: /mnt/nfs-fs01
     wekafs: nfs-fs01
 
+# weka nfs global-config set --config-fs default-fs01
+# NFS config FS capacity can't be lower than 5368709120
+

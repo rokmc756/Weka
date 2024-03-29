@@ -6,13 +6,18 @@
     | awk '{print $4}'
   register: feip_high_cpu
   when: weka.client.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ fe_ip_high_cpu }}
+- debug: msg={{ feip_high_cpu }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # Highest CPU Usage : sort -r -k2,2 
 
 #
 - debug: msg={{ feip_high_cpu.stdout }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- name: Set Facts of Frontend IP Address
+  set_fact:
+    feip0: ""
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Set Facts of Frontend IP Address
@@ -23,7 +28,7 @@
   with_items: "{{ groups['clients'] }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ feip0 }}
-  when: print_debug == true and inventory_hostname in groups['clients']
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - set_fact:

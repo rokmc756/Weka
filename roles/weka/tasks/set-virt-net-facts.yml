@@ -1,0 +1,39 @@
+#
+- name: Set Facts of Drives Container Virtual Network into all Hosts
+  set_fact:
+    drives_net0: "{{ drives_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start=1 end={{ container.drives.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Drives Container Virtual Network into all Hosts
+  set_fact:
+    drives_net: "{{ drives_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Compute Container Virtual Network into all Hosts
+  set_fact:
+    compute_net0: "{{ compute_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start={{ container.drives.cores|int + 1 }} end={{ container.compute.cores|int + container.drives.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Compute Container Virtual Network into all Hosts
+  set_fact:
+    compute_net: "{{ compute_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Frontend Container Virtual Network into all Hosts
+  set_fact:
+    frontend_net0: "{{ frontend_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
+  with_sequence: start={{ container.compute.cores|int + container.drives.cores|int + 1 }} end={{ container.frontend.cores|int }} end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+
+#
+- name: Set Facts of Frontend Container Virtual Network into all Hosts
+  set_fact:
+    frontend_net: "{{ frontend_net0 | flatten | join(' ') }}"
+  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+

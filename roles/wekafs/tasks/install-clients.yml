@@ -3,12 +3,10 @@
 #    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
 #  register: install_weka_binary
 #  when: inventory_hostname in groups['clients']
-#  # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
 #- debug: msg={{ install_weka_binary }}
 #  when: print_debug == true and inventory_hostname in groups['clients']
-# # when: inventory_hostname in hostvars[groups['clients'][0]]['ansible_hostname']
-# wka version set 4.2.9.29-hcsf
-# weka local start
+#  # wka version set 4.2.9.29-hcsf
+#  # weka local start
 
 # 192.168.1.211 is a ip address of froentend contatiners
 - name: Install WekaFS POSIX Stateless Clients
