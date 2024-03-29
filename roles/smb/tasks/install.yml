@@ -16,28 +16,43 @@
 # weka smb cluster update
 
 #
+- name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
+  fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  when: weka.backend.mcb == true and weka.backend.scb == true
+
+#
 - name: Get All Container IDs for SCB
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
-  register: all_container_ids
+  register: all_scb_container_ids
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ all_container_ids }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_scb_container_ids }}
+  when: print_debug == true and weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- set_fact:
+    all_cont_ids: "{{ all_scb_container_ids.stdout }}"
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Get All Container IDs for MCB
   shell: |
     weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
-  register: all_container_ids
+  register: all_mcb_container_ids
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ all_container_ids }}
-  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_mcb_container_ids }}
+  when: print_debug == true and weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- set_fact:
+    all_cont_ids: "{{ all_mcb_container_ids.stdout }}"
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
 - name: Create SMB Cluster
   shell: |
     weka smb cluster create {{ smb.cluster.name }} {{ smb.ad.domain }} --domain-netbios-name {{ smb.ad.netbios }} ---encryption enabled \
-    --container-ids {{ all_container_ids.stdout }} --smb-ips-range {{ smb.net.ips_range }} {{ smb.fs.name }}
+    --container-ids {{ all_cont_ids }} --smb-ips-range {{ smb.net.ips_range }} {{ smb.fs.name }}
   register: create_smb_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_smb_cluster }}

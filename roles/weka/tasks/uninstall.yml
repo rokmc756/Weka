@@ -1,7 +1,7 @@
 #
 - name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
-  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
-  failed_when: weka.backend.mcb == true and weka.backend.scb == true
+  fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
 - name: Copy expect script file to stop io operation

@@ -11,7 +11,7 @@ container:
    weka_huge_page_memory: "1.4GiB"
    default:
      name: "jack-kr-scb"
-     mem_size: "3GiB"
+     mem_size: "5GiB"
      port: 14000
    drives:
      name: "drives0"

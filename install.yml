@@ -4,12 +4,12 @@
   vars:
     print_debug: true
   roles:
-    - { role: wekafs }
+    - { role: weka }
+  #  - { role: smb }
+  #  - { role: wekafs }
   #  - { role: obs }
   #  - { role: nfs }
-  #  - { role: smb }
   #  - { role: s3 }
-  #  - { role: weka }
   #  - { role: init-hosts }
   #  - { role: minio }
   #  - { role: firewalld }

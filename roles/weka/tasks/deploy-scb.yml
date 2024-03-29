@@ -5,8 +5,8 @@
 
 # weka local ps ; weka local stop
 - name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
-  debug: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
-  failed_when: weka.backend.mcb == true and weka.backend.scb == true
+  fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  when: weka.backend.mcb == true and weka.backend.scb == true
 
 #
 - name: Create SCB Container
@@ -103,9 +103,9 @@
 #
 - name: Set Facts to combine netdevs and ipaddrs
   set_fact:
-    netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4, netdev5 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
+    netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
   when: inventory_hostname in groups['workers']
-# - debug: msg={{ netinfo }}
+  #  netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4, netdev5 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
 
 #
 - name: Add Networks Adpters into Container for DPDK Support
@@ -117,13 +117,12 @@
   when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
 - debug: msg={{ add_network_drive }}
   when: print_debug == true and weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-  # {{ cont_host }}
 
 #
 - name: Delete Partition Table
   shell: |
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1
-    wipefs --all --force /dev/sdc; wipefs --all --force /dev/sdd
+    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1;
+    wipefs --all --force /dev/sdb; wipefs --all --force /dev/sdc;
   register: del_part_table
   when: inventory_hostname in groups['workers']
 - debug: msg={{ del_part_table }}

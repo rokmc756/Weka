@@ -28,18 +28,19 @@ weka cluster host apply --all --force
 
 
 weka cluster host net add 0 eth1 --ips 192.168.1.141 --netmask=24 --gateway=192.168.1.1
+weka cluster host net add 0 eth2 --ips 192.168.2.141 --netmask=24 --gateway=192.168.2.1
+weka cluster host net add 0 eth3 --ips 192.168.2.151 --netmask=24 --gateway=192.168.2.1
+
 weka cluster host net add 1 eth1 --ips 192.168.1.142 --netmask=24 --gateway=192.168.1.1
 weka cluster host net add 2 eth1 --ips 192.168.1.143 --netmask=24 --gateway=192.168.1.1
 weka cluster host net add 3 eth1 --ips 192.168.1.144 --netmask=24 --gateway=192.168.1.1
 weka cluster host net add 4 eth1 --ips 192.168.1.145 --netmask=24 --gateway=192.168.1.1
 
-weka cluster host net add 0 eth2 --ips 192.168.2.141 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 1 eth2 --ips 192.168.2.142 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 2 eth2 --ips 192.168.2.143 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 3 eth2 --ips 192.168.2.144 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 4 eth2 --ips 192.168.2.145 --netmask=24 --gateway=192.168.2.1
 
-weka cluster host net add 0 eth3 --ips 192.168.2.151 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 1 eth3 --ips 192.168.2.152 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 2 eth3 --ips 192.168.2.153 --netmask=24 --gateway=192.168.2.1
 weka cluster host net add 3 eth3 --ips 192.168.2.154 --netmask=24 --gateway=192.168.2.1
