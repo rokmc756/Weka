@@ -1,6 +1,6 @@
 upload_weka_bin: false
 remove_weka_bin: false
-setup_weka_bin: true
+setup_weka_bin: false
 destroy_weka: true
 # first_addrs_num: "{{ weka.host_num|int % 2 | int }}"
 # second_addrs_num: "{{ weka.host_num|int % 2 | int }}"
@@ -12,34 +12,34 @@ container:
    spare_memory: "8GiB"
    weka_huge_page_memory: "1.4GiB"
    default:
-     name: "default"                 # name: "jack-kr-scb"
+     name: "default"              # name: "jack-kr-scb" - It's very strange that there are network errors, SYNC, DOWN not UP in case that container name is not default.
      mem_size: "9GiB"
      port: 14000
    drives:
      name: "drives0"
      cores: "2"
-     memory: "2.5GiB"                # 2.3GiB default, 0 means automatical allocation
+     memory: "2.5GiB"             # 2.3GiB default, 0 means automatical allocation
      core_ids: "1,2"
      data: "3"
      parity: "2"
-     hotspare: "0"                   # 0 means automaical allocation
+     hotspare: "0"                # 0 means automaical allocation
      devices: "/dev/sdb /dev/sdc"
      port: "14000"
      options:
    compute:
      name: "compute0"
      cores: "1"
-     memory: "3.5GiB"                # 3.3GiB default, 0 means automatical allocation
+     memory: "3.5GiB"             # 3.3GiB default, 0 means automatical allocation
      core_ids: "3,4"
      port: "14200"
-     options:                        # "--allow-mix-setting"
+     options:                     # "--allow-mix-setting"
    frontend:
      name: "frontend0"
      cores: "1"
-     memory: "2.5GiB"                # 2.3 GiB default
+     memory: "2.5GiB"             # 2.3 GiB default
      core_ids: "8"
      port: "14400"
-     options:                        # "--allow-mix-setting"
+     options:                     # "--allow-mix-setting"
    envoy:
      name: envoy
    protocol:

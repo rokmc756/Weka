@@ -44,7 +44,6 @@
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
   with_items:
-    - "envoy"
     - "{{ container.default.name }}"
   ignore_errors: true
   when: destroy_weka == true and weka.backend.scb == true and inventory_hostname in groups['workers']

@@ -38,7 +38,7 @@ weka:
     nfs: false
     smb: false
   client:
-    wekafs: true
+    wekafs: false
     smb: false
     nfs: false
     s3: false
