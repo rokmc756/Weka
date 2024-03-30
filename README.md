@@ -1,4 +1,4 @@
-## What is Weka Data Platform and How is it's Architecture
+## What is Weka Data Platform and How it's Architecture looks like?
 The WEKA filesystem (WekaFS™) redefines storage solutions with its software-only approach, compatible with standard AMD or Intel x86-based servers and NVMe SSDs. It eliminates the need for specialized hardware, allowing easy integration of technological advancements without disruptive upgrades. WekaFS addresses common storage challenges by removing performance bottlenecks, making it suitable for environments requiring low latency, high performance, and cloud scalability.
 Use cases span various sectors, including AI/ML, Life Sciences, Financial Trading, Engineering DevOps, EDA, Media Rendering, HPC, and GPU pipeline acceleration. Combining existing technologies and engineering innovations, WekaFS delivers a powerful, unified solution that outperforms traditional storage systems, efficiently supporting various workloads.
 WekaFS is a fully distributed parallel filesystem leveraging NVMe Flash for file services. Integrated tiering seamlessly expands the namespace to and from HDD object storage, simplifying data management. The intuitive GUI allows easy administration of exabytes of data without specialized storage training.
@@ -19,13 +19,13 @@ By bypassing the kernel, WekaFS achieves faster, lower-latency performance, port
 WekaFS design departs from traditional NAS solutions, introducing multiple filesystems within a global namespace that share the same physical resources. Each filesystem has its unique identity, allowing customization of snapshot policies, tiering, role-based access control (RBAC), quota management, and more. Unlike other solutions, filesystem capacity adjustments are dynamic, enhancing scalability without disrupting I/O.
 The WEKA system offers a robust, distributed, and highly scalable storage solution, allowing multiple application servers to access shared filesystems efficiently and with solid consistency and POSIX compliance.
 
-## What is this ansible playbook for Weka Data Platform?
+## What is this Ansible Playbook for Weka Data Platform?
 It is ansible playbook to deploy Weka Data Platform conveniently and quickly on Baremetal, Virtual Machines and Cloud Infrastructure.
-It provide also configure WekaFS and Client Software to connect from client to Weka Data Platform when deploying it.
-The main purpose of this project is actually very simple. Because there are many jobs to install different kind of Weka Data Platform
+It provide also configure NFS, S3, SMB and WekaFS and it's Client to connect from client to Weka Data Platform when deploying it.
+The main purpose of this project is actually very simple. Because there are many jobs to deploy different kind of Weka Data Platform
 versions and reproduce issues & test features as a support engineer. I just want to spend less time for it.
 
-If you are working with Weka Data Platfrom  such as Developer, Administrator, Field Engineer or Database Administrator
+If you are working with Weka Data Platfrom such as Developer, Administrator, Field Engineer or Database Administrator
 you could also utilize it very conviently as saving time.
 
 ## Where is this ansible playbook from and how is it changed?
