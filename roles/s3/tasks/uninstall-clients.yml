@@ -13,14 +13,14 @@
 # s3cmd  ls s3://BucketName/foldername_prefix* |awk '{print $2}' | while read files; do s3cmd  rm -r $files; done
 # s3cmd rm s3://mybucket/myfileidontwant --force
 
-- name: Delete Parquet Test Files in S3 Backends
-  shell: |
-    s3cmd --no-check-certificate --config=/root/s3cmd/{{ item.name }}-s3cfg del -r s3://{{ item.bucket }}/*.gz.parquet
-  register: del_parq_files_s3
-  ignore_errors: true
-  with_items: "{{ s3.users }}"
-- debug: msg={{ del_parq_files_s3 }}
-  when: print_debug == true
+#- name: Delete Parquet Test Files in S3 Backends
+#  shell: |
+#    s3cmd --no-check-certificate --config=/root/s3cmd/{{ item.name }}-s3cfg del -r s3://{{ item.bucket }}/*.gz.parquet
+#  register: del_parq_files_s3
+#  ignore_errors: true
+#  with_items: "{{ s3.users }}"
+#- debug: msg={{ del_parq_files_s3 }}
+#  when: print_debug == true
 
 #
 - name: Delete s3cmd Test Directory

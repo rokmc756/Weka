@@ -15,7 +15,7 @@
 #
 - name: Check if the number of virtual network adapters is larger than number of cores to assign into all containers"
   fail: msg="The number of virtual network adapters should be larger than number of cores to assign into all containers"
-  when: tcores|int >= netcnt|int
+  when: tcores|int > netcnt|int
 
 #- debug: msg={{ netseq }}
 #- debug: msg={{ netdevs }}

@@ -8,24 +8,28 @@
   fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
   when: weka.backend.mcb == true and weka.backend.scb == true
 
-#
+# It's not working although default container is OK
 - name: Create SCB Container
   shell: |
-    weka local setup container --name {{ container.default.name }} --base-port {{ container.default.port }} --memory {{ container.default.mem_size }}
+    weka local setup container --name {{ container.default.name }} --base-port {{ container.default.port }} \
+    --cores {{ container.total_cores }} --memory {{ container.default.mem_size }}
   register: create_scb_cont
-  when: inventory_hostname in groups['workers']
+  when: setup_weka_bin == false and inventory_hostname in groups['workers']
 - debug: msg={{ create_scb_cont }}
-  when: inventory_hostname in groups['workers']
+  when: setup_weka_bin == false and inventory_hostname in groups['workers']
   # weka local resources -C default memory {{ container.default.mem_size }}
+  # weka local setup container --name default --base-port 14000 --cores 3 --join-ips 3.3.3.1,3.3.3.2,3.3.3.2:15000 --memory 30GiB --no-frontends
+  # --no-frontends
 
 #
 - name: Create Weka Cluster With All Hosts and Management IP Addresses
   shell: |
-    weka cluster create {{ all_management_ipaddrs }}
+    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_net5_ipaddrs }} -T infinite
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  #  weka cluster create {{ all_management_ipaddrs }}
 
 #
 - name: Validate if Weka Cluster is still creating
@@ -70,6 +74,17 @@
 - debug: msg={{ test1 }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
+#
+- name: Print Container ID
+  debug: msg={{ cont_id }}
+  when: inventory_hostname in groups['workers']
+
+#
+- name: Print Container Hostname
+  debug: msg={{ cont_host }}
+  when: inventory_hostname in groups['workers']
+
+
 # https://stackoverflow.com/questions/75812817/converting-list-to-list-of-dictionaries-in-ansible-adding-constant-fields-using
 # https://serverfault.com/questions/988278/converting-two-lists-into-a-specific-dictionary-so-it-can-be-sorted
 # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html#combining-and-selecting-data
@@ -105,18 +120,20 @@
   set_fact:
     netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
   when: inventory_hostname in groups['workers']
-  #  netinfo: "{{ dict([ netdev1, netdev2, netdev3, netdev4, netdev5 ] | zip([ ipaddr1, ipaddr2, ipaddr3, ipaddr4, ipaddr5 ])) | dict2items( key_name='netdev', value_name='ipaddr' ) }}"
 
 #
 - name: Add Networks Adpters into Container for DPDK Support
   shell: |
     weka cluster host net add {{ cont_id }} {{ item.netdev }} --ips {{ item.ipaddr }} --netmask 24
+  #delegate_to: "{{ hostvars[groups['workers'][0]]['ansible_hostname'] }}"
+  #delegate_facts: True
   register: add_network_drive
   with_items:
     - "{{ netinfo }}"
   when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
 - debug: msg={{ add_network_drive }}
   when: print_debug == true and weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  # --gateway 192.168.1.1
 
 #
 - name: Delete Partition Table
@@ -132,6 +149,8 @@
 - name: Add Drive Devices into Drive Containers
   shell: |
     weka cluster drive add {{ cont_id }} {{ container.drives.devices }}
+  #delegate_to: "{{ hostvars[groups['workers'][0]]['ansible_hostname'] }}"
+  #delegate_facts: True
   register: add_data_devices
   when: inventory_hostname in groups['workers']
 - debug: msg={{ add_data_devices }}
@@ -154,6 +173,8 @@
 - name: Assign Number of Cores into Each Compute/Drives/Frontends Containers
   shell: |
     weka cluster container cores {{ cont_id }} {{ container.total_cores }} --drives-dedicated-cores {{ container.drives.cores }} --frontend-dedicated-cores {{ container.frontend.cores }}
+  #delegate_to: "{{ hostvars[groups['workers'][0]]['ansible_hostname'] }}"
+  #delegate_facts: True
   register: assign_cores_num
   when: inventory_hostname in groups['workers']
 - debug: msg={{ assign_cores_num  }}
@@ -163,6 +184,8 @@
 - name: Dedicate Containers if Applicable
   shell: |
     weka cluster container dedicate {{ cont_id }} on
+  #delegate_to: "{{ hostvars[groups['workers'][0]]['ansible_hostname'] }}"
+  #delegate_facts: True
   register: dedicate_container
   when: inventory_hostname in groups['workers']
 - debug: msg={{ dedicate_container }}

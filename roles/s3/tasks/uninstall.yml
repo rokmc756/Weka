@@ -1,21 +1,29 @@
 #
-- name: Get All Container IDs
+- name: Get All Container IDs from SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed 1d
-  register: all_container_ids
+  register: all_container_ids_scb
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ all_container_ids }}
+- debug: msg={{ all_container_ids_scb }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka s3 cluster containers list
 
+- set_fact:
+    all_container_ids: "{{ all_container_ids_scb.stdout }}"
+  when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
 #
-- name: Get All Container IDs
+- name: Get All Container IDs from MCB Cluster
   shell: |
     weka cluster container | grep frontend | awk '{print $1}'
-  register: all_container_ids
+  register: all_container_ids_mcb
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-- debug: msg={{ all_container_ids }}
+- debug: msg={{ all_container_ids_mcb }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+- set_fact:
+    all_container_ids: "{{ all_container_ids_mcb.stdout }}"
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # weka s3 policy detach <user>
 # weka s3 sts assume-role
@@ -142,10 +150,11 @@
     weka s3 cluster containers remove {{ item }}
   register: remove_s3_cluster_container
   ignore_errors: true
-  with_items: "{{ all_container_ids.stdout_lines }}"
+  with_items: "{{ all_container_ids }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ remove_s3_cluster_container }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # with_items: "{{ all_container_ids.stdout_lines }}"
 
 #
 - name: Destroy S3 Backend Containers
