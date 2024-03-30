@@ -34,13 +34,13 @@ weka:
   obs: true
   fs: true
   protocol:
-    smb: false
     s3: false
-    nfs: true
+    nfs: false
+    smb: true
   client:
-    nfs: true
+    smb: true
+    nfs: false
     s3: false
-    smb: false
     wekafs: false
     net:
       type: "virtual"               # or physical
