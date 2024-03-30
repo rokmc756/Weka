@@ -39,7 +39,7 @@
   when: print_debug == true and inventory_hostname in groups['clients']
 
 #
-- name: Stop and Remove SCB Container
+- name: Stop and Remove WekaFS POSIX Client Containers
   shell: |
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
