@@ -153,7 +153,11 @@ weka:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
 ~~ snip
 ```
-#### 5) Deploy Weka Data Platform
+#### 5) Upload Weka Software
+```
+$ make upload
+```
+#### 6) Deploy Weka Data Platform
 ```
 $ vi install-hosts.yml
 ---
@@ -167,7 +171,7 @@ $ vi install-hosts.yml
 
 $ make install
 ```
-#### 6) Destroy Weka Data Platform
+#### 7) Destroy Weka Data Platform
 ```
 $ vi uninstall.yml
 - hosts: all
