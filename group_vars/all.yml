@@ -24,7 +24,7 @@ weka:
     mcb: false
     net:
       type: "virtual"               # or physical
-      ipaddr0: "192.168.0."
+      ipaddr0: "192.168.0.17"
       ipaddr1: "192.168.1.17"
       ipaddr2: "192.168.1.18"
       ipaddr3: "192.168.1.19"
