@@ -25,8 +25,8 @@
     zone: public
     immediate: yes
   with_items:
-    - '{{minio_port}}'
-    - '{{minio_static_port}}'
+    - '{{minio.port}}'
+    - '{{minio.static_port}}'
     - '80'
   ignore_errors: true
   when: open_firewall is defined and open_firewall

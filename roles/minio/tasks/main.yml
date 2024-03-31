@@ -35,7 +35,7 @@
 - name: Install Nginx
   import_tasks: nginx.yml
   tags: install
-  when: use_nginx and inventory_hostname in hostvars[groups['ext_storages'][0]]['ansible_hostname']
+  when: nginx.use == true and inventory_hostname in hostvars[groups['ext_storages'][0]]['ansible_hostname']
 
 #
 - name: Uninstall MinIO
