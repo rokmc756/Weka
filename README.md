@@ -20,7 +20,7 @@ WekaFS design departs from traditional NAS solutions, introducing multiple files
 The WEKA system offers a robust, distributed, and highly scalable storage solution, allowing multiple application servers to access shared filesystems efficiently and with solid consistency and POSIX compliance.
 
 ## What is this Ansible Playbook for Weka Data Platform?
-It is ansible playbook to deploy Weka Data Platform conveniently and quickly on Baremetal, Virtual Machines and Cloud Infrastructure.
+It is ansible playbook to deploy Weka Data Platform conveniently and quickly on Virtual Machines and Cloud Infrastructure.
 It provide also configure NFS, S3, SMB and WekaFS and it's Client to connect from client to Weka Data Platform when deploying it.
 The main purpose of this project is actually very simple. Because there are many jobs to deploy different kind of Weka Data Platform
 versions and reproduce issues & test features as a support engineer. I just want to spend less time for it.
@@ -35,7 +35,6 @@ It's originated by itself.
 * Weka 4.2.1 and higher version
 ## Supported Platform and OS
 * Virtual Machines including on Cloud
-* Baremetal
 * Weka 4.2.1 iso built based on Rocky Linux 8.4
 
 ## Prerequisite
@@ -82,8 +81,8 @@ ubt22-client03 ansible_ssh_host=192.168.0.63
 ```
 #### 3) Download Weka Data Platform binary
 ```
-$ wget -P . --auth-no-challenge https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pkg/weka-4.2.7.64.tar
-$ mv weka-4.2.7.64.tar roles/weka/files
+$ wget -P . --auth-no-challenge https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pkg/weka-4.2.9.28.tar
+$ mv weka-4.2.9.28.tar roles/weka/files
 ```
 
 #### 4) Configure variables for
@@ -96,7 +95,7 @@ weka:
   major_version: "4"
   minor_version: "2"
   build_version: "9"
-  patch_version: ".29-hcsf"
+  patch_version: ".28"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
@@ -111,8 +110,8 @@ weka:
     ha1: 1
     ha2: 2
   backend:
-    scb: true
-    mcb: false
+    scb: false
+    mcb: true
     net:
       type: "virtual"               # or physical
       ipaddr0: "192.168.0."
@@ -121,17 +120,17 @@ weka:
       ipaddr3: "192.168.1.19"
       ipaddr4: "192.168.1.20"
       ipaddr5: "192.168.1.21"
-      data_plane: netdev2
-  obs: false
-  fs: false
+      data_plane: netdev1
+  obs: true
+  fs: true
   protocol:
+    nfs: true
     s3: false
-    nfs: false
     smb: false
   client:
-    wekafs: false
+    wekafs: true
+    nfs: true
     smb: false
-    nfs: false
     s3: false
     net:
       type: "virtual"               # or physical
@@ -196,3 +195,4 @@ $ make uninstall
 ```
 
 ## Planning
+Need to modify and add weka role for Baremetal
