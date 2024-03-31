@@ -25,8 +25,7 @@ It provide also configure NFS, S3, SMB and WekaFS and it's Client to connect fro
 The main purpose of this project is actually very simple. Because there are many jobs to deploy different kind of Weka Data Platform
 versions and reproduce issues & test features as a support engineer. I just want to spend less time for it.
 
-If you are working with Weka Data Platfrom such as Developer, Administrator, Field Engineer or Database Administrator
-you could also utilize it very conviently as saving time.
+If you are working with Weka Data Platfrom such as Developer, Administrator, Field Engineer you could also utilize it very conviently as saving time.
 
 ## Where is this ansible playbook from and how is it changed?
 It's originated by itself.
