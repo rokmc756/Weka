@@ -159,7 +159,7 @@ $ make upload
 ```
 #### 6) Deploy Weka Data Platform
 ```
-$ vi install-hosts.yml
+$ vi install.yml
 ---
 - hosts: all
   become: yes
@@ -168,6 +168,11 @@ $ vi install-hosts.yml
   roles:
     - { role: init-hosts }
     - { role: weka }
+    - { role: wekafs }
+    - { role: obs }
+    - { role: smb }
+    - { role: nfs }
+    - { role: s3 }
 
 $ make install
 ```
@@ -179,6 +184,11 @@ $ vi uninstall.yml
   vars:
     print_debug: true
   roles:
+    - { role: s3 }
+    - { role: nfs }
+    - { role: smb }
+    - { role: obs }
+    - { role: wekafs }
     - { role: weka }
     - { role: init-hosts }
 
