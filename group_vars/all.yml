@@ -49,6 +49,10 @@ weka:
       ipaddr1: "192.168.1.6"
       ipaddr2: "192.168.1.7"
       ipaddr3: "192.168.1.8"
+  ext_storage:
+    net:
+      ipaddr0: "192.168.0."
+      ipaddr1: "192.168.1."
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1

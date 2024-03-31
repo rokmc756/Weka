@@ -14,3 +14,6 @@ rk8-node05 ansible_ssh_host=192.168.0.175
 ubt22-client01 ansible_ssh_host=192.168.0.61
 ubt22-client02 ansible_ssh_host=192.168.0.62
 ubt22-client03 ansible_ssh_host=192.168.0.63
+
+[ext_storages]
+minio          ansible_ssh_host=192.168.0.199

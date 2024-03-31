@@ -43,14 +43,13 @@
 - name: Whitelist of Ip addresses
   firewalld:
     zone: public
-    rich_rule: "rule family=ipv4 source address={{ hostvars[item]['ansible_eth0']['ipv4']['address'] }} accept"
+    rich_rule: "rule family=ipv4 source address={{ ipaddr0 }} accept"
     permanent: true
     state: enabled
   with_items:
-    - "{{ groups['storage'] }}"
+    - "{{ groups['ext_storages'] }}"
   when: open_firewall is defined and open_firewall
-#    - "{{ groups['rabbitmq'] }}"
-#    - "{{ groups['minio'] }}"
+  #  rich_rule: "rule family=ipv4 source address={{ hostvars[item]['ansible_'netdev0]['ipv4']['address'] }} accept"
 
 #
 - name: Bounce firewalld
