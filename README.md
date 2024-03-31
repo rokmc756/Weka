@@ -79,13 +79,13 @@ ubt22-client01 ansible_ssh_host=192.168.0.61
 ubt22-client02 ansible_ssh_host=192.168.0.62
 ubt22-client03 ansible_ssh_host=192.168.0.63
 ```
-#### 3) Download Weka Data Platform binary
+#### 3) Download Weka Data Platform Software binary
 ```
 $ wget -P . --auth-no-challenge https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pkg/weka-4.2.9.28.tar
 $ mv weka-4.2.9.28.tar roles/weka/files
 ```
 
-#### 4) Configure variables for
+#### 4) Configure variables for informations to deploy Weka Data Platform
 ```
 $ vi group_vars/all.yml
 ansible_ssh_pass: "changeme"
@@ -152,11 +152,11 @@ weka:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
 ~~ snip
 ```
-#### 5) Upload Weka Software
+#### 5) Upload Weka Software Software Binary
 ```
 $ make upload
 ```
-#### 6) Deploy Weka Data Platform
+#### 6) Deploy Weka Data Platform Software Binary
 ```
 $ vi install.yml
 ---
@@ -175,7 +175,7 @@ $ vi install.yml
 
 $ make install
 ```
-#### 7) Destroy Weka Data Platform
+#### 7) Destroy Weka Data Platform Software
 ```
 $ vi uninstall.yml
 - hosts: all
