@@ -5,10 +5,13 @@
   when:
     - ansible_distribution_major_version|int >= 8
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+    - inventory_hostname in groups['workers']
 #
 - name: Set facts for Installing Weka Data Platform
   import_tasks: set-install-facts.yml
-  tags: install
+  tags:
+    - upload
+    - install
   when: inventory_hostname in groups['workers']
 
 #
@@ -26,8 +29,8 @@
 #
 - name: Upload Weka Software Binary
   import_tasks: upload-weka-bin.yml
-  tags: install
-  when: upload_weka_bin == true and inventory_hostname in groups['workers']
+  tags: upload
+  when: inventory_hostname in groups['workers']
 
 #
 - name: Setup Weka Sofware and Tools Binary

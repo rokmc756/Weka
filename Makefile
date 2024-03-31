@@ -1,4 +1,4 @@
-# add the IP address, username and hostname of the target hosts here
+# Add the IP address, username and hostname of the target hosts here
 USERNAME=jomoon
 COMMON="yes"
 ANSIBLE_HOST_PASS="changeme"
@@ -48,6 +48,9 @@ init:	install.yml update.yml
 	ansible-playbook -i ansible-hosts -u ${USERNAME} --ssh-common-args='-o UserKnownHostsFile=./known_hosts -o VerifyHostKeyDNS=true' install-ansible-prereqs.yml
 
 # - https://ansible-tutorial.schoolofdevops.com/control_structures/
+upload: role-update install.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install.yml --tags="upload"
+
 install: role-update install.yml
 	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install.yml --tags="install"
 
@@ -65,9 +68,6 @@ update:
 #role-update:
 #	sh -c "$(MAKE) -p no_targets__ | awk -F':' '/^[a-zA-Z0-9][^\$$#\/\\t=]*:([^=]|$$)/ {split(\$$1,A,/ /);for(i in A)print A[i]}' | grep -v '__\$$' | grep '^ansible-update-*'" | xargs -n 1 make --no-print-directory
 #        $(shell sed -i -e '2s/.*/ansible_become_pass: ${ANSIBLE_HOST_PASS}/g' ./group_vars/all.yml )
-
-ssh:
-	ssh -o UserKnownHostsFile=./known_hosts ${USERNAME}@${IP}
 
 install.yml:
 	cp -a install-host.template install.yml

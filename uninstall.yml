@@ -3,8 +3,8 @@
   vars:
     print_debug: true
   roles:
-    - { role: init-hosts }
-  #  - { role: weka }
+    - { role: weka }
+  #  - { role: init-hosts }
   #  - { role: wekafs }
   #  - { role: smb }
   #  - { role: nfs }

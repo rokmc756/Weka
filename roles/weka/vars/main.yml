@@ -1,4 +1,3 @@
-upload_weka_bin: false
 remove_weka_bin: false
 setup_weka_bin: false
 destroy_weka: true
