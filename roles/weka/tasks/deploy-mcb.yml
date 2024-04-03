@@ -60,8 +60,8 @@
 #
 - name: Delete Partition Table for Normal Disks
   shell: |
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1
-    wipefs --all --force /dev/sdb; wipefs --all --force /dev/sdc
+    dd if=/dev/zero of=/dev/vdb bs=512 count=1; dd if=/dev/zero of=/dev/vdc bs=512 count=1
+    wipefs --all --force /dev/vdb; wipefs --all --force /dev/vdc
   register: del_part_table
   when: inventory_hostname in groups['workers']
 - debug: msg={{ del_part_table }}
@@ -70,7 +70,7 @@
 #
 - name: Add Devices into Drives Containers
   shell: |
-    weka cluster drive add {{ item }} {{ container.drives.devices }}
+    weka cluster drive add {{ item }} {{ container.drives.devices }} --force --allow-format-non-wekafs-drives
   register: add_nvme_drive
   with_items: "{{ all_container_ids.stdout_lines }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

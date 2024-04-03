@@ -4,9 +4,9 @@
   vars:
     print_debug: true
   roles:
-    - { role: minio }
-#    - { role: weka }
+    - { role: weka }
 #    - { role: init-hosts }
+#    - { role: minio }
 #    - { role: wekafs }
 #    - { role: obs }
 #    - { role: smb }

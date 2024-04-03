@@ -3,8 +3,8 @@
   vars:
     print_debug: true
   roles:
-    - { role: minio }
-#    - { role: weka }
+    - { role: weka }
+#    - { role: minio }
 #    - { role: s3 }
 #    - { role: nfs }
 #    - { role: smb }
@@ -12,3 +12,4 @@
 #    - { role: wekafs }
 #    - { role: init-hosts }
 #    - { role: firewalld }
+

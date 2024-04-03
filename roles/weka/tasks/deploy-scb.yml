@@ -138,8 +138,8 @@
 #
 - name: Delete Partition Table
   shell: |
-    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1;
-    wipefs --all --force /dev/sdb; wipefs --all --force /dev/sdc;
+    dd if=/dev/zero of=/dev/vdb bs=512 count=1; dd if=/dev/zero of=/dev/vdc bs=512 count=1;
+    wipefs --all --force /dev/vdb; wipefs --all --force /dev/vdc;
   register: del_part_table
   when: inventory_hostname in groups['workers']
 - debug: msg={{ del_part_table }}
@@ -148,7 +148,7 @@
 #
 - name: Add Drive Devices into Drive Containers
   shell: |
-    weka cluster drive add {{ cont_id }} {{ container.drives.devices }}
+    weka cluster drive add {{ cont_id }} {{ container.drives.devices }} --force
   register: add_data_devices
   when: inventory_hostname in groups['workers']
 - debug: msg={{ add_data_devices }}
@@ -158,7 +158,6 @@
   # deletate also works
   # delegate_to: "{{ hostvars[groups['workers'][0]]['ansible_hostname'] }}"
   # delegate_facts: True
-
 
 #
 #- name: Delete partition table
