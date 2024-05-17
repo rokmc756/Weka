@@ -16,7 +16,7 @@ container:
      port: 14000
    drives:
      name: "drives0"
-     cores: "1"
+     cores: "2"
      memory: "5GiB"             # 2.3GiB default, 0 means automatical allocation
      core_ids: "1,2"
      data: "3"

@@ -1,6 +1,6 @@
 - name: Get All Container IDs from SCB Cluster
   shell: |
-    weka cluster container | awk '{print $1}' | sed 1d
+    weka cluster container | awk '{print $1}' | sed 1d | paste -sd'~' | sed -e 's/~/ /g'
   register: all_container_ids_scb
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids_scb }}
@@ -15,7 +15,7 @@
 
 - name: Get All Container IDs from MCB Cluster
   shell: |
-    weka cluster container | grep frontend | awk '{print $1}'
+    weka cluster container | grep frontend | awk '{print $1}' | paste -sd'~' | sed -e 's/~/ /g'
   register: all_container_ids_mcb
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids_mcb }}
@@ -147,10 +147,9 @@
 
 - name: Remove S3 Backend Containers
   shell: |
-    weka s3 cluster containers remove {{ item }}
+    weka s3 cluster containers remove {{ all_container_ids }}
   register: remove_s3_cluster_container
   ignore_errors: true
-  with_items: "{{ all_container_ids }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ remove_s3_cluster_container }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

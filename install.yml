@@ -2,14 +2,14 @@
 - hosts: all
   become: yes
   vars:
-    print_debug: true
+    print_debug: false
   roles:
-    - { role: weka }
+    - { role: s3 }
 #    - { role: wekafs }
+#    - { role: weka }
+#    - { role: init-hosts }
 #    - { role: smb }
 #    - { role: nfs }
-#    - { role: s3 }
-#    - { role: init-hosts }
 #    - { role: minio }
 #    - { role: obs }
 #    - { role: firewalld }
