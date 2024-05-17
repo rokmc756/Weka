@@ -30,6 +30,9 @@ If you are working with Weka Data Platfrom such as Developer, Administrator, Fie
 ## Where is this ansible playbook from and how is it changed?
 It's originated by itself.
 
+## VMware Internal Architecture for Weka
+![alt text](https://raw.githubusercontent.com/rokmc756/Weka/main/roles/weka/images/weka_vmware_architecture.png)
+
 ## Supported Weka Data Platform Versions
 * Weka 4.2.1 and higher version
 ## Supported Platform and OS
