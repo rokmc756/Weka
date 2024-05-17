@@ -1,11 +1,11 @@
 wekafs:
   group:
-    - { name: "default-g01" }
-    - { name: "wekafs-g01" }
-    - { name: "obs-g01" }
-    - { name: "s3-g01" }
-    - { name: "nfs-g01" }
-    - { name: "smb-g01" }
+    - { name: "default-g01", ssd_retention: "1d", start_demote: "30s" }
+    - { name: "wekafs-g01", ssd_retention: "1d", start_demote: "30s" }
+    - { name: "obs-g01", ssd_retention: "1d", start_demote: "30s" }
+    - { name: "s3-g01", ssd_retention: "1d", start_demote: "30s" }
+    - { name: "nfs-g01", ssd_retention: "1d", start_demote: "30s" }
+    - { name: "smb-g01", ssd_retention: "1d", start_demote: "30s" }
   fs:
     default:
       - { name: "default-fs01",  group: "default-g01", size : "5GiB", mount_dir : "/mnt/default-fs01" }

@@ -1,5 +1,4 @@
-#
-- name: Delete text file
+- name: Delete Text File
   file:
     state: absent
     path: "{{ smb.fs.mount_dir }}/test-smb01.txt"
@@ -7,8 +6,8 @@
 - debug: msg={{ delete_smb_files }}
   when: print_debug == true
 
-#
-- name: Umount SMB directory
+
+- name: Umount SMB Directory
   mount:
     path: "{{ smb.fs.mount_dir }}"
     state: unmounted
@@ -20,8 +19,8 @@
   # ignore_errors: true
   # umount -f -l {{ smb.fs.mount_dir }}
 
-#
-- name: Delete directory to mount SMB
+
+- name: Delete Directory to Mount SMB
   file:
     state: absent
     path: "{{ smb.fs.mount_dir }}"
@@ -29,7 +28,7 @@
 - debug: msg={{ delete_smb_dir }}
   when: print_debug == true
 
-#
+
 - name: Uninstall SMB Client
   package: name={{ item }} state=absent
   with_items:

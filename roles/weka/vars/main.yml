@@ -1,5 +1,5 @@
 remove_weka_bin: false
-setup_weka_bin: true
+setup_weka_bin: false
 destroy_weka: true
 # first_addrs_num: "{{ weka.host_num|int % 2 | int }}"
 # second_addrs_num: "{{ weka.host_num|int % 2 | int }}"

@@ -37,6 +37,12 @@
   package: name={{ item }} state=absent
   with_items:
     - "nfs-utils"
+  when: ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+
+
+- name: Uninstall NFS Client
+  package: name={{ item }} state=absent
+  with_items:
     - "nfs-client"
-  ignore_errors: true
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 

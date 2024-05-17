@@ -3,9 +3,9 @@ ansible_become_pass: "changeme"
 weka:
   cluster_name: jack-kr-weka-mcb
   major_version: "4"
-  minor_version: "3"
-  build_version: "0"
-  patch_version:
+  minor_version: "2"
+  build_version: "9"
+  patch_version: ".28"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
@@ -31,15 +31,15 @@ weka:
       ipaddr4: "192.168.1.20"
       ipaddr5: "192.168.1.21"
       data_plane: netdev2
-  obs: false
+  obs: true
   fs: true
   protocol:
-    smb: false
-    nfs: false
-    s3: true
-  client:
+    smb: true
     s3: false
-    smb: false
+    nfs: false
+  client:
+    smb: true
+    s3: false
     nfs: false
     wekafs: false
     net:

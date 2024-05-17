@@ -13,8 +13,8 @@
 # weka fs tier ops
 # weka fs tier obs delete jtest-obs-tier01
 
-#
-- name: Reduce the size of the 'jtest-obs-fs01' file system if present
+
+- name: Reduce the Size of the 'jtest-obs-fs01' File System if present
   shell: |
     weka fs update --total-capacity {{ obs.fs.size }} {{ obs.fs.name }}
   register: reduce_obs_fs_size
@@ -23,7 +23,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   #  weka fs update --total-capacity 10GB jtest-obs-fs01
 
-#
+
 - name:  Check WekaFS
   shell: |
     weka fs
@@ -32,7 +32,7 @@
 - debug: msg={{ check_wekafs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Add Customer Object Store
   shell: |
     weka fs tier obs add {{ obs.name }} --site {{ obs.site.name }}
@@ -41,7 +41,7 @@
 - debug: msg={{ add_custom_obs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Attach and Object Store Bucket. (Use your own bucket details)
   shell: |
     weka fs tier s3 add {{ obs.tier.name }} --site {{ obs.site.name }} --obs-name {{ obs.name }} --obs-type {{ obs.s3.type }} \
@@ -53,8 +53,8 @@
 - debug: msg={{ attach_obs_bucket }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
-- name: Create a File System with a smallish capacity that is tiered to your bucket.
+
+- name: Create a File System with a Smallish Capacity that is Tiered to Your Bucket.
   shell: |
     weka fs create {{ obs.tier.fs.name }} {{ obs.tier.fs_group.name }} {{ obs.tier.fs.size }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
   register: create_obs_weka_fs
@@ -62,7 +62,7 @@
 - debug: msg={{ create_obs_weka_fs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 #- name: Reduce the size of the 'jtest-obs-fs02' file system if present
 #  shell: |
 #    weka fs update --total-capacity 10GB jtest-obs-fs02
@@ -71,8 +71,8 @@
 #- debug: msg={{ reduce_obs_fs02_size }}
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
-- name: For this example make the Tiering policy more aggressive. (30s in this case).
+
+- name: For this Example Make the Tiering Policy More Aggressive. (30s in this case)
   shell: |
     weka fs group update {{ obs.tier.fs_group.name }} --start-demote={{ obs.tier.demote }}
   register: update_obs_fs_grp
@@ -81,8 +81,8 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka fs group update {{ obs.tier.fs_group.name }} --start-demote={{ obs.tier.demote }} --obs-name {{ obs.tier.name }} --ssd-capacity={{ obs.tier.ssd_size }}
 
-#
-- name: Create OBS directory to mount WekaFS
+
+- name: Create OBS Directory to Mount WekaFS
   shell: |
     mkdir /mnt/{{ obs.fs.name }}
   register: create_obsfs_dir

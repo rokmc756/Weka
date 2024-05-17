@@ -22,7 +22,6 @@
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
   register: destroy_weka_containers
   with_items:
-    - "{{ container.envoy.name }}"
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
@@ -31,6 +30,7 @@
   when: destroy_weka == true and weka.backend.mcb == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_containers }}
   when: inventory_hostname in groups['workers'] and print_debug == true
+  #  - "{{ container.envoy.name }}"
 
 
 - name: Stop and Remove SCB Container
@@ -50,7 +50,7 @@
   shell: /root/tools/install/wekadestroy -f -y -u {{ ipaddr0 }}
   register: destroy_weka_clu
   ignore_errors: true
-  when: setup_weka_bin == true and inventory_hostname in groups['workers']
+  when: remove_weka_bin == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_clu }}
   when: inventory_hostname in groups['workers'] and print_debug == true
 

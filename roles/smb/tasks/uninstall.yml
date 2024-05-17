@@ -1,5 +1,4 @@
-#
-- name: Umount SMB directory
+- name: Umount SMB Directory
   mount:
     path: "{{ smb.fs.mount_dir }}"
     state: unmounted
@@ -11,8 +10,8 @@
   when: print_debug == true and inventory_hostname in groups['workers']
   # umount -f -l {{ smb.fs.mount_dir }}
 
-#
-- name: Delete mounted directory
+
+- name: Delete Mounted directory
   file:
     state: absent
     path: "{{ smb.fs.mount_dir }}"
@@ -21,14 +20,14 @@
 - debug: msg={{ delete_smb_files }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 - name: Get All Share IDs
   shell: |
     weka smb share | sed 1d | awk '{print $2}'
   register: all_share_ids
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Remove All Share IDs
   shell: |
     weka smb share remove {{ item }} -f
@@ -39,21 +38,21 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # failed_when: "'(Greenplum Database ' not in select_version.stdout"
 
-#
+
 - name: Get All SMB Contaienr IDs for SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Get All SMB Contaienr IDs for MCB Cluster
   shell: |
     weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
   register: all_container_ids
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - debug: msg={{ all_container_ids }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
@@ -66,7 +65,7 @@
 #  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 #  error: SMB cluster must have at least 3 hosts to function as a cluster
 
-#
+
 - name: Leave from AD
   shell: |
     weka smb domain leave {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }}
@@ -79,7 +78,7 @@
   # retries: 10
   # delay: 180
 
-#
+
 - name: Destroy SMB Cluster
   shell: |
     weka smb cluster destroy -f

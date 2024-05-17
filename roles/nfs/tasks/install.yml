@@ -69,7 +69,7 @@
 #
 ### Setup: Filesystems required
 # Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
-- name: Examine filesystem for NFS Protocol
+- name: Examine Filesystem for NFS Protocol
   shell: |
     weka fs --output name,availableTotal
   register: examine_fs_nfs_protocol
@@ -79,7 +79,7 @@
 
 #
 # First we set up a simple NFS service, which requires the use of Interface Groups
-- name: Setup simple NFS service with Interface Groups
+- name: Setup Simple NFS Service with Interface Groups
   shell: |
     weka nfs interface-group add {{ nfs.interface.group }} nfs --subnet {{ nfs.net.subnet }} --gateway {{ nfs.net.gateway }}
   register: setup_simple_nfs
@@ -89,7 +89,7 @@
 
 #
 # Now add the NFS configuration filesystem (only required if you’re going to use NFS v4) and add network ports for each server that is going to participate in the NFS cluster. In the example below we use `ens3`, but this will be hardware-dependent.
-- name:  Add NFS configuration filesystem
+- name:  Add NFS Configuration Filesystem
   shell: |
     weka nfs global-config set --config-fs {{ nfs.fs.config }}
   register: add_nfs_config_fs
@@ -98,7 +98,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Add NFS configuration filesystem
+- name: Add NFS Configuration Filesystem
   shell: |
     weka nfs interface-group port add {{ nfs.interface.group }} {{ item }} {{ netdev5 }}
   register: add_ifg_grp_port
@@ -120,7 +120,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Add IPs for group
+- name: Add IPs for Group
   shell: |
     weka nfs interface-group ip-range add {{ nfs.interface.group }} {{ nfs.net.ips_range }}
   register: add_ips_grp
@@ -132,7 +132,7 @@
 
 # Now, add at least one group for your clients. This can be thought of as a bucket, into which matching NFS clients will be placed.
 # NFS shares (aka “permissions”) will then be granted to those client groups.
-- name:  Add at least one group for NFS clients
+- name:  Add at least One Group for NFS Clients
   shell: |
     weka nfs client-group add {{ nfs.client.group }}
   register: add_ifg_grp_nfs_client
@@ -142,7 +142,7 @@
 
 #
 # You need to add at least one rule to ensure clients get matched and thus associated with that client group. Here we match an entire /24 CIDR.
-- name: Add rule to ensure clients get matched and associated with hat cloud group
+- name: Add Rule to Ensure Clients Get Matched and Associated with NFS Client Group
   shell: |
     weka nfs rules add ip {{ nfs.client.group }} {{ nfs.net.network }}/{{ nfs.net.subnet }}
   register: add_rule_client_group
@@ -151,7 +151,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Add permission
+- name: Add Permissions
   shell: |
     weka nfs permission add {{ nfs.fs.config }} {{ nfs.client.group }} --squash none --permission-type rw --supported-versions v3,v4
   register: add_permission

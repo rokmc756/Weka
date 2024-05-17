@@ -7,14 +7,14 @@
 #  when: print_debug == true
 
 #
-- name: Install SMB Client Packages for Linux
+- name: Install SMB Client Packages
   become: true
   package: name={{item}} state=present
   with_items:
     - "cifs-utils"
 
 #
-- name: Create directory to mount CIFS
+- name: Create Directory to Mount CIFS
   file:
     path: "{{ smb.fs.mount_dir }}"
     state: directory
@@ -27,7 +27,7 @@
   when: print_debug == true
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
-- name: Mount ephemeral SMB volume
+- name: Mount Ephemeral SMB Volume
   mount:
     src: "//{{ smb.net.ips_range | split('-') | first }}/{{ smb.share.name }}"
     path: "{{ smb.fs.mount_dir }}"
@@ -41,7 +41,7 @@
   # opts: "rw,file_mode=0600,dir_mode=0700"
 
 #
-- name: Conditionally create a file if it does not exist
+- name: Conditionally Create a File if It does not Exist
   copy:
     content: "Hellow Weka SMB World!"
     dest: "{{ smb.fs.mount_dir }}/test-smb01.txt"

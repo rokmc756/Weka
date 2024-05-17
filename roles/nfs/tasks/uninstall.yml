@@ -34,7 +34,7 @@
 # HOSTID  CLIENT IP  IDLE TIME  NFSV3 OPS  NFSV4 OPS  NFSV4 OPEN OPS  NFSV4 CLOSE OPS
 
 #
-- name: Umount NFS directory
+- name: Umount NFS Directory
   mount:
     path: "{{ nfs.fs.mount_dir }}"
     state: unmounted
@@ -47,7 +47,7 @@
   # umount -f -l {{ nfs.fs.mount_dir }}
 
 #
-- name: Delete mounted directory
+- name: Delete Mounted Directory
   file:
     path: "{{ nfs.fs.mount_dir }}"
     state: absent
@@ -99,7 +99,7 @@
   # weka nfs permission delete <filesystem> <group> [--path path]
 
 #
-- name: Delete NFS ip-range
+- name: Delete NFS IP Range
   shell: |
     weka nfs interface-group ip-range delete {{ nfs.interface.group }} {{ nfs.net.ips_range }} -f
   register: delete_nfs_ip_range
@@ -109,7 +109,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Delete rule to ensure clients get matched and associated with
+- name: Delete Rule to Ensure Clients Get Matched and Associated With
   shell: |
     weka nfs rules delete ip {{ nfs.client.group }} {{ nfs.net.network }}/{{ nfs.net.subnet }}
   register: del_rule_client_group
@@ -119,7 +119,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Delete a group for NFS clients
+- name: Delete a Group for NFS Clients
   shell: |
     weka nfs client-group delete {{ nfs.client.group }} -f
   register: del_ifg_grp_nfs_client
@@ -129,7 +129,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Delete NFS configuration filesystem
+- name: Delete NFS Configuration Filesystem
   shell: |
     weka nfs interface-group port delete {{ nfs.interface.group }} {{ item }} {{ netdev5 }} -f
   register: del_ifg_grp_port
@@ -140,7 +140,7 @@
 
 #
 # First we set up a simple NFS service, which requires the use of Interface Groups
-- name: Delete Interface Groups for NFS Service
+- name: Delete Interface Groups for NFS Services
   shell: |
     weka nfs interface-group delete {{ nfs.interface.group }} -f
   register: delete_nfs_ifg_grp
@@ -150,7 +150,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 # Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
-- name: Examine filesystem for NFS Protocol
+- name: Examine Filesystem for NFS Protocol
   shell: |
     weka fs --output name,availableTotal
   register: examine_fs_nfs_protocol
@@ -160,7 +160,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 #
-- name: Unset global config for NFS
+- name: Unset Global Config for NFS
   shell: |
     weka nfs global-config set --config-fs ""
   register: unset_global_config_fs

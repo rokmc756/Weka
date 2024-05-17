@@ -15,12 +15,12 @@
 # weka local exec --container smbw /usr/sbin/pcs cluster status
 # weka smb cluster update
 
-#
+
 - name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
   fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
   when: weka.backend.mcb == true and weka.backend.scb == true
 
-#
+
 - name: Get All Container IDs for SCB
   shell: |
     weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
@@ -29,12 +29,12 @@
 - debug: msg={{ all_scb_container_ids }}
   when: print_debug == true and weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - set_fact:
     all_cont_ids: "{{ all_scb_container_ids.stdout }}"
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Get All Container IDs for MCB
   shell: |
     weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
@@ -48,7 +48,7 @@
     all_cont_ids: "{{ all_mcb_container_ids.stdout }}"
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Create SMB Cluster
   shell: |
     weka smb cluster create {{ smb.cluster.name }} {{ smb.ad.domain }} --domain-netbios-name {{ smb.ad.netbios }} ---encryption enabled \
@@ -58,7 +58,7 @@
 - debug: msg={{ create_smb_cluster }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Validate if SMB Cluster is Online
   shell: weka smb cluster status
   register: check_smb_cluster_status
@@ -68,7 +68,7 @@
 - debug: msg={{ check_smb_cluster_status }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Login into Active Directory
   shell: |
     weka smb domain join {{ smb.ad.users.admin.id }} {{ smb.ad.users.admin.pass }}
@@ -84,7 +84,7 @@
   # "stdout_lines": [
   # "Domain join timed out"
 
-#
+
 - name: Add Default SMB Share
   shell: |
     weka smb share add {{ smb.share.name }} {{ smb.fs.name }} --acl on --encryption cluster_default \
@@ -96,8 +96,8 @@
   # weka smb share add smb-share-02 smb-fs02 --acl on --encryption cluster_default --internal-path /smb-share-02 --file-create-mask 0744 \
   # --directory-create-mask 0755 --description TEST  0755 and 0744 chagned different value such as 4xx in case of using vars/main.yml
 
-#
-- name: Create directory to mount
+
+- name: Create Directory to Mount
   file:
     path: "{{ smb.fs.mount_dir }}"
     state: directory
@@ -109,8 +109,9 @@
 - debug: msg={{ create_cifs_dir }}
   when: print_debug == true
 
+
 # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
-- name: Mount Ephemeral SMB WekaFS on all Hosts
+- name: Mount Ephemeral SMB WekaFS on All Hosts
   mount:
     src: "{{ smb.fs.name }}"
     path: "{{ smb.fs.mount_dir }}"
@@ -121,7 +122,7 @@
 - debug: msg={{ mount_smb_wekafs }}
   when: print_debug == true
 
-#
+
 - name: Change Permission Share Directory
   file:
     path: "{{ smb.fs.mount_dir }}/{{ smb.share.name }}"

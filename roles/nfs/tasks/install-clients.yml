@@ -6,16 +6,23 @@
 #- debug: msg={{ enable_devel_repo }}
 #  when: print_debug == true
 
-#
-- name: Install NFS Client Packages for Linux
+
+- name: Install NFS Client Packages
   become: true
   package: name={{item}} state=present
   with_items:
     - "nfs-utils"
-    - "nfs-client"
-  ignore_errors: true
+  when: ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
 
-#
+
+- name: Install NFS Client Packages
+  become: true
+  package: name={{item}} state=present
+  with_items:
+    - "nfs-client"
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+
 - name: Create directory to mount NFS
   file:
     path: "{{ nfs.fs.mount_dir }}"

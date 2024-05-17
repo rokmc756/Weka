@@ -35,8 +35,8 @@
 #- debug: msg={{ delete_s3fs }}
 #
 
-#
-- name: Delete OBS directory to mount WekaFS
+
+- name: Delete OBS Directory to Mount WekaFS
   shell: |
     umount /mnt/{{ obs.fs.name }}
     rm -rf /mnt/{{ obs.fs.name }}
@@ -46,7 +46,7 @@
 - debug: msg={{ delete_obsfs_dir  }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name:  Delete WekaFS attached into Object Store Tier
   shell: |
     weka fs delete {{ obs.tier.fs.name }} -f
@@ -55,11 +55,10 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ update_obs_fs_grp }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  #  weka fs delete {{ obs.tier.fs.name }} -f --purge-from-obs
+  # weka fs delete {{ obs.tier.fs.name }} -f --purge-from-obs
 
-### Here need to check bucket still using
 
-#
+# Here need to check bucket still using
 - name:  Delete Object Store Tier
   shell: |
     weka fs tier s3 delete {{ obs.tier.name }}
@@ -69,7 +68,7 @@
 - debug: msg={{ delete_obs_tier }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name:  Delete Object Store
   shell: |
     weka fs tier obs delete {{ obs.name }}
@@ -79,20 +78,18 @@
 - debug: msg={{ delete_obs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 # error: Operation not allowed. test-snap01 in obs-new-fs01 is currently synchronizing, please try again later.
 # weka fs snapshot delete obs-new-fs01 test-snap01 -f
 #
 # error: Snapshot test-snap01 in filesystem obs-new-fs01 is being deleted.
 #
-
 # weka fs snapshot
 # SNAPSHOT ID  FILESYSTEM    NAME         ACCESS POINT              IS WRITABLE  CREATION TIME        LOCAL OBJECT STATUS  LOCAL OBJECT PROGRESS  REMOTE OBJECT STATUS  REMOTE OBJECT PROGRESS  IS BEING REMOVED
 # 14          obs-new-fs01  test-snap01  @GMT-2024.03.24-12.23.59  False        2024-03-24T21:23:59  UPLOADING            6%                     NONE                  N/A
 # True
 
 # Above error could be fixed after reconfiguring tiering correctly. In jack's case, wrong port 9000 was configured mistakenly for minio s3
-
 # weka fs tier release
 # weka fs tier release --non-existing error
 # weka fs tier release --non-existing warn
@@ -100,4 +97,3 @@
 
 # weka fs snapshot download obs-new-fs01 /mnt
 # error: Operation is forbidden: Incremental snapshot download is not supported on this version
-

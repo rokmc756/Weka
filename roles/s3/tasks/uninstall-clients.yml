@@ -34,7 +34,7 @@
   when: print_debug == true
 
 #
-- name: Uninstall S3 Client Packages for Linux
+- name: Uninstall S3 Client Packages
   become: true
   package: name={{ item }} state=absent
   ignore_errors: true
