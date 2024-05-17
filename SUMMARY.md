@@ -1,8 +1,8 @@
 # Table of contents
 
-* [RDMA-vSphere](README.md)
+* [README](README.md)
 * [WIP](README.disk.wip.md)
-* [README](<README (1).md>)
+* [RDMA-vSphere](<README (1).md>)
 * [windows\_activation](windows\_activation.md)
 * [Kickstart](Kickstart/README.md)
 * [roles](roles/README.md)
