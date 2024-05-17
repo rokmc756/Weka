@@ -1,28 +1,72 @@
-# WIP
+## WIP
+# On weka4-master
+ssh root@192.168.0.18[1-7] "firewall-cmd --zone=public --add-port=14100/tcp --add-port=14000/tcp --add-port=14050/tcp --permanent --add-port=8501/tcp --permanent && firewall-cmd --reload"
+
+# Added chmod 755 /opt/wekabits/weka-install in ks.cfg
+~~~
 
 
+###########  New way to install  ###############
 
-if \[ $# -eq 0 ] then echo "Input the device" exit fi
+~~~
+[root@localhost ~]# vi split-part.sh
+#!/bin/bash
+#
+
+if [ $# -eq 0 ]
+then
+  echo "Input the device"
+  exit
+fi
 
 dd if=/dev/zero of=/dev/vdb bs=1M
 
-NUM\_PARTITIONS=7 PARTITION\_SIZE="+1G"
+NUM_PARTITIONS=7
+PARTITION_SIZE="+1G"
 
-SED\_STRING="o" TAIL="p w q "
+SED_STRING="o"
+TAIL="p
+w
+q
+"
 
-NEW\_LINE=" " LETTER\_n="n" EXTENDED\_PART\_NUM=4 TGTDEV=$1
+NEW_LINE="
+"
+LETTER_n="n"
+EXTENDED_PART_NUM=4
+TGTDEV=$1
 
-SED\_STRING="$SED\_STRING$NEW\_LINE" for i in $(seq $NUM\_PARTITIONS) do if \[ $i -lt $EXTENDED\_PART\_NUM ] then SED\_STRING="$SED\_STRING$LETTER\_n$NEW\_LINE$NEW\_LINE$NEW\_LINE$NEW\_LINE$PARTITION\_SIZE$NEW\_LINE" fi if \[ $i -eq $EXTENDED\_PART\_NUM ] then SED\_STRING="$SED\_STRING$LETTER\_n$NEW\_LINE$NEW\_LINE$NEW\_LINE$NEW\_LINE" SED\_STRING="$SED\_STRING$LETTER\_n$NEW\_LINE$NEW\_LINE$PARTITION\_SIZE$NEW\_LINE" fi if \[ $i -gt $EXTENDED\_PART\_NUM ] then SED\_STRING="$SED\_STRING$LETTER\_n$NEW\_LINE$NEW\_LINE$PARTITION\_SIZE$NEW\_LINE" fi done SED\_STRING="$SED\_STRING$TAIL"
+SED_STRING="$SED_STRING$NEW_LINE"
+for i in $(seq $NUM_PARTITIONS)
+do
+  if [ $i -lt $EXTENDED_PART_NUM ]
+  then
+    SED_STRING="$SED_STRING$LETTER_n$NEW_LINE$NEW_LINE$NEW_LINE$NEW_LINE$PARTITION_SIZE$NEW_LINE"
+  fi
+  if [ $i -eq $EXTENDED_PART_NUM ]
+  then
+    SED_STRING="$SED_STRING$LETTER_n$NEW_LINE$NEW_LINE$NEW_LINE$NEW_LINE"
+    SED_STRING="$SED_STRING$LETTER_n$NEW_LINE$NEW_LINE$PARTITION_SIZE$NEW_LINE"
+  fi
+  if [ $i -gt $EXTENDED_PART_NUM ]
+  then
+    SED_STRING="$SED_STRING$LETTER_n$NEW_LINE$NEW_LINE$PARTITION_SIZE$NEW_LINE"
+  fi
+done
+SED_STRING="$SED_STRING$TAIL"
 
-sed -e 's/\s\*(\[+0-9a-zA-Z]_)._/\1/' << EOF | fdisk ${TGTDEV} $SED\_STRING EOF
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
+  $SED_STRING
+EOF
 
-\[root@localhost \~]# chmod 755 split-part.sh
 
-\[root@localhost \~]# scp split-part.sh root@xx.xx.xx.xx
 
-\[root@localhost \~]# ./split-part.sh /dev/vdb
+[root@localhost ~]# chmod 755 split-part.sh
 
-```snip
+[root@localhost ~]# scp split-part.sh root@xx.xx.xx.xx
+
+[root@localhost ~]# ./split-part.sh /dev/vdb
+~~~ snip
 Device     Boot    Start      End  Sectors Size Id Type
 /dev/vdb1           2048  2099199  2097152   1G 83 Linux
 /dev/vdb2        2099200  4196351  2097152   1G 83 Linux
@@ -35,9 +79,10 @@ Device     Boot    Start      End  Sectors Size Id Type
 
 
 
-```
+~~~
 
-```
+
+~~~
 
 [root@localhost ~]# pdsh -w weka4-node0[2-5] "/root/split-part.sh /dev/vdb"
 
@@ -79,9 +124,9 @@ error: internal error: No more available PCI slots
 weka4-node03: Disk /dev/vdd: 2 GiB, 2147483648 bytes, 4194304 sectors
 ~~ snip
 
-```
+~~~
 
-```
+~~~
 
 [root@localhost ~]# vi create-one-part.sh
 #!/bin/bash
@@ -104,9 +149,10 @@ done
 [root@localhost ~]# pdsh -w weka4-node0[2-5] "sh /root/create-one-part.sh"
 [root@localhost ~]# pdsh -w weka4-node0[2-5] "fdisk -l | grep -v vda | grep -v vdb | grep -v vdc"
 
-```
+~~~
 
-```
+
+~~~
 
 [root@localhost ~]# cat config-network.sh
 #!/bin/bash
@@ -164,9 +210,9 @@ Error: /dev/vdd: unrecognised disk label
 
 [root@localhost ~]# pdsh -w weka4-node0[2-5] "sh /root/partd-create-one-part.sh"
 
-```
+~~~
 
-```
+~~~
 [root@localhost ~]# cat parted-create-one-part.sh
 #!/bin/bash
 #
@@ -196,9 +242,10 @@ weka4-node03: 512 bytes copied, 0.00406354 s, 126 kB/s
 [root@localhost ~]# sh config-network.sh
 error: The network device enp1s0 is already used on HostId<0>
 error: Can not provision /dev/vdd1: Expecting a disk and not a partition
-```
+~~~
 
-```
+
+~~~
 [root@localhost ~]# cat parted-create-one-part.sh
 #!/bin/bash
 #
@@ -221,6 +268,19 @@ weka4-node02: 1+0 records out
 
 [root@localhost ~]# sh config-network.sh
 error: Can not provision /dev/vdd1: Expecting a disk and not a partition
-```
+~~~
 
-https://access.redhat.com/solutions/2777871 https://blog.christophersmart.com/2019/12/18/kvm-guests-with-emulated-ssd-and-nvme-drives/ https://futurewei-cloud.github.io/ARM-Datacenter/qemu/nvme-of-tcp-vms/ https://blog.frankenmichl.de/2018/02/13/add-nvme-device-to-vm/ https://qemu-project.gitlab.io/qemu/system/devices/nvme.html https://www.baeldung.com/linux/qemu-from-terminal https://www.cyberciti.biz/faq/how-to-add-disk-image-to-kvm-virtual-machine-with-virsh-command/ https://blog.vmsplice.net/2011/04/how-to-pass-qemu-command-line-options.html https://unix.stackexchange.com/questions/495703/qemu-commandline-arguments-to-lib-virt-are-not-accepted-unable-to-save-xml-fil https://unix.stackexchange.com/questions/235414/libvirt-how-to-pass-qemu-command-line-args https://qemu-project.gitlab.io/qemu/system/devices/nvme.html https://forum.proxmox.com/threads/qemu-can-we-add-emulated-nvme-devices-to-guests.78752/ https://github.com/manishrma/nvme-qemu https://zonedstorage.io/docs/getting-started/zns-device
+https://access.redhat.com/solutions/2777871
+https://blog.christophersmart.com/2019/12/18/kvm-guests-with-emulated-ssd-and-nvme-drives/
+https://futurewei-cloud.github.io/ARM-Datacenter/qemu/nvme-of-tcp-vms/
+https://blog.frankenmichl.de/2018/02/13/add-nvme-device-to-vm/
+https://qemu-project.gitlab.io/qemu/system/devices/nvme.html
+https://www.baeldung.com/linux/qemu-from-terminal
+https://www.cyberciti.biz/faq/how-to-add-disk-image-to-kvm-virtual-machine-with-virsh-command/
+https://blog.vmsplice.net/2011/04/how-to-pass-qemu-command-line-options.html
+https://unix.stackexchange.com/questions/495703/qemu-commandline-arguments-to-lib-virt-are-not-accepted-unable-to-save-xml-fil
+https://unix.stackexchange.com/questions/235414/libvirt-how-to-pass-qemu-command-line-args
+https://qemu-project.gitlab.io/qemu/system/devices/nvme.html
+https://forum.proxmox.com/threads/qemu-can-we-add-emulated-nvme-devices-to-guests.78752/
+https://github.com/manishrma/nvme-qemu
+https://zonedstorage.io/docs/getting-started/zns-device

@@ -1,5 +1,5 @@
 remove_weka_bin: false
-setup_weka_bin: false
+setup_weka_bin: true
 destroy_weka: true
 # first_addrs_num: "{{ weka.host_num|int % 2 | int }}"
 # second_addrs_num: "{{ weka.host_num|int % 2 | int }}"
@@ -16,13 +16,13 @@ container:
      port: 14000
    drives:
      name: "drives0"
-     cores: "2"
+     cores: "1"
      memory: "5GiB"             # 2.3GiB default, 0 means automatical allocation
      core_ids: "1,2"
      data: "3"
      parity: "2"
      hotspare: "0"                # 0 means automaical allocation
-     devices: "/dev/vdb /dev/vdc"
+     devices: "/dev/sdb /dev/sdc"
      port: "14000"
      options:
    compute:
@@ -47,4 +47,3 @@ container:
 # Weka Port Ranges
 # https://docs.weka.io/install/prerequisites-and-compatibility#networking
 # https://www.notion.so/wekaio/Which-ports-required-by-weka-28a849675f474822a5a034ab5d30fcff
-

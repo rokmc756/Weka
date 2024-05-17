@@ -26,19 +26,13 @@
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
+    - "{{ container.default.name }}"
   ignore_errors: true
   when: destroy_weka == true and weka.backend.mcb == true and inventory_hostname in groups['workers']
 - debug: msg={{ destroy_weka_containers }}
   when: inventory_hostname in groups['workers'] and print_debug == true
-# weka local stop frontend0 && weka local disable frontend0 && weka local rm -f frontend0\n"
-# delta": "0:00:00.090077", "end": "2024-03-25 01:45:42.412258", "item": "frontend0", "msg": 
-# non-zero return code", "rc": 40, "start": "2024-03-25 01:45:42.322181", "stderr": "error: \n
-# OPERATION FAILED: THERE ARE ACTIVE WEKA MOUNTS ON THIS HOST.\n    
-# Stopping local Weka processes without unmounting all Weka filesystems first might render host unresponsive.\n
-# Please unmount all filesystems or use 'weka local stop -f' to stop local Weka processes anyway.\n\u0000",
-# - "{{ container.envoy.name }}"
 
-#
+
 - name: Stop and Remove SCB Container
   shell: |
     weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
@@ -51,7 +45,7 @@
   when: inventory_hostname in groups['workers'] and print_debug == true
   # - "default"
 
-#
+
 - name: Destroy Weka Containers in All Hosts
   shell: /root/tools/install/wekadestroy -f -y -u {{ ipaddr0 }}
   register: destroy_weka_clu

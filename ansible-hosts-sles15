@@ -4,11 +4,11 @@ remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
 [workers]
-rk8-node01 ansible_ssh_host=192.168.0.171
-rk8-node02 ansible_ssh_host=192.168.0.172
-rk8-node03 ansible_ssh_host=192.168.0.173
-rk8-node04 ansible_ssh_host=192.168.0.174
-rk8-node05 ansible_ssh_host=192.168.0.175
+sles15-node01 ansible_ssh_host=192.168.0.171
+sles15-node02 ansible_ssh_host=192.168.0.172
+sles15-node03 ansible_ssh_host=192.168.0.173
+sles15-node04 ansible_ssh_host=192.168.0.174
+sles15-node05 ansible_ssh_host=192.168.0.175
 
 [clients]
 ubt22-client01 ansible_ssh_host=192.168.0.61

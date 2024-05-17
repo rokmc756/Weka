@@ -27,6 +27,7 @@
 - debug: msg={{ create_weka_cluster }}
   # weka cluster create {{ all_management_ipaddrs }}
   # weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_net5_ipaddrs }} -T infinite
+  # weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_management_ipaddrs }} -T infinite
 
 #
 - name: Validate if Weka Cluster is still creating
@@ -60,8 +61,8 @@
 #
 - name: Delete Partition Table for Normal Disks
   shell: |
-    dd if=/dev/zero of=/dev/vdb bs=512 count=1; dd if=/dev/zero of=/dev/vdc bs=512 count=1
-    wipefs --all --force /dev/vdb; wipefs --all --force /dev/vdc
+    dd if=/dev/zero of=/dev/sdb bs=512 count=1; dd if=/dev/zero of=/dev/sdc bs=512 count=1
+    wipefs --all --force /dev/sdb; wipefs --all --force /dev/sdc
   register: del_part_table
   when: inventory_hostname in groups['workers']
 - debug: msg={{ del_part_table }}
@@ -70,7 +71,7 @@
 #
 - name: Add Devices into Drives Containers
   shell: |
-    weka cluster drive add {{ item }} {{ container.drives.devices }} --force --allow-format-non-wekafs-drives
+    weka cluster drive add {{ item }} {{ container.drives.devices }} --force
   register: add_nvme_drive
   with_items: "{{ all_container_ids.stdout_lines }}"
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']

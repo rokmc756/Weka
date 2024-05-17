@@ -7,27 +7,24 @@
     netcnt: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort | count|int - 1 }}"
   when: inventory_hostname in groups['workers']
 
+
 - name: Set Facts for Number of Total Cores and Virtual Network Adapters
   set_fact:
     tcores: "{{ container.drives.cores|int + container.compute.cores|int + container.frontend.cores|int }}"
   when: inventory_hostname in groups['workers']
 
-#
+
 - name: Check if the number of virtual network adapters is larger than number of cores to assign into all containers"
   fail: msg="The number of virtual network adapters should be larger than number of cores to assign into all containers"
   when: tcores|int > netcnt|int
 
-#- debug: msg={{ netseq }}
-#- debug: msg={{ netdevs }}
-#- debug: msg={{ netfix }}
-#- debug: msg={{ netcnt }}
 
 - set_fact:
     netdev_seq: "{{ dict( range(0,netcnt|int+1) | zip(netseq)) | dict2items(key_name='seq', value_name='end_seq') }}"
 - debug: msg={{ netdev_seq }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
     "{{ 'ipaddr'~item.seq }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item.end_seq ].ipv4.address }}"
@@ -36,11 +33,13 @@
   with_items: "{{ netdev_seq }}"
   when: inventory_hostname in groups['workers']
 
+
 - name: Define Facts for All Hostnames and Management IP Addresses
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
     all_management_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netdev5, 'ipv4', 'address']) | join(' ') }}"
   when: inventory_hostname in groups['workers']
+
 
 # Examle
 #- name: Set HA Fact to Merge IP Addresses
@@ -55,6 +54,7 @@
 #  with_items: "{{ netseq }}"
 #  when: inventory_hostname in groups['workers']
 
+
 # weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
 - name: Set Facts for HA IP Addresses of Individual Hosts
   set_fact:
@@ -63,7 +63,7 @@
 - debug: msg={{ ha_ips0 }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 - name: Set Facts for HA IP Addresses of All Hosts
   set_fact:
     ha_ips: "{{ groups['workers'] | map('extract', hostvars, ['ha_ips0']) | join(',') }}"
@@ -71,7 +71,7 @@
 - debug: msg={{ ha_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 # weka.net['ipaddr'~item] ) | map(attribute='device') | first }}"
 - name: Set Facts for HA Join IP Addresses of Individual Hosts
   set_fact:
@@ -80,13 +80,14 @@
 - debug: msg={{ ha_join_ips0 }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 - name: Set Facts for HA Join IP Addresses of All Hosts
   set_fact:
     ha_join_ips: "{{ groups['workers'] | map('extract', hostvars, ['ha_join_ips0']) | join(',') }}"
   when: inventory_hostname in groups['workers']
 - debug: msg={{ ha_join_ips }}
   when: print_debug == true and inventory_hostname in groups['workers']
+
 
 # Example of variable appended with_items
 #- debug:
@@ -97,51 +98,52 @@
 # Example of cut last a character in a line
 # ha_ips: "{{ ha_ips0[:-1] }}"
 
-#
+
 - name: Define fact for Weka version
   set_fact:
     weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
     weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
+
 
 #- name: Set Facts of Drives Container Network into all Hosts
 #  set_fact:
 #    drives_net0: "{{ drives_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
 #  with_sequence: start=1 end={{ container.drives.cores|int }}
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-#
+
+
 #- name: Set Facts of Drives Container Network into all Hosts
 #  set_fact:
 #    drives_net: "{{ drives_net0 | flatten | join(' ') }}"
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-#
+
+
 #- name: Set Facts of Compute Container Network into all Hosts
 #  set_fact:
 #    compute_net0: "{{ compute_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
 #  with_sequence: start={{ container.drives.cores|int + 1 }} end={{ container.compute.cores|int + container.drives.cores|int }}
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-#
+
+
 #- name: Set Facts of Compute Container Network into all Hosts
 #  set_fact:
 #    compute_net: "{{ compute_net0 | flatten | join(' ') }}"
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-#
+
+
 #- name: Set Facts of Frontend Container Network into all Hosts
 #  set_fact:
 #    frontend_net0: "{{ frontend_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
 #  with_sequence: start={{ container.compute.cores|int + container.drives.cores|int + 1 }} end={{ container.frontend.cores|int }} end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
-#
-#
+
+
 #- name: Set Facts of Frontend Container Network into all Hosts
 #  set_fact:
 #    frontend_net: "{{ frontend_net0 | flatten | join(' ') }}"
 #  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
 
-#
+
 - name: Set Facts of Drives Container Net into all hosts
   set_fact:
     drives_net: ""
@@ -150,9 +152,11 @@
   delegate_facts: True
   when: weka.net.conn != "dpdk" and inventory_hostname in groups['workers']
 
+
 #- set_fact: # Set Fact to Split IP Addresses
 #    even: "{{ groups['workers'][::2] }}"
 #    odd: "{{ groups['workers'][1::2] }}"
+
 
 - debug:
     msg: "{{ vars['all_net'~item~'_ipaddrs'].split(',')[0] }}"
@@ -160,29 +164,35 @@
     - "{{ weka.net.ha1 }}"
     - "{{ weka.net.ha2 }}"
 
+
 - name: Check if the rest value exists
   set_fact:
     rest: "{{ weka.host_num|int % 2 }}"
 - debug: msg={{ rest }}
   when: print_debug == true and inventory_hostname in groups['workers']
 
+
 - name: Set number divided in case that rest value not equals to 0
   set_fact:
     llen: "{{ ( weka.host_num|int / 2 ) | int }}"
   when: ( rest|int == 0 )
+
 
 - name: Set number divided in case that rest value not equals to 0
   set_fact:
     llen: "{{ ( weka.host_num|int / 2 - 0.5 ) | int }}"
   when: ( rest|int != 0 )
 
+
 - name: Set Facts for left numbers divded in case that rest value not equals to 0
   set_fact:
     rlen: "{{ ( weka.host_num|int - llen|int ) | int }}"
 
+
 - name: Set Facts for right numbers divded in case that rest value not equals to 0
   debug:
     msg: "{{ llen }} {{ rlen }}"
+
 
 #- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
 #  set_fact:
@@ -190,12 +200,13 @@
 #    all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ weka.net.ha2, 'ipv4', 'address']) | join(',') }}"
 #  when: netfix == "eth" and inventory_hostname in groups['workers']
 
-#
+
 - name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
   set_fact:
     all_ha1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netseq.1, 'ipv4', 'address']) | join(',') }}"
     all_ha2_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~ netfix ~ netseq.2, 'ipv4', 'address']) | join(',') }}"
   when: inventory_hostname in groups['workers']
+
 
 # Examples
 # msg: "{{ dict( [ all_net1_ipaddrs.split(',') | list ] | slice(2) ) }}"
@@ -203,6 +214,7 @@
   set_fact:
     list_all_ha1: "{{ all_ha1_ipaddrs.split(',') | list }}"
     list_all_ha2: "{{ all_ha2_ipaddrs.split(',') | list }}"
+
 
 #- debug: msg={{ list_all_ha1[0:llen|int] }}
 #  when: print_debug == true and inventory_hostname in groups['workers']
@@ -213,7 +225,7 @@
 #- debug: msg={{ list_all_ha2[llen|int:weka.host_num|int] }}
 #  when: print_debug == true and inventory_hostname in groups['workers']
 
-#
+
 - name: Split HA IP Addresses from two network interfaces
   set_fact:
     ha1_left: "{{ list_all_ha1[0:llen|int] }}"

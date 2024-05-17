@@ -1,4 +1,3 @@
-#
 - name: Get All Container IDs from SCB Cluster
   shell: |
     weka cluster container | awk '{print $1}' | sed 1d
@@ -8,11 +7,12 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # weka s3 cluster containers list
 
+
 - set_fact:
     all_container_ids: "{{ all_container_ids_scb.stdout }}"
   when: weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Get All Container IDs from MCB Cluster
   shell: |
     weka cluster container | grep frontend | awk '{print $1}'
@@ -20,6 +20,7 @@
   when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ all_container_ids_mcb }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
 
 - set_fact:
     all_container_ids: "{{ all_container_ids_mcb.stdout }}"
@@ -44,7 +45,7 @@
 # weka s3 service-account show <access-key>
 # weka s3 service-account remove <access-key>
 
-#
+
 - name: Detach Read-Write Permission to S3 Users
   shell: weka s3 policy detach {{ item.name }}
   register: detach_perm_user
@@ -54,7 +55,7 @@
 - debug: msg={{ detach_perm_user }}
   when: print_debug == true
 
-#
+
 - name: Delete S3 Users
   shell: |
     /usr/bin/weka user delete {{ item.name }}
@@ -65,10 +66,10 @@
 - debug: msg={{ del_s3_user }}
   when: print_debug == true
 
+
 ##########################################################################################################
 # Start to avoid failure to not destroy Buckets
 ##########################################################################################################
-#
 - name: Create S3 Default WekaFS Directory
   file:
     path: "/mnt/{{ s3.fs.default.name }}"
@@ -81,7 +82,7 @@
 - debug: msg={{ create_s3_default_fs_dir }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Mount S3 Default WekaFS
   mount:
     src: "{{ s3.fs.default.name }}"
@@ -94,7 +95,7 @@
 - debug: msg={{ mount_s3_default_fs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Delete Hidden Buckets in S3 Default WekaFS
   file:
     path: "/mnt/{{ s3.fs.default.name }}/{{ item.name }}"
@@ -105,7 +106,7 @@
 - debug: msg={{ delete_hidden_buckets }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Umount S3 Default WekaFS
   mount:
     path: "/mnt/{{ s3.fs.default.name }}"
@@ -117,7 +118,7 @@
 - debug: msg={{ umount_s3_default_fs }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Delete S3 Default WekaFS Directory
   file:
     path: "/mnt/{{ s3.fs.default.name }}"
@@ -126,12 +127,11 @@
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_s3_default_fs_dir }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-#
+
+
 ##########################################################################################################
 # End to avoid failure to not destroy Buckets
 ##########################################################################################################
-
-#
 - name: Destroy S3 Buckets
   shell: |
     weka s3 bucket destroy {{ item.name }} -f
@@ -144,7 +144,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   #  weka s3 bucket policy unset {{ item.name }}
 
-#
+
 - name: Remove S3 Backend Containers
   shell: |
     weka s3 cluster containers remove {{ item }}
@@ -156,7 +156,7 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # with_items: "{{ all_container_ids.stdout_lines }}"
 
-#
+
 - name: Destroy S3 Backend Containers
   shell: |
     weka s3 cluster destroy --force

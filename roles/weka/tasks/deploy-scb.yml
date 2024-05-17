@@ -23,12 +23,12 @@
 #
 - name: Create Weka Cluster With All Hosts and Management IP Addresses
   shell: |
-    weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_net5_ipaddrs }} -T infinite
+    weka cluster create {{ all_management_ipaddrs }}
   register: create_weka_cluster
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ create_weka_cluster }}
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  #  weka cluster create {{ all_management_ipaddrs }}
+  #  weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_net5_ipaddrs }} -T infinite
 
 #
 - name: Validate if Weka Cluster is still creating
