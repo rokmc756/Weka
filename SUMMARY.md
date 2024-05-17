@@ -1,6 +1,6 @@
 # Table of contents
 
-* [README](README.md)
+* [Weka Data Platform](README.md)
 * [WIP](README.disk.wip.md)
 * [RDMA-vSphere](<README (1).md>)
 * [windows\_activation](windows\_activation.md)

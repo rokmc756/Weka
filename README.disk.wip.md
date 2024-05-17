@@ -1,20 +1,5 @@
 # WIP
 
-**On weka4-master**
-
-ssh root@192.168.0.18\[1-7] "firewall-cmd --zone=public --add-port=14100/tcp --add-port=14000/tcp --add-port=14050/tcp --permanent --add-port=8501/tcp --permanent && firewall-cmd --reload"
-
-**Added chmod 755 /opt/wekabits/weka-install in ks.cfg**
-
-```
-
-
-###########  New way to install  ###############
-
-```
-
-\[root@localhost \~]# vi split-part.sh #!/bin/bash
-
 
 
 if \[ $# -eq 0 ] then echo "Input the device" exit fi
