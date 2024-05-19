@@ -213,9 +213,9 @@ $ make uninstall
 
 [![Video Label]((http://img.youtube.com/vi/Uh_MJL-wD9o/0.jpg)](https://youtu.be/Uh_MJL-wD9o?si=MfjVNVcTbLMWEi7x?t=0s) 06 - Create NFS Backends Cluster
 
-[![Video Label]((http://img.youtube.com/vi/9uob3-jG1u8/0.jpg)]
-(https://youtu.be/9uob3-jG1u8?si=OYyF9tEJOGurkw91?t=0s "TEST") 07 - Destroy NFS Backends Cluster
+[![Video Label]((http://img.youtube.com/vi/9uob3-jG1u8/0.jpg)](https://youtu.be/9uob3-jG1u8?si=OYyF9tEJOGurkw91?t=0s "TEST") 07 - Destroy NFS Backends Cluster
 
+<iframe  title="YouTube video player" width="480" height="390" src="https://youtu.be/9uob3-jG1u8?si=OYyF9tEJOGurkw91" frameborder="0" allowfullscreen></iframe>
 
 
 ## Planning
