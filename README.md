@@ -226,17 +226,8 @@ $ make uninstall
 [![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
 
-<center>
- <iframe width="560" 
-         height="315" 
-         src="YOUTUBE_LINK" 
-         src="https://www.youtube.com/watch?v=9uob3-jG1u8"
-         title="YouTube video player"
-         frameborder="0" 
-         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-         allowfullscreen>
- </iframe>
-</center>
+[![](https://markdown-videos-api.jorgenkh.no/youtube/9uob3-jG1u8)](https://www.youtube.com/watch?v=9uob3-jG1u8)
+
 
 ## Planning
 Need to modify and add weka role for Baremetal
