@@ -229,6 +229,8 @@ $ make uninstall
 ### 07 - Destroy NFS Backends Cluster
 [![](https://markdown-videos-api.jorgenkh.no/youtube/9uob3-jG1u8)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
+### 07 - Destroy NFS Backends Cluster
+[![07 - Destroy NFS Backends Cluster](https://img.youtube.com/vi/9uob3-jG1u8/0.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
 
 ## Planning
