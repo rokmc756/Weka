@@ -225,6 +225,8 @@ $ make uninstall
 ### 07 - Destroy NFS Backends Cluster
 [![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
+### 08 - Create SMB Backends Cluster
+[![YouTube](http://i.ytimg.com/vi/-teDTpbS3bI/hqdefault.jpg)](https://www.youtube.com/watch?v=-teDTpbS3bI)
 
 ### 07 - Destroy NFS Backends Cluster
 [![](https://markdown-videos-api.jorgenkh.no/youtube/9uob3-jG1u8)](https://www.youtube.com/watch?v=9uob3-jG1u8)
