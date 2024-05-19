@@ -4,11 +4,11 @@
     print_debug: false
   roles:
     - { role: smb }
+#    - { role: obs }
 #    - { role: wekafs }
 #    - { role: weka }
-#    - { role: obs }
-#    - { role: s3 }
 #    - { role: nfs }
+#    - { role: s3 }
 #    - { role: init-hosts }
 #    - { role: minio }
 #    - { role: firewalld }

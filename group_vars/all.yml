@@ -35,12 +35,12 @@ weka:
   fs: true
   protocol:
     smb: true
-    s3: false
     nfs: false
+    s3: false
   client:
     smb: true
-    s3: false
     nfs: false
+    s3: false
     wekafs: false
     net:
       type: "virtual"               # or physical
