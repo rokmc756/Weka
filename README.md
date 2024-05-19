@@ -196,10 +196,9 @@ $ vi uninstall.yml
 $ make uninstall
 ```
 
-## Video Demo to deploy Weka Data Platform
+## YouTube Video Demo to deploy Weka Data Platform
 
-00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x
-[![YouTube](http://i.ytimg.com/vi/5o82n1r_5Gc/hqdefault.jpg)](https://www.youtube.com/watch?v=5o82n1r_5Gc)
+[![YouTube](http://i.ytimg.com/vi/5o82n1r_5Gc/hqdefault.jpg)](https://www.youtube.com/watch?v=5o82n1r_5Gc "00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x")
 
 01 - Upload and Install Weka Software Binary 1
 [![YouTube](http://i.ytimg.com/vi/3ycJiYpm1SI/hqdefault.jpg)](https://www.youtube.com/watch?v=3ycJiYpm1SI)
