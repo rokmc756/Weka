@@ -197,23 +197,33 @@ $ make uninstall
 ```
 
 ## Video Demo to deploy Weka Data Platform
-[![YouTube]((http://img.youtube.com/vi/5o82n1r_5Gc?/0.jpg)](https://youtube.com/watch?v=5o82n1r_5Gc "00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x )
 
-[![YouTube]((http://img.youtube.com/vi/3ycJiYpm1SI/0.jpg)](https://www.youtube.com/watch?v=3ycJiYpm1SI "01 - Upload and Install Weka Software Binary 1 )
+00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x
+[![YouTube](http://i.ytimg.com/vi/5o82n1r_5Gc/hqdefault.jpg)](https://www.youtube.com/watch?v=5o82n1r_5Gc)
 
-[![YouTube]((http://img.youtube.com/vi/YtPkZyiDUEw/0.jpg)](https://www.youtube.com/watch?v=YtPkZyiDUEw "01 - Upload and Install Weka Software Binary 2 )
+01 - Upload and Install Weka Software Binary 1
+[![YouTube](http://i.ytimg.com/vi/3ycJiYpm1SI/hqdefault.jpg)](https://www.youtube.com/watch?v=3ycJiYpm1SI)
 
-[![YouTube]((http://img.youtube.com/vi/1TBoCOItN7Y/0.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y "02 - Deploy Weka Multi Container Backend Cluster )
+01 - Upload and Install Weka Software Binary 2
+[![YouTube](http://i.ytimg.com/vi/YtPkZyiDUEw/hqdefault.jpg)](https://www.youtube.com/watch?v=YtPkZyiDUEw)
 
-[![YouTube]((http://img.youtube.com/vi/URcm2rLN9L0/0.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0 "03 - Create Weka Filesystem )
+02 - Deploy Weka Multi Container Backend Cluster
+[![YouTube](http://i.ytimg.com/vi/1TBoCOItN7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y)
 
-[![YouTube]((http://img.youtube.com/vi/bk8rzx3HU5U/0.jpg)](https://www.youtube.com/watch?v=bk8rzx3HU5U "04 - Create S3 Backends Cluster )
+03 - Create Weka Filesystem
+[![YouTube](http://i.ytimg.com/vi/URcm2rLN9L0/hqdefault.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0)
 
-[![YouTube]((http://img.youtube.com/vi/wR3_4LdWZY0/0.jpg)](https://www.youtube.com/watch?v=wR3_4LdWZY0 "05 - Destroy S3 Backends Cluster )
+04 - Create S3 Backends Cluster
+[![YouTube](http://i.ytimg.com/vi/bk8rzx3HU5U/hqdefault.jpg)](https://www.youtube.com/watch?v=bk8rzx3HU5U)
 
-[![YouTube]((http://img.youtube.com/vi/Uh_MJL-wD9o/0.jpg)](https://www.youtube.com/watch?v=Uh_MJL-wD9o "06 - Create NFS Backends Cluster )
+05 - Destroy S3 Backends Cluster
+[![YouTube](http://i.ytimg.com/vi/wR3_4LdWZY0/hqdefault.jpg)](https://www.youtube.com/watch?v=wR3_4LdWZY0)
 
-[![YouTube]((http://img.youtube.com/vi/9uob3-jG1u8/0.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8 "07 - Destroy NFS Backends Cluster" )
+06 - Create NFS Backends Cluster
+[![YouTube](http://i.ytimg.com/vi/Uh_MJL-wD9o/hqdefault.jpg)](https://www.youtube.com/watch?v=Uh_MJL-wD9o)
+
+07 - Destroy NFS Backends Cluster
+[![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
 
 ## Planning
