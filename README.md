@@ -197,23 +197,23 @@ $ make uninstall
 ```
 
 ## Video Demo to deploy Weka Data Platform
-[![Video Label]((http://img.youtube.com/vi/5o82n1r_5Gc?/0.jpg)](https://youtu.be/5o82n1r_5Gc?si=H3bF9iixSfESsPFl) 00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x
+[![Video Label]((http://img.youtube.com/vi/5o82n1r_5Gc?/0.jpg)](https://youtu.be/5o82n1r_5Gc?si=H3bF9iixSfESsPFl?t=0s) 00 - How to initialize linux hosts to prepare deploying Weka Data Platform 4.x
 
-[![Video Label]((http://img.youtube.com/vi/3ycJiYpm1SI/0.jpg)](https://youtu.be/3ycJiYpm1SI?si=UgACMlRbEMdHQXwU) 01 - Upload and Install Weka Software Binary 1
+[![Video Label]((http://img.youtube.com/vi/3ycJiYpm1SI/0.jpg)](https://youtu.be/3ycJiYpm1SI?si=UgACMlRbEMdHQXwU?t=0s) 01 - Upload and Install Weka Software Binary 1
 
-[![Video Label]((http://img.youtube.com/vi/YtPkZyiDUEw/0.jpg)](https://youtu.be/YtPkZyiDUEw?si=mpiSY20vx8CjnGVU) 01 - Upload and Install Weka Software Binary 2
+[![Video Label]((http://img.youtube.com/vi/YtPkZyiDUEw/0.jpg)](https://youtu.be/YtPkZyiDUEw?si=mpiSY20vx8CjnGVU?t=0s) 01 - Upload and Install Weka Software Binary 2
 
-[![Video Label]((http://img.youtube.com/vi/1TBoCOItN7Y/0.jpg)](https://youtu.be/1TBoCOItN7Y?si=Z6cVffR1PoU9_80v) 02 - Deploy Weka Multi Container Backend Cluster
+[![Video Label]((http://img.youtube.com/vi/1TBoCOItN7Y/0.jpg)](https://youtu.be/1TBoCOItN7Y?si=Z6cVffR1PoU9_80v?t=0s) 02 - Deploy Weka Multi Container Backend Cluster
 
-[![Video Label]((http://img.youtube.com/vi/URcm2rLN9L0/0.jpg)](https://youtu.be/URcm2rLN9L0?si=tCPSH-HJxe-gzsF2) 03 - Create Weka Filesystem
+[![Video Label]((http://img.youtube.com/vi/URcm2rLN9L0/0.jpg)](https://youtu.be/URcm2rLN9L0?si=tCPSH-HJxe-gzsF2?t=0s) 03 - Create Weka Filesystem
 
-[![Video Label]((http://img.youtube.com/vi/bk8rzx3HU5U/0.jpg)](https://youtu.be/bk8rzx3HU5U?si=3JTwXmBI7RYGXthH) 04 - Create S3 Backends Cluster
+[![Video Label]((http://img.youtube.com/vi/bk8rzx3HU5U/0.jpg)](https://youtu.be/bk8rzx3HU5U?si=3JTwXmBI7RYGXthH?t=0s) 04 - Create S3 Backends Cluster
 
-[![Video Label]((http://img.youtube.com/vi/wR3_4LdWZY0/0.jpg)](https://youtu.be/wR3_4LdWZY0?si=_GGCg09jEQ5Omx17) 05 - Destroy S3 Backends Cluster
+[![Video Label]((http://img.youtube.com/vi/wR3_4LdWZY0/0.jpg)](https://youtu.be/wR3_4LdWZY0?si=_GGCg09jEQ5Omx17?t=0s) 05 - Destroy S3 Backends Cluster
 
-[![Video Label]((http://img.youtube.com/vi/Uh_MJL-wD9o/0.jpg)](https://youtu.be/Uh_MJL-wD9o?si=MfjVNVcTbLMWEi7x) 06 - Create NFS Backends Cluster
+[![Video Label]((http://img.youtube.com/vi/Uh_MJL-wD9o/0.jpg)](https://youtu.be/Uh_MJL-wD9o?si=MfjVNVcTbLMWEi7x?t=0s) 06 - Create NFS Backends Cluster
 
-[![Video Label]((http://img.youtube.com/vi/9uob3-jG1u8/0.jpg)](https://youtu.be/9uob3-jG1u8?si=OYyF9tEJOGurkw91) 07 - Destroy NFS Backends Cluster
+[![Video Label]((http://img.youtube.com/vi/9uob3-jG1u8/0.jpg)](https://youtu.be/9uob3-jG1u8?si=OYyF9tEJOGurkw91?t=0s) 07 - Destroy NFS Backends Cluster
 
 
 
