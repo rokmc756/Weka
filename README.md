@@ -228,5 +228,16 @@ $ make uninstall
 ### 08 - Create SMB Backends Cluster
 [![YouTube](http://i.ytimg.com/vi/-teDTpbS3bI/hqdefault.jpg)](https://www.youtube.com/watch?v=-teDTpbS3bI)
 
+### 09 - Destroy SMB Backend Cluster
+[![YouTube](http://i.ytimg.com/vi/SwoobVV5Ess/hqdefault.jpg)](https://www.youtube.com/watch?v=SwoobVV5Ess)
+
+### 10 - Create Object Store
+[![YouTube](http://i.ytimg.com/vi/Fv0qhIy4L1A/hqdefault.jpg)](https://www.youtube.com/watch?v=Fv0qhIy4L1A)
+
+### 11 - Destroy Object Store
+[![YouTube](http://i.ytimg.com/vi/1_4Kl5GonkY/hqdefault.jpg)](https://www.youtube.com/watch?v=1_4Kl5GonkY)
+
+
 ## Planning
 Need to modify and add weka role for Baremetal
+
