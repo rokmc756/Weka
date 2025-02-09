@@ -9,8 +9,10 @@ DNS2="8.8.8.8"
 DNS3="168.126.63.1"
 NET0="192.168.0.0/24"
 NET1="192.168.1.0/24"
+NET2="192.168.2.0/24"
 GW0="192.168.0.1"
 GW1="192.168.1.1"
+GW2="192.168.2.1"
 NETDEV_PREFIX=ens
 
 
@@ -22,6 +24,7 @@ INFO_TABLE="
 3,192.168.1.19,203,103,$MTUx,225,$NET1,yes,$GW1
 4,192.168.1.20,204,104,$MTUx,256,$NET1,yes,$GW1
 5,192.168.1.21,205,105,$MTUx,257,$NET1,no,$GW1
+6,192.168.2.17,206,106,$MTUx,162,$NET2,yes,$GW2
 "
 
 ENDIP=$(hostname | cut -d 0 -f 2)
@@ -39,34 +42,10 @@ do
     ROUTABLE=$(echo $i | cut -d , -f 8)
     GATEWAY=$(echo $i | cut -d , -f 9)
 
-    echo $SEQ
-    echo $IPNUM
-    echo $TABLE
-    echo $PRIO
-    echo $MTU
-    echo $NETNUM
-    echo $NET
-    echo $ROUTABLE
-    echo $GATEWAY
-
-    echo "nmcli connection delete conn$SEQ"
-    echo "nmcli connection delete eth$SEQ"
-    echo "nmcli connection delete ens$NETNUM"
-    echo "nmcli con add con-name conn$SEQ type ethernet ifname ens$NETNUM ipv4.method auto"
-    echo "nmcli con modify conn$SEQ ipv4.method manual ipv4.address $IPNUM$ENDIP/24"
-    echo "nmcli con modify conn$SEQ ipv4.gateway $GATEWAY"
-    echo "nmcli connection modify conn$SEQ 802-3-ethernet.mtu $MTU"
-    echo "nmcli connection modify conn$SEQ ipv4.dns $DNS0,$DNS1,$DNS2,$DNS3 ipv4.dns-search $DOMAIN"
-    echo "nmcli connection modify conn$SEQ ipv4.routes '$NET table=$TABLE' ipv4.routing-rules 'priority $PRIO from $IPNUM$ENDIP table $TABLE'"
-    echo "nmcli connection modify conn$SEQ ipv6.method 'disabled'"
-    echo "nmcli con mod conn$SEQ ipv4.never-default $ROUTABLE"
-    echo "nmcli con up conn$SEQ"
-    echo ""
-    # echo "ethtool -G ens$NETNUM rx 4096 rx-mini 2048 rx-jumbo 4096 tx 4096"
 
     nmcli connection delete conn$SEQ
-    nmcli connection delete eth$SEQ
-    nmcli connection delete ens$NETNUM
+    # nmcli connection delete eth$SEQ
+    # nmcli connection delete ens$NETNUM
     nmcli con add con-name conn$SEQ type ethernet ifname ens$NETNUM ipv4.method auto
     nmcli con modify conn$SEQ ipv4.method manual ipv4.address $IPNUM$ENDIP/24
     nmcli con modify conn$SEQ ipv4.gateway $GATEWAY

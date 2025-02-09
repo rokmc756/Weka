@@ -10,9 +10,11 @@
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
   # Highest CPU Usage : sort -r -k2,2 
 
+
 - set_fact:
     feip_high_cpu: "{{ feip_high_cpu_mcb.stdout }}"
   when: weka.client.s3 == true and weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
 
 # Management IP Address in case of SCB
 - name: Get IP Address of Frontend who has most Lowest CPU usage in Weka SCB Cluster
@@ -25,21 +27,22 @@
 - debug: msg={{ feip_high_cpu_scb }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - set_fact:
     feip_high_cpu: "{{ feip_high_cpu_scb.stdout }}"
   when: weka.client.s3 == true and weka.backend.scb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - debug: msg={{ feip_high_cpu }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
 
 - name: Set Facts of Frontend IP Address
   set_fact:
     feip0: ""
   when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - name: Set Facts of Frontend IP Address
   set_fact:
     feip0: "{{ feip_high_cpu }}"
@@ -50,7 +53,7 @@
 - debug: msg={{ feip0 }}
   when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
-#
+
 - set_fact:
     s3_users_info: "{{ s3_users_info | default([]) + [item|combine({'feip': feip0|from_yaml})] }}"
   loop: "{{ s3.users }}"

@@ -1,0 +1,24 @@
+---
+- name: Copy Expect Script File to Change Admin Password
+  template: src=change-admin-pass.sh.j2 dest={{ _weka.base_path }}/change-admin-pass.sh mode=0755 owner=root group=root
+  register: copy_expect_file
+  when: inventory_hostname in groups['control']
+- debug: msg={{ copy_expect_file }}
+  when: print_debug == true and inventory_hostname in groups['control']
+
+
+- name: Change Admin Password
+  shell: |
+    {{ _weka.base_path }}/change-admin-pass.sh
+  register: change_admin_pass
+  when: inventory_hostname in groups['control']
+- debug: msg={{ change_admin_pass }}
+  when: print_debug == true and inventory_hostname in groups['control']
+
+
+- name: Copy Bashrc to Change Admin Password
+  template: src=bashrc.j2 dest={{ _weka.base_path }}/.bashrc mode=0644 owner=root group=root
+  register: copy_bashrc
+- debug: msg={{ copy_bashrc }}
+  when: print_debug == true
+

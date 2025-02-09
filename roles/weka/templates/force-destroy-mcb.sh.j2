@@ -1,0 +1,10 @@
+for i in `ps -ef | grep weka_init | grep -v grep | awk '{print $2}'`
+do
+
+    kill -9 $i
+
+done
+
+weka local disable frontend0 && weka local rm -f frontend0
+weka local disable compute0 && weka local rm -f compute0
+weka local disable drives0 && weka local rm -f drives0

@@ -1,32 +1,57 @@
 ---
-#
-- name: Get interface name from provided IP
+- name: Get Interface Name From Provided IP
   set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.backend.net.ipaddr0 ) | map(attribute='device') | first }}"
-#- debug: msg={{ netdev0 }}
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _weka.backend.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev5: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _weka.backend.net.ipaddr5 ) | map(attribute='device') | first }}"
 
-#
-- name: Get IP Address from provided network device name
+
+- name: Get IP Address from Provided Network Device Name
   set_fact:
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
-#- debug: msg: {{ ipaddr0 }}
+    ipaddr5: "{{ hostvars[inventory_hostname]['ansible_'~netdev5].ipv4.address }}"
 
-# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
-- name: Define facts for all worker's hostname
+
+- name: Define Facts for All Worker's Hostname
   set_fact:
     all_ext1_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-- debug: msg={{ all_ext1_hostnames }}
+    all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev5, 'ipv4', 'address']) | join(',') }}"
+    ipaddr: "{{ ipaddr5 }}"
 
-#
-- name: Define fact for all addresses of each network devices
-  set_fact:
-    all_ext1_ipaddrs: "{{ groups['workers'] | map('extract', hostvars, ['ansible_'~netdev0, 'ipv4', 'address']) | join(',') }}"
-- debug: msg={{ all_ext1_ipaddrs }}
 
-#
 - name: Define fact for Weka version
   set_fact:
-    weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
-    weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
-- debug: msg={{ weka_file_name }}
-- debug: msg={{ weka_tools_file_name }}
+    weka_file_name: "weka-{{ _weka.major_version }}.{{ _weka.minor_version }}.{{ _weka.build_version }}{{ _weka.patch_version }}"
+    weka_tools_file_name: "{{ _weka.tools.name }}-v{{ _weka.tools.major_version }}.{{ _weka.tools.minor_version }}.{{ _weka.tools.patch_version }}"
+
+
+- name: Get NVME Devices List
+  shell: |
+    nvme list | sed 1,2d | awk '{print $1}' | paste -sd "," -
+  register: nvme_device_list0
+  when: _weka.nvme == true
+- debug: msg={{ nvme_device_list0.stdout_lines }}
+  when: print_debug == true and _weka.nvme == true
+
+
+- set_fact:
+    nvme_device_list: "{{ nvme_device_list0.stdout }}"
+  when: _weka.nvme == true
+- debug: msg={{ nvme_device_list }}
+  when: print_debug == true and _weka.nvme == true
+
+
+- name: Get NVME Devices Array
+  shell: |
+    nvme list | sed 1,2d | awk '{print $1}'
+  register: nvme_device_array0
+  when: _weka.nvme == true
+- debug: msg={{ nvme_device_array0.stdout_lines }}
+  when: print_debug == true and _weka.nvme == true
+
+
+- set_fact:
+    nvme_device_array: "{{ nvme_device_array0.stdout_lines }}"
+  when: _weka.nvme == true
+- debug: msg={{ nvme_device_array }}
+  when: print_debug == true and _weka.nvme == true
+

@@ -1,39 +1,51 @@
-#
+---
 - name: Set Facts of Drives Container Virtual Network into all Hosts
   set_fact:
     drives_net0: "{{ drives_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
   with_sequence: start=1 end={{ container.drives.cores|int }}
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
+# start=2 has been determined due to excluding netdev0 and netdev1 which need extra network
+# start=1 has been determined due to excluding netdev0 which need extra network
+# nedev0 -> 192.168.2.17x
+# nedev1 -> 192.168.0.17x
 
-#
+
 - name: Set Facts of Drives Container Virtual Network into all Hosts
   set_fact:
     drives_net: "{{ drives_net0 | flatten | join(' ') }}"
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
 
-#
+- debug: msg={{ drives_net }}
+
 - name: Set Facts of Compute Container Virtual Network into all Hosts
   set_fact:
     compute_net0: "{{ compute_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
   with_sequence: start={{ container.drives.cores|int + 1 }} end={{ container.compute.cores|int + container.drives.cores|int }}
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
 
-#
+
 - name: Set Facts of Compute Container Virtual Network into all Hosts
   set_fact:
     compute_net: "{{ compute_net0 | flatten | join(' ') }}"
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
 
-#
+- debug: msg={{ compute_net }}
+
 - name: Set Facts of Frontend Container Virtual Network into all Hosts
   set_fact:
     frontend_net0: "{{ frontend_net0 | default([]) + [ '--net ' + vars[ 'netdev'~item ] + '/' + vars[ 'ipaddr'~item ] + '/24' ] }}"
   with_sequence: start={{ container.compute.cores|int + container.drives.cores|int + 1 }} end={{ container.frontend.cores|int }} end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
+  # end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
+  # with_sequence: start={{ container.compute.cores|int + container.drives.cores|int }} end={{ container.compute.cores|int + container.drives.cores|int + container.frontend.cores|int }}
 
-#
+
 - name: Set Facts of Frontend Container Virtual Network into all Hosts
   set_fact:
     frontend_net: "{{ frontend_net0 | flatten | join(' ') }}"
-  when: weka.net.conn == "dpdk" and inventory_hostname in groups['workers']
+  when: _weka.net.conn == "dpdk"
+
+- debug: msg={{ frontend_net }}
+
+# - meta: end_play
 

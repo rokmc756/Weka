@@ -1,0 +1,19 @@
+---
+- name: Deactivate Swap Space
+  become_user: root
+  shell: |
+    swapoff /swapfile
+  register: deactivate_swap_space
+  ignore_errors: true
+- debug: msg={{ deactivate_swap_space }}
+
+
+- name: Delete Swap Space
+  become_user: root
+  file:
+    path: /swapfile
+    state: absent
+  register: delete_swap_space
+  ignore_errors: true
+- debug: msg={{ delete_swap_space }}
+

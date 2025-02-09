@@ -1,5 +1,4 @@
 ---
-# For now fail if it's not suppoted OS
 - name: Check OS
   fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
   when:
@@ -10,50 +9,96 @@
 
 - name: Set facts for Installing Weka Data Platform
   import_tasks: set-install-facts.yml
-  tags:
-    - upload
-    - install
+  tags: upload, deploy, install, setup, create, enable
   when: inventory_hostname in groups['workers']
 
 
 - name: Set facts for Virtual Network Adapters Such as VMware or Public Clouds
   import_tasks: set-virt-net-facts.yml
-  tags: install
-  when: weka.backend.net.type == "virtual" and inventory_hostname in groups['workers']
+  tags: upload, deploy, install, setup, create, enable
+  when: _weka.backend.net.type == "virtual" and inventory_hostname in groups['workers']
 
 
 - name: Set facts for Uninstalling Weka Data Platform
   import_tasks: set-uninstall-facts.yml
-  tags: uninstall
+  tags: remove, destroy, uninstall, delete, disable
   when: inventory_hostname in groups['workers']
+
+
+- name: Create Addtional Swap Space
+  import_tasks: ext/enable-ext-swap.yml
+  tags: enable, install
+  when: ( swap is defined and swap == true ) and inventory_hostname in groups['workers']
 
 
 - name: Upload Weka Software Binary
   import_tasks: upload-weka-bin.yml
-  tags: upload
-  when: inventory_hostname in groups['workers']
+  tags: upload, install
+  when: ( bin is defined and bin == true ) and inventory_hostname in groups['workers']
 
 
 - name: Setup Weka Sofware and Tools Binary
   import_tasks: setup-weka-bin.yml
-  tags: install
-  when: setup_weka_bin == true and inventory_hostname in groups['workers']
+  tags: setup, install
+  when: ( bin is defined and bin == true ) and inventory_hostname in groups['workers']
 
 
-- name: Deploy Single Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
-  import_tasks: deploy-scb.yml
-  tags: install
-  when: weka.backend.scb == true and inventory_hostname in groups['workers']
+- name: Destroy Weka Default Containers
+  import_tasks: remove-default-container.yml
+  tags: remove, delete
+  when: ( default is defined and default == true ) and inventory_hostname in groups['workers']
 
 
-- name: Deploy Multi Container Backend of Weka Data Platform v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }} on Virtualization Environment
+- name: Deploy Multi Container Backend of Weka Data Platform
   import_tasks: deploy-mcb.yml
-  tags: install
-  when: weka.backend.mcb == true and inventory_hostname in groups['workers']
+  tags: deploy, install
+  when: ( mcb is defined and mcb == true ) and inventory_hostname in groups['workers']
 
 
-- name: Destroy Weka Data Platform Software v{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}
+- name: Deploy Single Container Backend of Weka Data Platform
+  import_tasks: deploy-scb.yml
+  tags: deploy, install
+  when: ( scb is defined and scb == true ) and inventory_hostname in groups['workers']
+
+
+- name: Change Weka Admin Password
+  import_tasks: change-admin-passwd.yml
+  tags: change, install
+  when: ( passwd is defined and passwd == true ) and inventory_hostname in groups['control']
+
+
+- name: Destroy Weka MCB Cluster
+  import_tasks: destroy-mcb.yml
+  tags: destroy, uninstall
+  when: (( mcb is defined and mcb == true ) and ( noc is defined and noc == true )) and inventory_hostname in groups['workers']
+
+
+- name: Destroy Weka MCB Binary
+  import_tasks: destroy-mcb-bin.yml
+  tags: destroy, uninstall
+  when: (( mcb is defined and mcb == true ) and ( bin is defined and bin == true )) and inventory_hostname in groups['workers']
+
+
+- name: Force Destroy Weka MCB Cluster
+  import_tasks: ext/force-destroy-mcb.yml
+  tags: destroy, uninstall
+  when: (( mcb is defined and mcb == true ) and ( force is defined and force == true )) and inventory_hostname in groups['workers']
+
+
+- name: Destroy Weka Data Platform Software
   import_tasks: uninstall.yml
   tags: uninstall
   when: inventory_hostname in groups['workers']
+
+
+- name: Disable Addtional Swap Space
+  import_tasks: ext/disable-ext-swap.yml
+  tags: disable, uninstall
+  when: ( swap is defined and swap == true ) and inventory_hostname in groups['workers']
+
+
+- name: Cleanup NVME Block Devices
+  import_tasks: ext/cleanup-nvme-devices.yml
+  tags: clean
+  when: ( nvme is defineed and nvme == true ) and inventory_hostname in groups['workers']
 

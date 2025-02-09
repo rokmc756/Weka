@@ -1,60 +1,59 @@
 ---
-# For now fail if it's not suppoted OS
-#- name: Check OS
+#- name: Check OS ( WekaFS )
 #  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
 #  when:
 #    - ansible_distribution_major_version|int >= 8
 #    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
-#
+
 - name: Set facts for Setup and Remove Weka File Sysetm and Clients
   import_tasks: set-net-facts.yml
-  tags:
-    - install
-    - uninstall
-  when: weka.client.wekafs == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+  tags: install, uninstall, create
+  when: ( fs is defined and fs == true ) and ( inventory_hostname in groups['clients'] or inventory_hostname in groups['control'] )
+#  when: _weka.client.wekafs == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
 
-#
+
 #- name: Set facts for Setup and Remove Weka File Sysetm and Clients
 #  import_tasks: set-wekafs-facts.yml
-#  tags:
-#    - install
-#    - uninstall
+#  tags: install, uninstall
 #  when: inventory_hostname in groups['workers']
 
-#
+
 - name: Set facts for Setup WekaFS and POSIX Clients
   import_tasks: set-clients-facts.yml
   tags: install
-  when: weka.client.wekafs == true and inventory_hostname in groups['clients']
+  when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
 
-#
+
 - name: Set facts for WekaFS POSIX Clients at Virtualization such as VMware and Public Cloud
   import_tasks: set-virt-clients-facts.yml
   tags: install
-  when: weka.client.wekafs == true and weka.client.net.type == "virtual" and inventory_hostname in groups['clients']
+  when: _weka.client.wekafs == true and _weka.client.net.type == "virtual" and inventory_hostname in groups['clients']
 
-#
+
 - name: Install WekaFS
   import_tasks: install.yml
-  tags: install
-  when: weka.fs == true and inventory_hostname in groups['workers']
+  tags: create, install
+  when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
+#  when: _weka.fs == true and inventory_hostname in groups['workers']
 
-#
-- name: Install WekaFS Client
-  import_tasks: install-clients.yml
-  tags: install
-  when: weka.client.wekafs == true and inventory_hostname in groups['clients']
 
-#
-- name: Uninstall WekaFS Clients
-  import_tasks: uninstall-clients.yml
-  tags: uninstall
-  when: weka.client.wekafs == true and inventory_hostname in groups['clients']
+#- name: Install WekaFS Client
+#  import_tasks: install-clients.yml
+#  tags: install
+#  when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
 
-#
+
+#- name: Uninstall WekaFS Clients
+#  import_tasks: uninstall-clients.yml
+#  tags: uninstall
+#  when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
+
+
 - name: Uninstall WekaFS
   import_tasks: uninstall.yml
   tags: uninstall
-  when: weka.fs == true and inventory_hostname in groups['workers']
+  when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
+
+# when: _weka.fs == true and inventory_hostname in groups['workers']
 

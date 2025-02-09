@@ -1,0 +1,40 @@
+---
+- name: Create Swap Space
+  become_user: root
+  shell: |
+    fallocate -l 10G /swapfile
+  register: create_swap_space
+- debug: msg={{ create_swap_space }}
+
+
+- name:  Create Swap File
+  become_user: root
+  shell: |
+    dd if=/dev/zero of=/swapfile bs=1024 count=10485760
+  register: create_swap_file
+- debug: msg={{ create_swap_file }}
+
+
+- name: Change Permission for Only Root User
+  become_user: root
+  shell: |
+    chmod 0600 /swapfile
+  register: change_perm
+- debug: msg={{ change_perm }}
+
+
+- name: Set Swap Space
+  become_user: root
+  shell: |
+    mkswap /swapfile
+  register: set_swap_space
+- debug: msg={{ set_swap_space }}
+
+
+- name: Activate Swap Space
+  become_user: root
+  shell: |
+    swapon /swapfile
+  register: activate_swap_space
+- debug: msg={{ activate_swap_space }}
+

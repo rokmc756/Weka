@@ -1,0 +1,25 @@
+
+[root@dlp ~]# dnf -y install chrony
+[root@dlp ~]# vi /etc/chrony.conf
+# line 3 : change servers to synchronize (replace to your own timezone NTP server)
+# need NTP server itself to sync time with other NTP server
+#pool 2.centos.pool.ntp.org iburst
+pool ntp.nict.jp iburst
+# line 27 : add network range to allow to receive time synchronization requests from NTP Clients
+# specify your local network and so on
+# if not specified, only localhost is allowed
+allow 10.0.0.0/24
+[root@dlp ~]# systemctl enable --now chronyd
+[2]	If Firewalld is running, allow NTP service. NTP uses [123/UDP].
+[root@dlp ~]# firewall-cmd --add-service=ntp
+success
+[root@dlp ~]# firewall-cmd --runtime-to-permanent
+success
+[3]	Verify it works normally.
+[root@dlp ~]# chronyc sources
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^+ ntp-b3.nict.go.jp             1   6    17    33   -794us[ -129us] +/- 9285us
+^+ ntp-a3.nict.go.jp             1   6    17    34   +851us[+1515us] +/- 8783us
+^- ntp-b2.nict.go.jp             1   6    17    34   -736us[ -736us] +/- 9296us
+^* ntp-a2.nict.go.jp             1   6    17    34  -4982ns[ +659us] +/- 9399us

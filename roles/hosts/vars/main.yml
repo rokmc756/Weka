@@ -1,0 +1,14 @@
+ansible_ssh_pass: "changeme"
+ansible_become_pass: "changeme"
+sudo_user: "wekadm"
+sudo_group: "wekadm"
+local_sudo_user: "jomoon"
+rh_wheel_group: "wheel"     # RHEL / CentOS / Rocky
+ubt_wheel_group: "sudo"    # Debian / Ubuntu
+root_user_pass: "changeme"
+sudo_user_pass: "changeme"
+sudo_user_home_dir: "/home/{{ sudo_user }}"
+domain_name: "jtest.weka.io"
+
+uninstall_deps_pkgs: false
+

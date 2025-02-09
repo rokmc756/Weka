@@ -1,17 +1,18 @@
 #!/usr/bin/expect -f
 set timeout 3
 
-        spawn /usr/bin/weka user passwd 
+        spawn /usr/bin/weka user passwd
 
         expect  "^Current password for admin:*"
         send    "admin\r"
 
         expect  "^New password for admin:*"
-        send    "{{ weka.admin_change_pass }}\r"
+        send    "{{ _weka.admin_change_pass }}\r"
 
         expect  "^Password confirmation:*"
-        send    "{{ weka.admin_change_pass }}\r"
+        send    "{{ _weka.admin_change_pass }}\r"
 
         interact
 
 exit
+

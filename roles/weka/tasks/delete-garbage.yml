@@ -1,0 +1,32 @@
+---
+- name: Unmount tmpfs
+  shell: |
+    umount /opt/weka/data/agent/tmpfss/cross-container-rpc-the-tmpfs
+  register: umount_tmpfs
+  when: destroy_weka == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  ignore_errors: true
+- debug: msg={{ umount_tmpfs }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
+
+#
+- name: Clear Memory Cache
+  shell: |
+    sync && echo 3 > /proc/sys/vm/drop_caches
+  register: clear_cache_memory
+  ignore_errors: true
+  when: destroy_weka == true and inventory_hostname in groups['workers']
+- debug: msg={{ clear_cache_memory }}
+  when: inventory_hostname in groups['workers'] and print_debug == true
+
+#
+#- name: Reboot required
+#  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
+#  async: 1200
+#  poll: 0
+#  when:  destroy_weka == true and inventory_hostname in groups['workers']
+#  notify:
+#    - Waiting for server to come back after reboot
+
+#
+#- meta: flush_handlers
+

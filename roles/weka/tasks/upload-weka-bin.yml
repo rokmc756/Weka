@@ -1,49 +1,48 @@
-- name: Check if Weka tarball file is already existed
-  stat: path={{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}
+---
+- name: Check if Weka Tarball File Already Exists
+  stat: path={{ _weka.base_path }}/{{ weka_file_name }}.{{ _weka.bin_type }}
   register: weka_tarball_exists
 - debug: msg={{ weka_tarball_exists }}
 
 
-- name: Check if Weka installation directory is already existed
-  stat: path={{ weka.base_path }}/{{ weka_file_name }}
+- name: Check if Weka Installation Directory Already Exists
+  stat: path={{ _weka.base_path }}/{{ weka_file_name }}
   register: weka_install_dir_exists
 
 
-- name: Sanity check for existence of "{{ weka.base_path }}/{{ weka_file_name }}".tar file or "{{weka.base_path }}/{{ weka_file_name }}" directory
-  debug: msg="Both {{ weka.base_path }}/{{ weka_file_name }}.tar file and {{ weka.base_path }}/{{ weka_file_name }} directory already exists"
+- name: Sanity Check for Existence of "{{ _weka.base_path }}/{{ weka_file_name }}".tar File or "{{ _weka.base_path }}/{{ weka_file_name }}" Directory
+  debug: msg="Both {{ _weka.base_path }}/{{ weka_file_name }}.tar File and {{ _weka.base_path }}/{{ weka_file_name }} Directory already Exists"
   changed_when: weka_tarball_exists.stat.exists == True and weka_install_dir_exists.stat.exists == True
-  # fail: msg="Either {{ weka.base_path }}/{{ weka_file_name }}.tar file or {{ weka.base_path }}/{{ weka_file_name }} directory already exists"
-  # when: weka_tarball_exists.stat.exists == True or weka_install_dir_exists.stat.exists == True
 
 
-- name: Copy Weka tarball from local directory, roles/weka/files
-  copy: src={{ weka_file_name }}.tar dest={{ weka.base_path }}/{{ weka_file_name }}.tar mode=0644 owner=root group=root
+- name: Copy Weka Tarball from Local Directory, roles/weka/files
+  copy: src={{ weka_file_name }}.tar dest={{ _weka.base_path }}/{{ weka_file_name }}.tar mode=0644 owner=root group=root
   register: local_copy_weka
-  when: weka.download == false and weka_tarball_exists.stat.exists != True
+  when: _weka.download == false and weka_tarball_exists.stat.exists != True
 
 
-- name: Download Weka tarball file
+- name: Download Weka Tarball File
   shell: |
-    wget -P {{ weka.base_path }} --show-progress --auth-no-challenge https://CHANGEME_WEKA_TOKEN:@{{ weka.download_url }}/{{ weka_file_name }}.tar
+    wget -P {{ _weka.base_path }} --show-progress --auth-no-challenge https://CHANGEME_WEKA_TOKEN:@{{ weka.download_url }}/{{ weka_file_name }}.tar
   register: download_weka_tarball
-  when: weka.download == true and weka_tarball_exists.stat.exists == false
+  when: _weka.download == true and weka_tarball_exists.stat.exists == false
 
 
 # https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pkg/{{ weka_file_name }}.tar
 #- name: Download weka tarball file
 #  get_url:
 #    url: "{{ server_url }}"
-#    dest: "{{ weka.base_path }}/{{ weka_file_name }}.tar"
+#    dest: "{{ _weka.base_path }}/{{ weka_file_name }}.tar"
 #    owner: root
 #    group: root
 #    mode: 0755
-#  when: weka.download == true and weka_tarball_exists.stat.exists == false
+#  when: _weka.download == true and weka_tarball_exists.stat.exists == false
 
 
-- name: Unarchive Weka tarball
+- name: Unarchive Weka Tarball
   unarchive:
-    src: "{{ weka.base_path }}/{{ weka_file_name }}.{{ weka.bin_type }}"
-    dest: "{{ weka.base_path }}"
+    src: "{{ _weka.base_path }}/{{ weka_file_name }}.{{ _weka.bin_type }}"
+    dest: "{{ _weka.base_path }}"
     #  /{{ weka_file_name }}"
     owner: "root"
     group: "root"
@@ -54,75 +53,75 @@
 
 
 # Start for Weka Tools
-- name: Check if Weka tools directory is already existed
-  stat: path={{ weka.base_path }}/{{ weka.tools.name }}
+- name: Check if Weka Tools Directory Already Exists
+  stat: path={{ _weka.base_path }}/{{ _weka.tools.name }}
   register: weka_tools_dir_exists
 
 
-- name: Check if Weka tools tarball file is already existed
-  stat: path={{ weka.base_path }}/{{ weka_tools_file_name}}.{{ weka.tools.bin_type }}
+- name: Check if Weka Tools Tarball File Already Exists
+  stat: path={{ _weka.base_path }}/{{ weka_tools_file_name}}.{{ _weka.tools.bin_type }}
   register: weka_tools_tarball_exists
 - debug: msg={{ weka_tools_tarball_exists }}
 
 
-- name: Sanity check for existence of "{{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }}" file or "{{ weka.base_path }}/{{ weka.tools.name }}" directory
-  debug: msg="Both {{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }} file and {{ weka.base_path }}/{{ weka.tools.name }} directory already exists"
+- name: Sanity Check for Existence of "{{ _weka.base_path }}/{{ weka_tools_file_name }}.{{ _weka.tools.bin_type }}" File or "{{ _weka.base_path }}/{{ _weka.tools.name }}" Directory
+  debug: msg="Both {{ _weka.base_path }}/{{ weka_tools_file_name }}.{{ _weka.tools.bin_type }} File and {{ _weka.base_path }}/{{ _weka.tools.name }} Directory Already Exists"
   changed_when: weka_tools_tarball_exists.stat.exists == True and weka_tools_dir_exists.stat.exists == True
 
 
-- name: Copy Weka tools tarball file from local directory, roles/weka/files
-  copy: src={{ weka_tools_file_name }}.{{ weka.tools.bin_type }} dest={{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }} mode=0644 owner=root group=root
+- name: Copy Weka Tools Tarball File from Local Directory, roles/weka/files
+  copy: src={{ weka_tools_file_name }}.{{ _weka.tools.bin_type }} dest={{ _weka.base_path }}/{{ weka_tools_file_name }}.{{ _weka.tools.bin_type }} mode=0644 owner=root group=root
   register: local_copy_weka_tools
-  when: weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
+  when: _weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
 
 
-#- name: Download weka tools zip file from github
+#- name: Download Weka Tools Zip File from Github
 #  get_url:
 #    url: "{{ server_url }}"  # github url
-#    dest: "{{ weka.base_path }}/{{ weka_tools_file_name }}.zip"
+#    dest: "{{ _weka.base_path }}/{{ weka_tools_file_name }}.zip"
 #    owner: root
 #    group: root
 #    mode: 0755
-#  when: weka.tools.download == true and weka_tarball_exists.stat.exists == false
+#  when: _weka.tools.download == true and weka_tarball_exists.stat.exists == false
 
 
-- name: Unarchive Weka tools tarball file
+- name: Unarchive Weka Tools Tarball File
   unarchive:
-    src: "{{ weka.base_path }}/{{ weka_tools_file_name }}.{{ weka.tools.bin_type }}"
-    dest: "{{ weka.base_path }}/"
-    #  {{ weka.tools.name }}"
+    src: "{{ _weka.base_path }}/{{ weka_tools_file_name }}.{{ _weka.tools.bin_type }}"
+    dest: "{{ _weka.base_path }}/"
+    #  {{ _weka.tools.name }}"
     owner: "root"
     group: "root"
     mode: "0755"
     remote_src: yes
   register: unarchive_weka_tools_tarball
-  when: weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
+  when: _weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
 
 
-- name: Create symbolic link for Weka tools directory
+- name: Create Symbolic Link for Weka Tools Directory
   file:
-   src: "{{ weka.base_path }}/{{ weka_tools_file_name }}"
-   dest: "{{ weka.base_path }}/{{ weka.tools.name }}"
+   src: "{{ _weka.base_path }}/{{ weka_tools_file_name }}"
+   dest: "{{ _weka.base_path }}/{{ _weka.tools.name }}"
    state: link
    force: true
 
 
 #- name: Check if Weka tools directory is already existed
-#  stat: path={{ weka.base_path }}/{{ weka.tools.name }}
+#  stat: path={{ _weka.base_path }}/{{ _weka.tools.name }}
 #  register: weka_tools_dir_exists2
 
 
 #- name: Rename Weka tools directory
-#  shell: mv {{ weka.base_path }}/{{ weka_tools_file_name }} {{ weka.base_path }}/{{ weka.tools.name }}
+#  shell: mv {{ _weka.base_path }}/{{ weka_tools_file_name }} {{ _weka.base_path }}/{{ _weka.tools.name }}
 #  register: rename_weka_tools_dir
-#  when: weka.tools.download == false and weka_tools_dir_exists2.stat.exists == false
+#  when: _weka.tools.download == false and weka_tools_dir_exists2.stat.exists == false
 
 
 - name: Clone Weka Tools from Github
   git:
     repo: https://github.com/weka/tools
-    dest: /tmp/{{ weka.tools.name }}
+    dest: /tmp/{{ _weka.tools.name }}
     force: yes
     clone: yes
-  when: weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
+  when: _weka.tools.download == false and weka_tools_dir_exists.stat.exists == false
 

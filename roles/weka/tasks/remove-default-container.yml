@@ -1,0 +1,9 @@
+---
+- name: Stop and Remove Default Weka Container for MCB Cluster
+  shell: |
+    weka local stop && weka local disable && weka local rm default -f
+  register: remove_default_container
+  ignore_errors: true
+- debug: msg={{ remove_default_container }}
+  when: print_debug == true
+

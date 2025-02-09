@@ -1,11 +1,13 @@
 ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
-weka:
+
+
+_weka:
   cluster_name: jack-kr-weka-mcb
   major_version: "4"
-  minor_version: "2"
-  build_version: "9"
-  patch_version: ".28"
+  minor_version: "4"
+  build_version: "3"
+  patch_version: "" # ".28"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
@@ -14,6 +16,7 @@ weka:
   admin_change_pass: "Changeme12!@"
   bin_type: tar
   host_num: "{{ groups['workers'] | length }}"
+  nvme: true
   net:
     conn: "dpdk"                    # dpdk or udp
     gateway: "192.168.0.1"
@@ -30,6 +33,7 @@ weka:
       ipaddr3: "192.168.1.19"
       ipaddr4: "192.168.1.20"
       ipaddr5: "192.168.1.21"
+      ipaddr6: "192.168.2.17"
       data_plane: netdev2
   obs: true
   fs: true
@@ -41,17 +45,22 @@ weka:
     smb: true
     nfs: false
     s3: false
-    wekafs: false
+    wekafs: true
     net:
       type: "virtual"               # or physical
       cores: 1
-      ipaddr0: "192.168.0.6"
-      ipaddr1: "192.168.1.6"
-      ipaddr2: "192.168.2.6"
+      ipaddr0: "192.168.0.17"
+      ipaddr1: "192.168.1.17"
+      ipaddr2: "192.168.1.18"
+      ipaddr3: "192.168.1.19"
+      ipaddr4: "192.168.1.20"
+      ipaddr5: "192.168.1.21"
+      ipaddr6: "192.168.2.17"
   ext_storage:
     net:
       ipaddr0: "192.168.0."
       ipaddr1: "192.168.1."
+      ipaddr2: "192.168.2."
   tools:                                       # git clone https://github.com/weka/tools; cd tools ; git checkout v1.3.8
     name: tools
     major_version: 1
@@ -63,4 +72,19 @@ weka:
     download_url: "get.weka.io/api/v1/wsa/4.2.9.28/"
   wma:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
+  vms:
+    rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05", "rk9-node06", "rk9-node07" ]
+    ubt24: [ "rk9-freeipa", "ubt24-node01", "ubt24-node02", "ubt24-node03", "ubt24-node04", "ubt24-node05" ]
+
+
+vmware:
+  esxi_hostname: "192.168.0.231"
+  esxi_username: "root"
+  esxi_password: "Changeme34#$"
+
+
+kvm:
+  hostname: "192.168.0.101"
+  username: "root"
+  password: "changeme"
 
