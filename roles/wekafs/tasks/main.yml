@@ -1,9 +1,10 @@
 ---
-#- name: Check OS ( WekaFS )
-#  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
-#  when:
-#    - ansible_distribution_major_version|int >= 8
-#    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+- name: Check OS ( WekaFS )
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when:
+    - ansible_distribution_major_version|int >= 8
+    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+    - inventory_hostname in groups['workers']
 
 
 - name: Set facts for Setup and Remove Weka File Sysetm and Clients
@@ -35,7 +36,6 @@
   import_tasks: install.yml
   tags: create, install
   when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
-#  when: _weka.fs == true and inventory_hostname in groups['workers']
 
 
 #- name: Install WekaFS Client
@@ -52,8 +52,6 @@
 
 - name: Uninstall WekaFS
   import_tasks: uninstall.yml
-  tags: uninstall
+  tags: delete, uninstall
   when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
-
-# when: _weka.fs == true and inventory_hostname in groups['workers']
 

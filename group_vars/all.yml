@@ -10,7 +10,7 @@ _weka:
   patch_version: "" # ".28"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
-  base_path: /root
+  base_path: /opt
   admin_user: admin
   admin_default_pass: admin
   admin_change_pass: "Changeme12!@"

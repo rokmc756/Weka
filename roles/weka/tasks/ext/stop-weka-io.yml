@@ -1,0 +1,14 @@
+---
+- name: Copy Expect Script File to Stop IO Operation
+  template: src=weka-stop-io.sh.j2 dest={{ _weka.base_path }}/weka-stop-io.sh owner=root group=root mode=755 force=yes
+
+
+- name: Stop Weka IO
+  shell: |
+    {{ _weka.base_path }}/weka-stop-io.sh
+  register: stop_weka_io
+  environment:
+    WEKA_USERNAME: "{{ _weka.admin_user }}"
+    WEKA_PASSWORD: "{{ _weka.admin_change_pass }}"
+- debug: msg={{ stop_weka_io }}
+

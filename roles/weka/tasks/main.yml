@@ -21,7 +21,7 @@
 
 - name: Set facts for Uninstalling Weka Data Platform
   import_tasks: set-uninstall-facts.yml
-  tags: remove, destroy, uninstall, delete, disable
+  tags: remove, destroy, uninstall, delete, disable, stop
   when: inventory_hostname in groups['workers']
 
 
@@ -95,6 +95,18 @@
   import_tasks: ext/disable-ext-swap.yml
   tags: disable, uninstall
   when: ( swap is defined and swap == true ) and inventory_hostname in groups['workers']
+
+
+- name: Start Weka IO
+  import_tasks: ext/start-weka-io.yml
+  tags: start, uninstall
+  when: ( io is defined and io == true ) and inventory_hostname in groups['control']
+
+
+- name: Stop Weka IO
+  import_tasks: ext/stop-weka-io.yml
+  tags: stop, uninstall
+  when: ( io is defined and io == true ) and inventory_hostname in groups['control']
 
 
 - name: Cleanup NVME Block Devices

@@ -4,7 +4,7 @@ set timeout 3
         spawn /usr/bin/weka user passwd
 
         expect  "^Current password for admin:*"
-        send    "admin\r"
+        send    "{{ _weka.admin_default_pass }}\r"
 
         expect  "^New password for admin:*"
         send    "{{ _weka.admin_change_pass }}\r"

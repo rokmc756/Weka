@@ -218,9 +218,10 @@ $ make weka r=change s=passwd
 ~~~
 [![YouTube](http://i.ytimg.com/vi/1TBoCOItN7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y)
 
-### 03 - Create Weka Filesystem
+### 03 - Create and Delete Weka Filesystem
 ~~~
 $ make wekafs r=create s=fs
+$ make wekafs r=delete s=fs
 ~~~
 [![YouTube](http://i.ytimg.com/vi/URcm2rLN9L0/hqdefault.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0)
 
@@ -254,6 +255,11 @@ $ make weka r=destroy s=mcb c=force
 $ make weka r=destroy s=mcb c=bin
 ~~~
 
+### Start and Stop Weka IO Operation
+~~~
+$ make weka r=start s=io
+$ make weka r=stop s=io
+~~~
 
 ## Planning
 - [ ] Disable Numa Balancing

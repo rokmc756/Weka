@@ -1,0 +1,11 @@
+---
+- name: Start Weka IO
+  shell: |
+    weka cluster start-io
+  register: start_cluster_io
+  environment:
+    WEKA_USERNAME: "{{ _weka.admin_user }}"
+    WEKA_PASSWORD: "{{ _weka.admin_change_pass }}"
+- debug: msg={{ start_cluster_io }}
+  when: print_debug == true
+

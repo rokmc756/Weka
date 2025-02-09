@@ -1,3 +1,4 @@
+---
 - name: Delete Custom WekaFS
   shell: |
     weka fs delete {{ item.name }} -f
@@ -10,9 +11,7 @@
     - "{{ wekafs.fs.s3 }}"
     - "{{ wekafs.fs.nfs }}"
     - "{{ wekafs.fs.smb }}"
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_custom_wekafs }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 
 - name: Delete Custom WekaFS Group
@@ -21,9 +20,7 @@
   register: delete_wekafs_group
   with_items: "{{ wekafs.group }}"
   ignore_errors: true
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ delete_wekafs_group }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 
 - name: Check Custom WekaFS
@@ -31,9 +28,7 @@
     weka fs
   register: check_custom_wekafs
   ignore_errors: true
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_custom_wekafs }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
 
 - name: Check WekaFS in the Containers
@@ -41,7 +36,5 @@
     weka cluster container
   register: check_wekafs_container
   ignore_errors: true
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 - debug: msg={{ check_wekafs_container }}
-  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
 
