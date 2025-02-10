@@ -1,0 +1,67 @@
+---
+- name: Reduce the Size of the 'jtest-obs-fs01' File System if Present
+  shell: |
+    weka fs update --total-capacity {{ _obs.fs.size }} {{ _obs.fs.name }}
+  register: reduce_obs_fs_size
+- debug: msg={{ reduce_obs_fs_size }}
+  when: print_debug == true
+
+
+- name:  Check WekaFS
+  shell: |
+    weka fs
+  register: check_wekafs
+- debug: msg={{ check_wekafs }}
+  when: print_debug == true
+
+
+- name: Add Customer Object Store
+  shell: |
+    weka fs tier obs add {{ _obs.name }} --site {{ _obs.site.name }}
+  register: add_custom_obs
+- debug: msg={{ add_custom_obs }}
+  when: print_debug == true
+
+
+- name: Attach and Object Store Bucket ( Use Your Own Bucket Details )
+  shell: |
+    weka fs tier s3 add {{ _obs.tier.name }} --site {{ _obs.site.name }} --obs-name {{ _obs.name }} --obs-type {{ _obs.s3.type }} \
+    --hostname={{ _obs.s3.hostname }} --port={{ _obs.s3.port }} --bucket={{ _obs.s3.bucket.name }} \
+    --auth-method {{ _obs.s3.auth_method }} --region={{ _obs.s3.region }} --protocol={{ _obs.s3.protocol }} \
+    --access-key-id={{ _obs.s3.access_key }} --secret-key={{ _obs.s3.secret_key }} --skip-verification
+  register: attach_obs_bucket
+- debug: msg={{ attach_obs_bucket }}
+  when: print_debug == true
+
+
+- name: Create a File System with a Smallish Capacity that is Tiered to Your Bucket
+  shell: |
+    weka fs create {{ _obs.tier.fs.name }} {{ _obs.tier.fs_group.name }} {{ _obs.tier.fs.size }} \
+    --obs-name {{ _obs.tier.name }} --ssd-capacity={{ _obs.tier.ssd_size }}
+  register: create_obs_weka_fs
+- debug: msg={{ create_obs_weka_fs }}
+  when: print_debug == true
+
+
+- name: For this Example Make the Tiering Policy More Aggressive ( 30s in this case )
+  shell: |
+    weka fs group update {{ _obs.tier.fs_group.name }} --start-demote={{ _obs.tier.demote }}
+  register: update_obs_fs_grp
+- debug: msg={{ update_obs_fs_grp }}
+  when: print_debug == true
+# weka fs group update {{ _obs.tier.fs_group.name }} --start-demote={{ _obs.tier.demote }} \
+# --obs-name {{ _obs.tier.name }} --ssd-capacity={{ _obs.tier.ssd_size }}
+
+
+- name: Create OBS Directory to Mount WekaFS
+  file:
+    path: "/mnt/{{ _obs.fs.name }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  register: create_obsfs_dir
+- debug: msg={{ create_obsfs_dir  }}
+  when: print_debug == true
+# mount -t wekafs {{ _obs.fs.name }} /mnt/{{ _obs.fs.name }}
+

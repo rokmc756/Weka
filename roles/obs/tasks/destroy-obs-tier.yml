@@ -1,0 +1,71 @@
+#- name:  Delete WekaFS attached into Object Store
+#  shell: |
+#    weka fs delete s3fs -f
+#  register: delete_s3fs
+#  ignore_errors: true
+#- debug: msg={{ delete_s3fs }}
+
+
+- name: Weka Admin Login
+  shell: |
+    weka user login {{ _weka.admin_user }} {{ _weka.admin_change_pass }}
+  register: weka_admin_login
+- debug: msg={{ weka_admin_login }}
+
+
+- name: Umount OBS Directory
+  mount:
+    path: "/mnt/{{ _obs.fs.name }}"
+    state: unmounted
+  retries: 10
+  delay: 10
+  register: umount_obs_dir
+  ignore_errors: true
+- debug: msg={{ umount_obs_dir }}
+  when: print_debug == true
+# umount -f -l /mnt{{ _obs.fs.name }}
+
+
+- name: Delete OBS Directory to Mount WekaFS
+  file:
+    path: "/mnt/{{ _obs.fs.name }}"
+    state: absent
+  register: delete_obsfs_dir
+  ignore_errors: true
+- debug: msg={{ delete_obsfs_dir  }}
+  when: print_debug == true
+
+
+- name:  Delete WekaFS Attached into Object Store Tier
+  shell: |
+    weka fs delete {{ _obs.tier.fs.name }} -f
+  register: update_obs_fs_grp
+  until: update_obs_fs_grp is succeeded
+  retries: 5
+  delay: 10
+  ignore_errors: true
+- debug: msg={{ update_obs_fs_grp }}
+  when: print_debug == true
+# weka fs delete {{ _obs.tier.fs.name }} -f --purge-from-obs
+
+
+- name:  Delete Object Store Tier
+  shell: |
+    weka fs tier s3 delete {{ _obs.tier.name }}
+  register: delete_obs_tier
+  until: delete_obs_tier is succeeded
+  retries: 10
+  delay: 10
+  ignore_errors: true
+- debug: msg={{ delete_obs_tier }}
+  when: print_debug == true
+
+
+- name:  Delete Object Store
+  shell: |
+    weka fs tier obs delete {{ _obs.name }}
+  register: delete_obs
+  ignore_errors: true
+- debug: msg={{ delete_obs }}
+  when: print_debug == true
+

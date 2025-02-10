@@ -261,10 +261,16 @@ $ make nfs r=destroy s=backend
 ### 09 - Destroy SMB Backend Cluster
 [![YouTube](http://i.ytimg.com/vi/SwoobVV5Ess/hqdefault.jpg)](https://www.youtube.com/watch?v=SwoobVV5Ess)
 
-### 10 - Create Object Store
+### 10 - Deploy Object Store
+~~~
+$ make obs r=deploy s=tier
+~~~
 [![YouTube](http://i.ytimg.com/vi/Fv0qhIy4L1A/hqdefault.jpg)](https://www.youtube.com/watch?v=Fv0qhIy4L1A)
 
 ### 11 - Destroy Object Store
+~~~
+$ make obs r=destroy s=tier
+~~~
 [![YouTube](http://i.ytimg.com/vi/1_4Kl5GonkY/hqdefault.jpg)](https://www.youtube.com/watch?v=1_4Kl5GonkY)
 
 ### Force Destroy MCB Containers

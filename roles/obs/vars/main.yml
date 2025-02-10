@@ -1,4 +1,4 @@
-obs:
+_obs:
   name: obs01
   tier:
     name: obs-tier01
