@@ -92,8 +92,53 @@ $ mv weka-4.2.9.28.tar roles/weka/files
 ```
 
 #### 4) Configure variables for informations to deploy Weka Data Platform
+$ vi roles/weka/var/main.yml
+```yaml
+~~ snip
+# Total_cores sholud be same as number of virtual network adpaters hold by a SCB default container for DPDK in Virtual Environment
+# total_cores: "{{ container.drives.cores|int + container.compute.cores|int + container.frontend.cores|int }}"
+container:
+   total_cores: "4"
+   spare_memory: "8GiB"
+   weka_huge_page_memory: "1.4GiB"
+   default:
+     name: "default"              # name: "jack-kr-scb" - It's very strange that there are network errors, SYNC, DOWN not UP in case that container name is not default.
+     mem_size: "9GiB"
+     port: 14000
+   drives:
+     name: "drives0"
+     cores: "1"
+     memory: "2.5GiB"             # 2.3GiB default, 0 means automatical allocation
+     core_ids: "1,2"
+     data: "3"
+     parity: "2"
+     hotspare: "0"                # 0 means automaical allocation
+     devices: "/dev/nvme0n1 /dev/nvme0n2"
+     port: "14000"
+     options:
+   compute:
+     name: "compute0"
+     cores: "1"
+     memory: "3.5GiB"             # 3.3GiB default, 0 means automatical allocation
+     core_ids: "3,4"
+     port: "14200"
+     options:                     # "--allow-mix-setting"
+   frontend:
+     name: "frontend0"
+     cores: "1"
+     memory: "2.5GiB"             # 2.3 GiB default
+     core_ids: "8"
+     port: "14400"
+     options:                     # "--allow-mix-setting"
+   envoy:
+     name: envoy
+   protocol:
+     memory: "0GiB"
+~~ snip
 ```
+
 $ vi group_vars/all.yml
+```
 ~~ snip
 _weka:
   cluster_name: jack-kr-weka-mcb
@@ -205,107 +250,139 @@ $ make hosts r=init s=all
 $ make weka r=upload s=bin
 ~~~
 [![YouTube](http://i.ytimg.com/vi/3ycJiYpm1SI/hqdefault.jpg)](https://www.youtube.com/watch?v=3ycJiYpm1SI)
-### 01 - Upload and Install Weka Software Binary 2
+### 02 - Upload and Install Weka Software Binary and Remove Default Conteinrs
 ~~~
 $ make weka r=setup s=bin
 $ make weka r=remove s=default
 ~~~
 [![YouTube](http://i.ytimg.com/vi/YtPkZyiDUEw/hqdefault.jpg)](https://www.youtube.com/watch?v=YtPkZyiDUEw)
 
-### 02 - Deploy Weka Multi Container Backend Cluster
+### 03 - Deploy Weka Multi Container Backend Cluster
 ~~~
+$ vi group_vars/all.yml
+~~ snip
+_weka:
+~~ snip
+  net:
+    conn: "dpdk"                    # dpdk or udp
+    gateway: "192.168.0.1"
+    ha1: 1
+    ha2: 2
+  backend:
+    scb: false
+    mcb: true
+~~ snip
+
 $ make weka r=deploy s=mcb
 $ make weka r=change s=passwd
 ~~~
+### 04 - Deploy Weka Single Container Backend Cluster
+~~~
+$ vi group_vars/all.yml
+~~ snip
+_weka:
+~~ snip
+  net:
+    conn: "dpdk"                    # dpdk or udp
+    gateway: "192.168.0.1"
+    ha1: 1
+    ha2: 2
+  backend:
+    scb: true
+    mcb: false
+~~ snip
+
+$ make weka r=deploy s=scb
+$ make weka r=change s=passwd
+~~~
+
+### 05 Start and Stop Weka IO Operation
+~~~
+$ make weka r=start s=io
+$ make weka r=stop s=io
+~~~
+
+
 [![YouTube](http://i.ytimg.com/vi/1TBoCOItN7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y)
 
-### 03 - Create and Delete Weka Filesystem and Client
+### 06 - Create and Delete Weka Filesystem and Client
 ~~~
 $ make wekafs r=create s=fs
-$ make wekafs r=delete s=fs
 $ make wekafs r=setup s=client
+
+$ make wekafs r=delete s=fs
 $ make wekafs r=remove s=client
 ~~~
 [![YouTube](http://i.ytimg.com/vi/URcm2rLN9L0/hqdefault.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0)
 
-### 04 - Create S3 Backends Cluster
+### 07 - Create S3 Backends Cluster
 ~~~
 $ make s3 r=deploy s=backend
 $ make s3 r=setup s=client
 ~~~
 [![YouTube](http://i.ytimg.com/vi/bk8rzx3HU5U/hqdefault.jpg)](https://www.youtube.com/watch?v=bk8rzx3HU5U)
 
-### 05 - Destroy S3 Backends Cluster
+### 08 - Destroy S3 Backends Cluster
 ~~~
 $ make s3 r=remove s=client
 $ make s3 r=destroy s=backend
 ~~~
 [![YouTube](http://i.ytimg.com/vi/wR3_4LdWZY0/hqdefault.jpg)](https://www.youtube.com/watch?v=wR3_4LdWZY0)
 
-### 06 - Create NFS Backends Cluster
+### 09 - Create NFS Backends Cluster
 ~~~
 $ make nfs r=deploy s=backend
 $ make nfs r=setup s=client
 ~~~
 [![YouTube](http://i.ytimg.com/vi/Uh_MJL-wD9o/hqdefault.jpg)](https://www.youtube.com/watch?v=Uh_MJL-wD9o)
 
-### 07 - Destroy NFS Backends Cluster
+### 10 - Destroy NFS Backends Cluster
 ~~~
 $ make nfs r=remove s=client
 $ make nfs r=destroy s=backend
 ~~~
 [![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
-### 08 - Create SMB Backends Cluster
+### 11 - Create SMB Backends Cluster
 ~~~
 $ make smb r=deploy s=backend
 $ make smb r=setup s=client
 ~~~
 [![YouTube](http://i.ytimg.com/vi/-teDTpbS3bI/hqdefault.jpg)](https://www.youtube.com/watch?v=-teDTpbS3bI)
 
-### 09 - Destroy SMB Backend Cluster
+### 12 - Destroy SMB Backend Cluster
 ~~~
 $ make smb r=remove s=client
 $ make smb r=destroy s=backend
 ~~~
 [![YouTube](http://i.ytimg.com/vi/SwoobVV5Ess/hqdefault.jpg)](https://www.youtube.com/watch?v=SwoobVV5Ess)
 
-### 10 - Deploy Object Store
+### 13 - Deploy Object Store
 ~~~
 $ make obs r=deploy s=tier
 ~~~
 [![YouTube](http://i.ytimg.com/vi/Fv0qhIy4L1A/hqdefault.jpg)](https://www.youtube.com/watch?v=Fv0qhIy4L1A)
 
-### 11 - Destroy Object Store
+### 14 - Destroy Object Store
 ~~~
 $ make obs r=destroy s=tier
 ~~~
 [![YouTube](http://i.ytimg.com/vi/1_4Kl5GonkY/hqdefault.jpg)](https://www.youtube.com/watch?v=1_4Kl5GonkY)
 
-### Force Destroy MCB Containers
+### 15 Force Destroy MCB Containers
 ~~~
 $ make weka r=destroy s=mcb c=force
-$ make weka r=destroy s=mcb c=bin
 ~~~
 
-### Start and Stop Weka IO Operation
+### 16 Force Destroy MCB Containers
 ~~~
-$ make weka r=start s=io
-$ make weka r=stop s=io
+$ make weka r=destroy s=mcb c=force
 ~~~
 
-### Deploy and Destroy Weka SCB Cluster
+
+### 17 Destroy Weka Software Instance
 ~~~
 $ make weka r=destroy s=bin
-$ make weka r=setup   s=bin
-$ make weka r=remove  s=default
-$ make weka r=deploy  s=scb
-$ make weka r=change s=passwd
-
-
-$ make weka r=destroy s=scb
-or
-$ make weka r=destroy s=scb c=force
 ~~~
 
 

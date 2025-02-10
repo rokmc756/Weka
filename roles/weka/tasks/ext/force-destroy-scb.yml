@@ -7,7 +7,7 @@
   shell: |
     {{ _weka.base_path }}/force-destroy-scb.sh 2>&1 | wc -l
   register: force_destroy_scb
-  until: force_destroy_scb.stdout|int == 1
+  until: force_destroy_scb.stdout|int >= 1
   retries: 50
   delay: 10
 

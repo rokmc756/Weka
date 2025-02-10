@@ -1,0 +1,152 @@
+weka:
+	@if [ "${r}" = "init" ] || [ "${r}" = "uninit" ] || [ "${r}" = "reinit" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to init/uninit/reinit weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to init/uninit/reinit weka";\
+			fi\
+		else\
+			echo "No actions to init/uninit/reinit weka";\
+		fi;\
+	elif [ "${r}" = "upload" ] || [ "${r}" = "download" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to upload/download weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to upload/download weka";\
+			fi\
+		else\
+			echo "No actions to upload/download weka";\
+		fi;\
+	elif [ "${r}" = "prepare" ] || [ "${r}" = "clean" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to prepare/clean weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to prepare/clean weka";\
+			fi\
+		else\
+			echo "No actions to prepare/clean weka";\
+		fi;\
+	elif [ "${r}" = "enable" ] || [ "${r}" = "disable" ] || [ "${r}" = "start" ] || [ "${r}" = "stop" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to ennable/disable/start/stop weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to ennable/disable/start/stop weka";\
+			fi\
+		else\
+			echo "No actions to ennable/disable/start/stop weka";\
+		fi;\
+	elif [ "${r}" = "deploy" ] || [ "${r}" = "destroy" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' -e '{"noc": true}' --tags='${r}';\
+			elif [ ! -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' -e '{"${c}": True}' --tags='${r}';\
+			else\
+				echo "No actions to deploy/destroy weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to deploy/destroy weka";\
+			fi\
+		else\
+			echo "No actions to deploy/destroy weka";\
+		fi;\
+	elif [ "${r}" = "create" ] || [ "${r}" = "delete" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to create/delete weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to create/delete weka";\
+			fi\
+		else\
+			echo "No actions to create/delete weka";\
+		fi;\
+	elif [ "${r}" = "install" ] || [ "${r}" = "uninstall" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to install/uninstall weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to install/uninstall weka";\
+			fi\
+		else\
+			echo "No actions to install/uninstall weka";\
+		fi;\
+	elif [ "${r}" = "add" ] || [ "${r}" = "setup" ] || [ "${r}" = "change" ] || [ "${r}" = "remove" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to add/setup/change/remove weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to add/setup/change/remove weka";\
+			fi\
+		else\
+			echo "No actions to add/setup/change/remove weka";\
+		fi;\
+	elif [ "${r}" = "upgrade" ] || [ "${r}" = "downgrade" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to upgrade/downgrade weka";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-weka.yml -e '{weka_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to upgrade/downgrade weka";\
+			fi\
+		else\
+			echo "No actions to upgrade/downgrade weka";\
+		fi;\
+	else\
+		echo "No actions to weka role";\
+		exit;\
+	fi
+
