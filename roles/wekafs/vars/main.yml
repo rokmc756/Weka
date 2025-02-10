@@ -1,4 +1,4 @@
-wekafs:
+_wekafs:
   group:
     - { name: "default-g01", ssd_retention: "1d", start_demote: "30s" }
     - { name: "wekafs-g01", ssd_retention: "1d", start_demote: "30s" }

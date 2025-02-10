@@ -5,12 +5,12 @@
   register: delete_custom_wekafs
   ignore_errors: true
   with_items:
-    - "{{ wekafs.fs.default }}"
-    - "{{ wekafs.fs.filesystem }}"
-    - "{{ wekafs.fs.obs }}"
-    - "{{ wekafs.fs.s3 }}"
-    - "{{ wekafs.fs.nfs }}"
-    - "{{ wekafs.fs.smb }}"
+    - "{{ _wekafs.fs.default }}"
+    - "{{ _wekafs.fs.filesystem }}"
+    - "{{ _wekafs.fs.obs }}"
+    - "{{ _wekafs.fs.s3 }}"
+    - "{{ _wekafs.fs.nfs }}"
+    - "{{ _wekafs.fs.smb }}"
 - debug: msg={{ delete_custom_wekafs }}
 
 
@@ -18,7 +18,7 @@
   shell: |
     weka fs group delete {{ item.name }}
   register: delete_wekafs_group
-  with_items: "{{ wekafs.group }}"
+  with_items: "{{ _wekafs.group }}"
   ignore_errors: true
 - debug: msg={{ delete_wekafs_group }}
 

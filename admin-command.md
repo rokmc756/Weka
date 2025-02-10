@@ -16,3 +16,8 @@ $ weka cluster container activate ?
 $ weka cluster drive activate ?
 
 
+## Set Version and Start Local Container
+$ weka version set 4.2.9.29-hcsf
+$ weka local start
+
+

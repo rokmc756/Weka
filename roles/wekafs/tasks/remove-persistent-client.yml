@@ -1,0 +1,32 @@
+---
+- name: Stop and Remove WekaFS POSIX Client Containers
+  shell: |
+    weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
+  register: destroy_weka_containers
+  with_items:
+    - "client"
+  ignore_errors: true
+- debug: msg={{ destroy_weka_containers }}
+  when: print_debug == true
+
+
+- name: Destroy Weka Client
+  shell: |
+    cd {{ _weka.base_path }}/tools/install ; ./wekadestroy --yes --force --uninstall {{ inventory_hostname }}
+  register: destroy_weka_client
+  ignore_errors: true
+- debug: msg={{ destroy_weka_client }}
+  when: print_debug
+
+
+#- name: Reboot Required
+#  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible updates triggered" ) &
+#  async: 1200
+#  poll: 0
+#  when: print_debug == true and inventory_hostname in groups['clients']
+#  notify:
+#    - Waiting for server to come back after reboot
+#
+#- meta: flush_handlers
+#  when: print_debug == true and inventory_hostname in groups['clients']
+

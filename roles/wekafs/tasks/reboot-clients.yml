@@ -1,0 +1,11 @@
+---
+- name: Reboot Required
+  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible Updates Triggered" ) &
+  async: 1200
+  poll: 0
+  notify:
+    - Waiting for Server to Come Back after Reboot
+
+
+- meta: flush_handlers
+

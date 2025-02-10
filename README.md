@@ -218,10 +218,12 @@ $ make weka r=change s=passwd
 ~~~
 [![YouTube](http://i.ytimg.com/vi/1TBoCOItN7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y)
 
-### 03 - Create and Delete Weka Filesystem
+### 03 - Create and Delete Weka Filesystem and Client
 ~~~
 $ make wekafs r=create s=fs
 $ make wekafs r=delete s=fs
+$ make wekafs r=setup s=client
+$ make wekafs r=remove s=client
 ~~~
 [![YouTube](http://i.ytimg.com/vi/URcm2rLN9L0/hqdefault.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0)
 

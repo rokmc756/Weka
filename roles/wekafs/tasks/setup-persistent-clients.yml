@@ -1,0 +1,8 @@
+---
+- name: Install Weka Software Binary
+  shell: |
+    cd {{ _weka.base_path }}/{{ weka_file_name }} ; ./install.sh
+  register: install_weka_binary
+- debug: msg={{ install_weka_binary }}
+  when: print_debug == true
+

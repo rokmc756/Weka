@@ -1,0 +1,30 @@
+---
+- name: Copy Force Destroy WekaFS Client Script
+  template: src=force-destroy-client.sh.j2 dest={{ _weka.base_path }}/force-destroy-client.sh owner=root group=root mode=755 force=yes
+
+
+- name: Force Destroy WekaFS Client Container
+  shell: |
+    {{ _weka.base_path }}/force-destroy-client.sh 2>&1 | wc -l
+  register: force_destroy_wekafs_client
+  until: force_destroy_wekafs_client.stdout|int == 1
+  retries: 50
+  delay: 10
+
+
+#########################################################################################################
+# Force Uninstall Weka Client
+# cat /proc/mounts | grep wekafs
+#
+# If needed, wekafs mount points can be forcefully unmounted and the weka driver removed
+# weka local stop #expect this to fail if weka agent is not running anyway
+# echo drain > /proc/wekafs/interface
+# umount -i -f </mount/point/> #umount all wekafs mount points
+# echo uninstall > /proc/wekafs/interface
+# modprobe -r wekafsio
+#
+# Remove WEKA Directories from the Troubled Host
+# rm -rf /opt/weka
+# rm -rf /etc/wekaio
+# rm /var/run/weka/mount.flock
+

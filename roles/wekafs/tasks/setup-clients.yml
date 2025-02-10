@@ -1,0 +1,61 @@
+---
+- name: Setup WekaFS POSIX Stateless Clients
+  shell: |
+    curl {{ _feip }}:14000/dist/v1/install | sh
+  register: setup_wekafs_client
+- debug: msg={{ setup_wekafs_client }}
+  when: print_debug == true
+# {{ feip0 }}
+
+
+- name: Create Directory to Mount WekaFS for POSIX Client
+  file:
+    path: "{{ item.mount_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  register: create_wekafs_dir
+  with_items: "{{ _wekafs.fs.filesystem }}"
+- debug: msg={{ create_wekafs_dir  }}
+  when: print_debug == true
+
+
+- name: Mount Stateless WekaFS Clients
+  shell: |
+    mount -t wekafs -o verbose -o num_cores={{ _weka.client.net.cores }} {{ clients_net }} \
+    {{ feip0 }}/{{ _wekafs.fs.filesystem[1].name }} {{ _wekafs.fs.filesystem[1].mount_dir }}
+  register: mount_wekafs_dir
+- debug: msg={{ mount_wekafs_dir }}
+  when: print_debug == true
+  # netdev1 should be network device of client which mtu must be 9000 if it's not, client will be failed
+
+
+- name: Check if WekaFS Directory is Mounted
+  shell: |
+    df -h
+    ls -al {{ item.mount_dir }}
+  register: check_wekafs_mounted
+  with_items:
+    - "{{ _wekafs.fs.filesystem }}"
+- debug: msg={{ check_wekafs_mounted  }}
+  when: print_debug == true
+
+
+- name: Creat Text File with the Content
+  copy:
+    dest: "{{ _wekafs.fs.filesystem[1].mount_dir }}/test01.txt"
+    content: |
+      Hello WekaFS World!
+  register: create_wekafs_file
+- debug: msg={{ create_wekafs_file }}
+  when: print_debug == true
+
+
+- name: Print Text File
+  shell: |
+    cat {{ _wekafs.fs.filesystem[1].mount_dir }}/test01.txt
+  register: print_text
+- debug: msg={{ print_text }}
+  when: print_debug == true
+

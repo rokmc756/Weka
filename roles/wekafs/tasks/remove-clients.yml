@@ -1,0 +1,60 @@
+---
+- name: Check if WekaFS Directory is Mounted
+  shell: |
+    df -h
+    ls -al {{ _wekafs.fs.filesystem[1].mount_dir }}
+  register: check_wekafs_mounted
+  ignore_errors: true
+- debug: msg={{ check_wekafs_mounted  }}
+  when: print_debug == true
+
+
+- name: Unmount WekaFS Directory
+  mount:
+    path: "{{ _wekafs.fs.filesystem[1].mount_dir }}"
+    state: unmounted
+  register: unmount_wekafs_dir
+  ignore_errors: true
+- debug: msg={{ unmount_wekafs_dir }}
+  when: print_debug == true
+
+
+- name: Delete Directory Mounted with WekaFS
+  file:
+    path: "{{ _wekafs.fs.filesystem[1].mount_dir }}"
+    state: absent
+  register: delete_wekafs_dir
+  ignore_errors: true
+- debug: msg={{ delete_wekafs_dir }}
+  when: print_debug == true
+
+
+- name: Unmount tmpfs
+  mount:
+    path: /opt/weka/data/agent/tmpfss/cross-container-rpc-the-tmpfs
+    state: unmounted
+  register: umount_tmpfs
+  ignore_errors: true
+- debug: msg={{ umount_tmpfs }}
+  when: print_debug == true
+
+
+- name: Remove Directory to be mount by WekaFS POSIX Clients
+  file:
+    path: "{{ item.mount_dir }}"
+    state: absent
+  register: remove_wekafs_dir
+  with_items:
+    - "{{ _wekafs.fs.filesystem }}"
+- debug: msg={{ remove_wekafs_dir  }}
+  when: print_debug == true
+
+
+- name: Clear Memory Cache
+  shell: |
+    sync && echo 3 > /proc/sys/vm/drop_caches
+  register: clear_cache_memory
+  ignore_errors: true
+- debug: msg={{ clear_cache_memory }}
+  when: print_debug == true
+

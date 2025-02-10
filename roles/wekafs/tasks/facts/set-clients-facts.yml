@@ -1,11 +1,12 @@
-#
-- name: Define fact for Weka version
+---
+- name: Define Fact for Weka Version
   set_fact:
-    weka_file_name: "weka-{{ weka.major_version }}.{{ weka.minor_version }}.{{ weka.build_version }}{{ weka.patch_version }}"
-    weka_tools_file_name: "{{ weka.tools.name }}-v{{ weka.tools.major_version }}.{{ weka.tools.minor_version }}.{{ weka.tools.patch_version }}"
+    weka_file_name: "weka-{{ _weka.major_version }}.{{ _weka.minor_version }}.{{ _weka.build_version }}{{ _weka.patch_version }}"
+    weka_tools_file_name: "{{ _weka.tools.name }}-v{{ _weka.tools.major_version }}.{{ _weka.tools.minor_version }}.{{ _weka.tools.patch_version }}"
+
 
 # find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n' | sort
-- name: Set Facts for Network Devices, Sequence and Prefix after finding alll network devices except lo
+- name: Set Facts for Network Devices, Sequence and Prefix after Finding all Network Devices Except lo Device
   set_fact:
     netseq: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | map( 'regex_search' , '[0-9]*$' ) | sort }}"
     netdevs: "{{ ansible_facts.interfaces | reject( 'search', 'lo' ) | sort }}"
@@ -14,25 +15,26 @@
   when: inventory_hostname in groups['clients']
 # - debug: msg={{ netseq }} - debug: msg={{ netdevs }} - debug: msg={{ netfix }} - debug: msg={{ netcnt }}
 
-#
+
 - set_fact:
     netdev_seq: "{{ dict( range(0,netcnt|int+1) | zip(netseq)) | dict2items(key_name='seq', value_name='end_seq') }}"
   when: inventory_hostname in groups['clients']
-- debug: msg={{ netdev_seq }}
-  when: print_debug == true and inventory_hostname in groups['clients']
+#- debug: msg={{ netdev_seq }}
+#  when: print_debug == true and inventory_hostname in groups['clients']
 
-#
-- name: Define Variables for Network Device Names and IP Addresses and All Network Addresses Provided by IP Addresses and Prefix of Netdev
+
+- name: Define Variables for Network Device Names and IP Addresses and all Network Addresses Provided by IP Addresses and Prefix of netdev Variable
   set_fact:
     "{{ 'ipaddr'~item.seq }}": "{{ hostvars[inventory_hostname]['ansible_'~ netfix ~ item.end_seq].ipv4.address }}"
     "{{ 'all_net'~item.seq~'_ipaddrs' }}": "{{ groups['clients'] | map('extract', hostvars, ['ansible_' ~ netfix ~ item.end_seq, 'ipv4', 'address']) | join(',') }}"
-    "{{ 'netdev'~item.seq }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', weka.client.net['ipaddr' ~ item.seq] ) | map(attribute='device') | first }}"
+    "{{ 'netdev'~item.seq }}": "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _weka.client.net['ipaddr' ~ item.seq] ) | map(attribute='device') | first }}"
   with_items: "{{ netdev_seq }}"
   when: inventory_hostname in groups['clients']
+
 
 #- name: Define Facts for All Hostnames and Management IP Addresses
 #  set_fact:
 #    all_ext1_hostnames: "{{ groups['clients'] | map('extract', hostvars, ['ansible_hostname']) | join(' ') }}"
-#    all_management_ipaddrs: "{{ groups['clients'] | map('extract', hostvars, ['ansible_'~ netdev3, 'ipv4', 'address']) | join(' ') }}"
+#    all_mgmt_ipaddrs: "{{ groups['clients'] | map('extract', hostvars, ['ansible_'~ netdev3, 'ipv4', 'address']) | join(' ') }}"
 #  when: inventory_hostname in groups['clients']
 
