@@ -35,9 +35,12 @@ It's originated by itself.
 
 ## Supported Weka Data Platform Versions
 * Weka 4.2.1 and higher version
+
 ## Supported Platform and OS
-* Virtual Machines including on Cloud
-* Weka 4.2.1 iso built based on Rocky Linux 8.4
+* Virtual Machines including on VMWare or Private Cloud
+* Weka 4.2.1 iso and built based on Rocky Linux 8.4
+* Rocky Linux 8.x
+* Rocky Linux 9.x
 
 ## Prerequisite
 * MacOS or Fedora/CentOS/RHEL should have installed ansible as ansible host.
