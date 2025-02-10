@@ -1,47 +1,37 @@
 ---
-# For now fail if it's not suppoted OS
-#- name: Check OS
-#  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
-#  when:
-#    - ansible_distribution_major_version|int >= 8
-#    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+- name: Check OS ( Weka S3 )
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when:
+    - ansible_distribution_major_version|int >= 8
+    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
-#
-- name: Set facts for Installing Weka Data Platform
+
+- name: Set Facts for Installing Weka Data Platform
   import_tasks: set-s3-facts.yml
-  tags:
-    - install
-  when: weka.client.s3 == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
+  tags: create, setup, install
+  when: ( client is defined and client == true ) and ( inventory_hostname in groups['clients'] or inventory_hostname in groups['control'] )
 
-#
-#- name: Set facts for Uninstalling Weka Data Platform
-#  import_tasks: set-weka-uninstall-facts.yml
-#  tags:
-#    - uninstall
-#  when: inventory_hostname in groups['workers']
 
-#
-- name: Setup S3 Backends
-  import_tasks: install.yml
-  tags: install
-  when: weka.protocol.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
+- name: Deploy S3 Backends
+  import_tasks: deploy-s3-backend.yml
+  tags: deploy, setup, install
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
 
-#
-- name: Install S3 Clients
-  import_tasks: install-clients.yml
-  tags: install
-  when: weka.client.s3 == true and inventory_hostname in groups['clients']
 
-#
-- name: Uninstall S3 Clients
-  import_tasks: uninstall-clients.yml
-  tags: uninstall
-  when: weka.client.s3 == true and inventory_hostname in groups['clients']
+- name: Setup S3 Clients
+  import_tasks: setup-s3-clients.yml
+  tags: setup, create, install
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
 
-#
-- name: Remove S3 Backends
-  import_tasks: uninstall.yml
-  tags: uninstall
-  when: weka.protocol.s3 == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
-  # when: weka.protocol.s3 == true and inventory_hostname in groups['workers']
+
+- name: Remove S3 Clients
+  import_tasks: remove-s3-clients.yml
+  tags: remove, delete, uninstall
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
+
+
+- name: Destroy S3 Backends
+  import_tasks: destroy-s3-backend.yml
+  tags: destroy, remove, uninstall
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
+

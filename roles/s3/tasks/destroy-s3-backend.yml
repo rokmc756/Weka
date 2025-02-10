@@ -1,0 +1,139 @@
+---
+- name: Get All Container IDs from SCB Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed 1d | paste -sd'~' | sed -e 's/~/ /g'
+  register: all_container_ids_scb
+  when: _weka.backend.scb == true
+- debug: msg={{ all_container_ids_scb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_container_ids: "{{ all_container_ids_scb.stdout }}"
+  when: _weka.backend.scb == true
+
+
+- name: Get All Container IDs from MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}' | paste -sd'~' | sed -e 's/~/ /g'
+  register: all_container_ids_mcb
+  when: _weka.backend.mcb == true
+- debug: msg={{ all_container_ids_mcb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_container_ids: "{{ all_container_ids_mcb.stdout }}"
+  when: _weka.backend.mcb == true
+
+
+- name: Detach Read-Write Permission to S3 Users
+  shell: |
+    weka s3 policy detach {{ item.name }}
+  register: detach_perm_user
+  ignore_errors: true
+  with_items:
+    - "{{ _s3.users }}"
+- debug: msg={{ detach_perm_user }}
+  when: print_debug == true
+
+
+- name: Delete S3 Users
+  shell: |
+    /usr/bin/weka user delete {{ item.name }}
+  register: del_s3_user
+  ignore_errors: true
+  with_items:
+    - "{{ _s3.users }}"
+- debug: msg={{ del_s3_user }}
+  when: print_debug == true
+
+
+##########################################################################################################
+# Start to Avoid Failure to Not Destroy Buckets
+##########################################################################################################
+- name: Create S3 Default WekaFS Directory
+  file:
+    path: "/mnt/{{ _s3.fs.default.name }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  register: create_s3_default_fs_dir
+- debug: msg={{ create_s3_default_fs_dir }}
+  when: print_debug == true
+
+
+- name: Mount S3 Default WekaFS
+  mount:
+    src: "{{ _s3.fs.default.name }}"
+    path: "/mnt/{{ _s3.fs.default.name }}"
+    opts: ""
+    fstype: wekafs
+    state: ephemeral
+  register: mount_s3_default_fs
+- debug: msg={{ mount_s3_default_fs }}
+  when: print_debug == true
+
+
+- name: Delete Hidden Buckets in S3 Default WekaFS
+  file:
+    path: "/mnt/{{ _s3.fs.default.name }}/{{ item.name }}"
+    state: absent
+  register: delete_hidden_buckets
+  with_items: "{{ _s3.buckets }}"
+- debug: msg={{ delete_hidden_buckets }}
+  when: print_debug == true
+
+
+- name: Umount S3 Default WekaFS
+  mount:
+    path: "/mnt/{{ _s3.fs.default.name }}"
+    state: unmounted
+  retries: 3
+  delay: 10
+  register: umount_s3_default_fs
+- debug: msg={{ umount_s3_default_fs }}
+  when: print_debug == true
+
+
+- name: Delete S3 Default WekaFS Directory
+  file:
+    path: "/mnt/{{ _s3.fs.default.name }}"
+    state: absent
+  register: delete_s3_default_fs_dir
+- debug: msg={{ delete_s3_default_fs_dir }}
+  when: print_debug == true
+
+
+##########################################################################################################
+# End to Avoid Failure to not Destroy Buckets
+##########################################################################################################
+- name: Destroy S3 Buckets
+  shell: |
+    weka s3 bucket destroy {{ item.name }} -f
+  register: destroy_s3_bucket
+  ignore_errors: true
+  with_items:
+    - "{{ _s3.buckets }}"
+- debug: msg={{ destroy_s3_bucket }}
+  when: print_debug == true
+
+
+- name: Remove S3 Backend Containers
+  shell: |
+    weka s3 cluster containers remove {{ all_container_ids }}
+  register: remove_s3_cluster_container
+  ignore_errors: true
+- debug: msg={{ remove_s3_cluster_container }}
+  when: print_debug == true
+
+
+- name: Destroy S3 Backend Containers
+  shell: |
+    weka s3 cluster destroy --force
+  register: destroy_s3_cluster
+  ignore_errors: true
+- debug: msg={{ destroy_s3_cluster }}
+  when: print_debug == true
+

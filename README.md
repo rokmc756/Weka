@@ -228,15 +228,31 @@ $ make wekafs r=remove s=client
 [![YouTube](http://i.ytimg.com/vi/URcm2rLN9L0/hqdefault.jpg)](https://www.youtube.com/watch?v=URcm2rLN9L0)
 
 ### 04 - Create S3 Backends Cluster
+~~~
+$ make s3 r=deploy s=backend
+$ make s3 r=setup s=client
+~~~
 [![YouTube](http://i.ytimg.com/vi/bk8rzx3HU5U/hqdefault.jpg)](https://www.youtube.com/watch?v=bk8rzx3HU5U)
 
 ### 05 - Destroy S3 Backends Cluster
+~~~
+$ make s3 r=remove s=client
+$ make s3 r=destroy s=backend
+~~~
 [![YouTube](http://i.ytimg.com/vi/wR3_4LdWZY0/hqdefault.jpg)](https://www.youtube.com/watch?v=wR3_4LdWZY0)
 
 ### 06 - Create NFS Backends Cluster
+~~~
+$ make nfs r=deploy s=backend
+$ make nfs r=setup s=client
+~~~
 [![YouTube](http://i.ytimg.com/vi/Uh_MJL-wD9o/hqdefault.jpg)](https://www.youtube.com/watch?v=Uh_MJL-wD9o)
 
 ### 07 - Destroy NFS Backends Cluster
+~~~
+$ make nfs r=remove s=client
+$ make nfs r=destroy s=backend
+~~~
 [![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
 ### 08 - Create SMB Backends Cluster
@@ -264,6 +280,7 @@ $ make weka r=stop s=io
 ~~~
 
 ## Planning
+- [ ] Configuring WekaFS Persistent and Stateless Clients both
 - [ ] Disable Numa Balancing
 - [ ] Enable Swap
 - [ ] Configure to Disable SELinux and Firewalld

@@ -1,0 +1,152 @@
+nfs:
+	@if [ "${r}" = "init" ] || [ "${r}" = "uninit" ] || [ "${r}" = "reinit" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to init/uninit/reinit nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to init/uninit/reinit nfs";\
+			fi\
+		else\
+			echo "No actions to init/uninit/reinit nfs";\
+		fi;\
+	elif [ "${r}" = "upload" ] || [ "${r}" = "download" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to upload/download nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to upload/download nfs";\
+			fi\
+		else\
+			echo "No actions to upload/download nfs";\
+		fi;\
+	elif [ "${r}" = "prepare" ] || [ "${r}" = "clean" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to prepare/clean nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to prepare/clean nfs";\
+			fi\
+		else\
+			echo "No actions to prepare/clean nfs";\
+		fi;\
+	elif [ "${r}" = "enable" ] || [ "${r}" = "disable" ] || [ "${r}" = "start" ] || [ "${r}" = "stop" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to ennable/disable/start/stop nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to ennable/disable/start/stop nfs";\
+			fi\
+		else\
+			echo "No actions to ennable/disable/start/stop nfs";\
+		fi;\
+	elif [ "${r}" = "deploy" ] || [ "${r}" = "destroy" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' -e '{"noc": true}' --tags='${r}';\
+			elif [ ! -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' -e '{"${c}": True}' --tags='${r}';\
+			else\
+				echo "No actions to deploy/destroy nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to deploy/destroy nfs";\
+			fi\
+		else\
+			echo "No actions to deploy/destroy nfs";\
+		fi;\
+	elif [ "${r}" = "create" ] || [ "${r}" = "delete" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to create/delete nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to create/delete nfs";\
+			fi\
+		else\
+			echo "No actions to create/delete nfs";\
+		fi;\
+	elif [ "${r}" = "install" ] || [ "${r}" = "uninstall" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to install/uninstall nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to install/uninstall nfs";\
+			fi\
+		else\
+			echo "No actions to install/uninstall nfs";\
+		fi;\
+	elif [ "${r}" = "add" ] || [ "${r}" = "setup" ] || [ "${r}" = "change" ] || [ "${r}" = "remove" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to add/setup/change/remove nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to add/setup/change/remove nfs";\
+			fi\
+		else\
+			echo "No actions to add/setup/change/remove nfs";\
+		fi;\
+	elif [ "${r}" = "upgrade" ] || [ "${r}" = "downgrade" ]; then\
+		if [ ! -z ${r} ] && [ "${s}" != "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{"${s}": True}' --tags='${r}';\
+			else\
+				echo "No actions to upgrade/downgrade nfs";\
+			fi\
+		elif [ ! -z ${r} ] && [ "${s}" = "all" ]; then\
+			if [ -z ${c} ];  then\
+				ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-nfs.yml -e '{nfs_all: True}' --tags='${r}';\
+			else\
+				echo "No actions to upgrade/downgrade nfs";\
+			fi\
+		else\
+			echo "No actions to upgrade/downgrade nfs";\
+		fi;\
+	else\
+		echo "No actions to nfs role";\
+		exit;\
+	fi
+

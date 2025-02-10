@@ -1,0 +1,100 @@
+---
+- name: Get All Container IDs for SCB Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed 1d
+  register: all_container_ids_scb
+  when: _weka.backend.scb == true
+- debug: msg={{ all_container_ids_scb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_container_ids_scb.stdout_lines }}"
+  when: _weka.backend.scb == true
+
+
+- name: Get All Container IDs for MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}'
+  register: all_container_ids_mcb
+  when: _weka.backend.mcb == true
+- debug: msg={{ all_container_ids_mcb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_container_ids_mcb.stdout_lines }}"
+  when: _weka.backend.mcb == true
+
+
+- name: Delete NFS Permission
+  shell: |
+    weka nfs permission delete {{ _nfs.fs.config }} {{ _nfs.client.group }} -f
+  register: delete_nfs_perms
+  ignore_errors: true
+- debug: msg={{ delete_nfs_perms }}
+  when: print_debug == true
+
+
+- name: Delete NFS IP Range
+  shell: |
+    weka nfs interface-group ip-range delete {{ _nfs.interface.group }} {{ _nfs.net.ips_range }} -f
+  register: delete_nfs_ip_range
+  ignore_errors: true
+- debug: msg={{ delete_nfs_ip_range }}
+  when: print_debug == true
+
+
+- name: Delete Rule to Ensure Clients Get Matched and Associated With
+  shell: |
+    weka nfs rules delete ip {{ _nfs.client.group }} {{ _nfs.net.network }}/{{ _nfs.net.subnet }}
+  register: del_rule_client_group
+  ignore_errors: true
+- debug: msg={{ del_rule_client_group }}
+  when: print_debug == true
+
+
+- name: Delete a Group for NFS Clients
+  shell: |
+    weka nfs client-group delete {{ _nfs.client.group }} -f
+  register: del_ifg_grp_nfs_client
+  ignore_errors: true
+- debug: msg={{ del_ifg_grp_nfs_client }}
+  when: print_debug == true
+
+
+- name: Delete NFS Configuration Filesystem
+  shell: |
+    weka nfs interface-group port delete {{ _nfs.interface.group }} {{ item }} {{ _netdev }} -f
+  register: del_ifg_grp_port
+  with_items: "{{ all_cont_ids }}"
+- debug: msg={{ del_ifg_grp_port }}
+  when: print_debug == true
+
+
+- name: Delete Interface Groups for NFS Services
+  shell: |
+    weka nfs interface-group delete {{ _nfs.interface.group }} -f
+  register: delete_nfs_ifg_grp
+  ignore_errors: true
+- debug: msg={{ delete_nfs_ifg_grp }}
+  when: print_debug == true
+
+
+- name: Examine Filesystem for NFS Protocol
+  shell: |
+    weka fs --output name,availableTotal
+  register: examine_fs_nfs_protocol
+  ignore_errors: true
+- debug: msg={{ examine_fs_nfs_protocol }}
+  when: print_debug == true
+
+
+- name: Unset Global Config for NFS
+  shell: |
+    weka nfs global-config set --config-fs ""
+  register: unset_global_config_fs
+  ignore_errors: true
+- debug: msg={{ unset_global_config_fs }}
+  when: print_debug == true
+

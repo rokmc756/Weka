@@ -1,40 +1,37 @@
 ---
-# For now fail if it's not suppoted OS
-- name: Check OS
+- name: Check OS ( Weka NFS )
   fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
   when:
     - ansible_distribution_major_version|int >= 8
     - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
-#
+
 - name: Set facts
   import_tasks: set-facts.yml
-  tags:
-    - install
-    - uninstall
+  tags: deploy, destroy, install, uninstall
   when: inventory_hostname in groups['workers']
 
-#
-- name: Install NFS Backends
-  import_tasks: install.yml
-  tags: install
-  when: weka.protocol.nfs == true and inventory_hostname in groups['workers']
 
-#
-- name: Install NFS Clients
-  import_tasks: install-clients.yml
-  tags: install
-  when: weka.client.nfs == true and inventory_hostname in groups['clients']
+- name: Deploy NFS Backends
+  import_tasks: deploy-nfs-backend.yml
+  tags: deploy, create, install
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
 
-#
-- name: Uninstall NFS Clients
-  import_tasks: uninstall-clients.yml
-  tags: uninstall
-  when: weka.client.nfs == true and inventory_hostname in groups['clients']
 
-#
-- name: Uninstall NFS Backends
-  import_tasks: uninstall.yml
-  tags: uninstall
-  when: weka.protocol.nfs == true and inventory_hostname in groups['workers']
+- name: Setup NFS Clients
+  import_tasks: setup-nfs-clients.yml
+  tags: setup, create, install
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
+
+
+- name: Remove NFS Clients
+  import_tasks: remove-nfs-clients.yml
+  tags: remove, delete, uninstall
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
+
+
+- name: Destroy NFS Backends
+  import_tasks: destroy-nfs-backend.yml
+  tags: destroy, remove, uninstall
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
 

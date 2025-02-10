@@ -2,6 +2,15 @@ ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 
 
+_minio:
+  download: false
+  client_bin: /usr/local/bin/mc
+  client_install: yes
+  client_url: https://dl.minio.io/client/mc/release/linux-amd64/mc
+  client_checksum:
+  release_date: 20240307
+
+
 _weka:
   cluster_name: jack-kr-weka-mcb
   major_version: "4"

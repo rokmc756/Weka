@@ -1,0 +1,15 @@
+---
+- name: Copy expect script file to add s3 user
+  template: src=add-s3-user.sh.j2 dest={{ _weka.base_path }}/add-s3-user.sh owner=root group=root mode=755 force=yes
+  register: copy_expect_script
+- debug: msg={{ copy_expect_script }}
+  when: print_debug == true
+
+- name: Remove Add S3 User Script
+  file:
+    state: absent
+    path: "{{ _weka.base_path }}/add-s3-user.sh"
+  register: remove_add_s3_user_script
+- debug: msg={{ remove_add_s3_user_script }}
+  when: print_debug == true
+

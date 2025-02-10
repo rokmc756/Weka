@@ -1,0 +1,111 @@
+---
+- name: Get All Container IDs for SCB Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed 1d
+  register: all_container_ids_scb
+  when: _weka.backend.scb == true
+- debug: msg={{ all_container_ids_scb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_container_ids_scb.stdout_lines }}"
+  when: _weka.backend.scb == true
+
+
+- name: Get All Container IDs for MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}'
+  register: all_container_ids_mcb
+  when: _weka.backend.mcb == true
+- debug: msg={{ all_container_ids_mcb }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_container_ids_mcb.stdout_lines }}"
+  when: _weka.backend.mcb == true
+
+
+### Setup: Filesystems required
+# Here we examine the filesystems; a configuration filesystem for the protocols in use, and one user filesystem (`default`) to be shared out via those protocols.
+- name: Examine Filesystem for NFS Protocol
+  shell: |
+    weka fs --output name,availableTotal
+  register: examine_fs_nfs_protocol
+- debug: msg={{ examine_fs_nfs_protocol }}
+  when: print_debug == true
+
+
+# First we set up a simple NFS service, which requires the use of Interface Groups
+- name: Setup Simple NFS Service with Interface Groups
+  shell: |
+    weka nfs interface-group add {{ _nfs.interface.group }} nfs --subnet {{ _nfs.net.subnet }} --gateway {{ _nfs.net.gateway }}
+  register: setup_simple_nfs
+- debug: msg={{ setup_simple_nfs }}
+  when: print_debug == true
+
+
+# Now add the NFS configuration filesystem (only required if you’re going to use NFS v4) and add network ports for each server 
+# that is going to participate in the NFS cluster. In the example below we use `ens3`, but this will be hardware-dependent.
+- name:  Add NFS Configuration Filesystem
+  shell: |
+    weka nfs global-config set --config-fs {{ _nfs.fs.config }}
+  register: add_nfs_config_fs
+- debug: msg={{ add_nfs_config_fs }}
+  when: print_debug == true
+
+
+- name: Add NFS Configuration Filesystem
+  shell: |
+    weka nfs interface-group port add {{ _nfs.interface.group }} {{ item }} {{ _netdev }}
+  register: add_ifg_grp_port
+  with_items: "{{ all_cont_ids }}"
+- debug: msg={{ add_ifg_grp_port }}
+  when: print_debug == true
+
+
+- name: Validate if NFS Interface Group is Active
+  shell: |
+    weka nfs interface-group
+  register: check_nfs_ifg_active
+  until: check_nfs_ifg_active.stdout.find("NFS_SERVER_DOWN") == -1
+  retries: 20
+- debug: msg={{ check_nfs_ifg_active }}
+  when: print_debug == true
+
+
+- name: Add IPs for Group
+  shell: |
+    weka nfs interface-group ip-range add {{ _nfs.interface.group }} {{ _nfs.net.ips_range }}
+  register: add_ips_grp
+- debug: msg={{ add_ips_grp }}
+  when: print_debug == true
+
+
+# Now, add at least one group for your clients. This can be thought of as a bucket, into which matching NFS clients will be placed.
+# NFS shares (aka “permissions”) will then be granted to those client groups.
+- name:  Add at least One Group for NFS Clients
+  shell: |
+    weka nfs client-group add {{ _nfs.client.group }}
+  register: add_ifg_grp_nfs_client
+- debug: msg={{ add_ifg_grp_nfs_client }}
+  when: print_debug == true
+
+
+# You need to add at least one rule to ensure clients get matched and thus associated with that client group. Here we match an entire /24 CIDR.
+- name: Add Rule to Ensure Clients Get Matched and Associated with NFS Client Group
+  shell: |
+    weka nfs rules add ip {{ _nfs.client.group }} {{ _nfs.net.network }}/{{ _nfs.net.subnet }}
+  register: add_rule_client_group
+- debug: msg={{ add_rule_client_group }}
+  when: print_debug == true
+
+
+- name: Add Permissions
+  shell: |
+    weka nfs permission add {{ _nfs.fs.config }} {{ _nfs.client.group }} --squash none --permission-type rw --supported-versions v3,v4
+  register: add_permission
+- debug: msg={{ add_permission }}
+  when: print_debug == true
+

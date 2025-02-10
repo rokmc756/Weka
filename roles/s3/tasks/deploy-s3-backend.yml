@@ -1,0 +1,83 @@
+---
+- name: Check if MCB and SCB Both are Enabled to Deploy in groups_vars/all.yml
+  fail: msg="Stopped due to both MCB and SCB Settings Enabled in groups_vars/all.yml. Please Choose One of Them and Rerun Ansible Playbook"
+  when: _weka.backend.mcb == true and _weka.backend.scb == true
+
+
+- name: Get All Container IDs for Weka SCB Cluster
+  shell: |
+    weka cluster container | awk '{print $1}' | sed -e 1d | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_scb_container_ids
+  when: _weka.backend.scb == true
+- debug: msg={{ all_scb_container_ids }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_scb_container_ids.stdout }}"
+  when: _weka.backend.scb == true
+
+
+- name: Get All Container IDs for Weka MCB Cluster
+  shell: |
+    weka cluster container | grep frontend | awk '{print $1}' | tr '\n' ',' | sed 's/,$/\n/'
+  register: all_mcb_container_ids
+  when: _weka.backend.mcb == true
+- debug: msg={{ all_mcb_container_ids }}
+  when: print_debug == true
+
+
+- set_fact:
+    all_cont_ids: "{{ all_mcb_container_ids.stdout }}"
+  when: _weka.backend.mcb == true
+
+
+- name: Create S3 Backend Containers
+  shell: |
+    weka s3 cluster create {{ _s3.fs.default.name }} {{ _s3.fs.config.name }} --container {{ all_cont_ids }}
+  register: create_s3_cluster
+- debug: msg={{ create_s3_cluster }}
+  when: print_debug == true
+
+
+- name: Validate if S3 Backend Containers are Online
+  shell: |
+    weka s3 cluster status
+  register: check_s3_cluster_status
+  until: check_s3_cluster_status.stdout.find("Initializing") == -1
+  retries: 30
+  delay: 20
+- debug: msg={{ check_s3_cluster_status }}
+  when: print_debug == true
+  # until: check_s3_cluster_status.stdout.find("Not Ready") == -1
+
+
+- name: Create S3 Buckets
+  shell: |
+    weka s3 bucket create {{ item.name }}
+  register: create_s3_bucket
+  with_items:
+    - "{{ _s3.buckets }}"
+- debug: msg={{ create_s3_bucket }}
+  when: print_debug == true
+
+
+- name: Add S3 Users
+  shell: |
+    weka user add {{ item.name }} s3 {{ item.pass }}
+  register: add_s3_user
+  with_items:
+    - "{{ _s3.users }}"
+- debug: msg={{ add_s3_user }}
+  when: print_debug == true
+
+
+- name: Attach Permission to Users
+  shell: |
+    weka s3 policy attach {{ item.perm }} {{ item.name }}
+  register: attach_perms
+  with_items:
+    - "{{ _s3.users }}"
+- debug: msg={{ attach_perms }}
+  when: print_debug == true
+
