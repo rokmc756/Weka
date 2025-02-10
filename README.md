@@ -91,9 +91,9 @@ $ wget -P . --auth-no-challenge https://xxxxxxxxxxxxxxxx:@get.weka.io/dist/v1/pk
 $ mv weka-4.2.9.28.tar roles/weka/files
 ```
 
-#### 4) Configure variables for informations to deploy Weka Data Platform
-$ vi roles/weka/var/main.yml
+#### 4) Configure Variable to Define the Name, Port, Core IDs, Size of Memory and Numbers of CPU Cores and so on for Drives/Compute/Frontend Containers
 ```yaml
+$ vi roles/weka/var/main.yml
 ~~ snip
 # Total_cores sholud be same as number of virtual network adpaters hold by a SCB default container for DPDK in Virtual Environment
 # total_cores: "{{ container.drives.cores|int + container.compute.cores|int + container.frontend.cores|int }}"
@@ -137,6 +137,7 @@ container:
 ~~ snip
 ```
 
+#### 5) Configure Global Variables to Deploy Weka Data Platform
 $ vi group_vars/all.yml
 ```
 ~~ snip
@@ -212,7 +213,7 @@ _weka:
     download_url: "get.weka.io/api/v1/wms/1.2.2/"
 ~~ snip
 ```
-#### 5) Configure Temp Setup File
+#### 6) Configure Temp Setup File
 ```
 $ vi setup-temp.yml.tmp
 ---
@@ -224,7 +225,7 @@ $ vi setup-temp.yml.tmp
     - temp
 ```
 
-#### 6) Configure Makefile
+#### 7) Configure Makefile
 ~~~
 ~~ snip
 # For All Roles
@@ -296,12 +297,11 @@ $ make weka r=deploy s=scb
 $ make weka r=change s=passwd
 ~~~
 
-### 05 Start and Stop Weka IO Operation
+### 05 - Start and Stop Weka IO Operation
 ~~~
 $ make weka r=start s=io
 $ make weka r=stop s=io
 ~~~
-
 
 [![YouTube](http://i.ytimg.com/vi/1TBoCOItN7Y/hqdefault.jpg)](https://www.youtube.com/watch?v=1TBoCOItN7Y)
 
@@ -369,18 +369,17 @@ $ make obs r=destroy s=tier
 ~~~
 [![YouTube](http://i.ytimg.com/vi/1_4Kl5GonkY/hqdefault.jpg)](https://www.youtube.com/watch?v=1_4Kl5GonkY)
 
-### 15 Force Destroy MCB Containers
+### 15 - Force Destroy MCB Containers
 ~~~
 $ make weka r=destroy s=mcb c=force
 ~~~
 
-### 16 Force Destroy MCB Containers
+### 16 - Force Destroy MCB Containers
 ~~~
 $ make weka r=destroy s=mcb c=force
 ~~~
 
-
-### 17 Destroy Weka Software Instance
+### 17 - Destroy Weka Software Instance
 ~~~
 $ make weka r=destroy s=bin
 ~~~
