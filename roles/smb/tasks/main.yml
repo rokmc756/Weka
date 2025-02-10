@@ -1,46 +1,43 @@
 ---
-# For now fail if it's not suppoted OS
-#- name: Check OS
-#  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
-#  when:
-#    - ansible_distribution_major_version|int >= 8
-#    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
+- name: Check OS ( Weka SMB )
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when:
+    - ansible_distribution_major_version|int >= 8
+    - ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky'
 
-#
-- name: Set facts for Installing Weka Data Platform
+
+- name: Set Facts for Installing Weka Data Platform
   import_tasks: set-install-facts.yml
-  tags:
-    - install
+  tags: deploy, create, install
   when: inventory_hostname in groups['workers']
 
-#
+
 - name: Set facts for Uninstalling Weka Data Platform
   import_tasks: set-uninstall-facts.yml
-  tags:
-    - uninstall
+  tags: destroy, delete, uninstall
   when: inventory_hostname in groups['workers']
 
-#
-- name: Install SMB Backends
-  import_tasks: install.yml
-  tags: install
-  when: weka.protocol.smb == true and inventory_hostname in groups['workers']
 
-#
-- name: Install CIFS Clients
-  import_tasks: install-clients.yml
-  tags: install
-  when: weka.client.smb == true and inventory_hostname in groups['clients']
+- name: Deploy SMB Backends
+  import_tasks: deploy-smb-backend.yml
+  tags: deploy, setup, install
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
 
-#
-- name: Uninstall CIFS Clients
+
+- name: Setup CIFS Clients
+  import_tasks: setup-smb-clients.yml
+  tags: setup, create, install
+  when: ( client == true ) and inventory_hostname in groups['clients']
+
+
+- name: Remove CIFS Clients
   import_tasks: uninstall-clients.yml
-  tags: uninstall
-  when: weka.client.smb == true and inventory_hostname in groups['clients']
+  tags: remove, delete, uninstall
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
 
-#
-- name: Uninstall SMB Backends
-  import_tasks: uninstall.yml
-  tags: uninstall
-  when: weka.protocol.smb == true and inventory_hostname in groups['workers']
+
+- name: Destroy SMB Backends
+  import_tasks: destroy-smb-backend.yml
+  tags: destroy, remove, uninstall
+  when: ( backend is defined and backend == true ) and inventory_hostname in groups['control']
 
