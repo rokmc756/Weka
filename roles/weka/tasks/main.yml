@@ -73,12 +73,6 @@
   when: (( mcb is defined and mcb == true ) and ( noc is defined and noc == true )) and inventory_hostname in groups['workers']
 
 
-- name: Destroy Weka Instance
-  import_tasks: destroy-weka-bin.yml
-  tags: destroy, uninstall
-  when: ( bin is defined and bin == true ) and inventory_hostname in groups['workers']
-
-
 - name: Force Destroy Weka MCB Cluster
   import_tasks: ext/force-destroy-mcb.yml
   tags: destroy, uninstall
@@ -89,6 +83,12 @@
   import_tasks: ext/force-destroy-scb.yml
   tags: destroy, uninstall
   when: (( scb is defined and scb == true ) and ( force is defined and force == true )) and inventory_hostname in groups['workers']
+
+
+- name: Destroy Weka Instance
+  import_tasks: destroy-weka-bin.yml
+  tags: destroy, uninstall
+  when: ( bin is defined and bin == true ) and inventory_hostname in groups['workers']
 
 
 - name: Disable Addtional Swap Space

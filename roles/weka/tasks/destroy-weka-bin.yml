@@ -27,6 +27,23 @@
   when: print_debug == true and inventory_hostname in groups['control']
 
 
+- name: Delete Tarball File and Install Weka Directory
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_install_binary_dir
+  with_items:
+    - "{{ _weka.base_path }}/{{ weka_file_name }}"
+    - "{{ _weka.base_path }}/{{ weka_file_name }}.{{ _weka.bin_type }}"
+    - "{{ _weka.base_path }}/{{ _weka.tools.name }}"
+    - "{{ _weka.base_path }}/{{ weka_tools_file_name }}"
+    - "{{ _weka.base_path }}/{{ weka_tools_file_name }}.{{ _weka.tools.bin_type }}"
+  ignore_errors: true
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ delete_install_binary_dir }}
+  when: print_debug == true
+
+
 - name: Clear Memory Cache
   shell: |
     sync && echo 3 > /proc/sys/vm/drop_caches

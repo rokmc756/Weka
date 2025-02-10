@@ -9,15 +9,6 @@
   when: print_debug == true and inventory_hostname in groups['workers']
 
 
-#- name: Stop and Remove Default Weka Container for MCB Cluster
-#  shell: |
-#    weka local stop && weka local disable && weka local rm default -f
-#  register: remove_default_container
-#  when: _weka.backend.mcb == true and _weka.backend.scb == false
-#- debug: msg={{ remove_default_container }}
-#  when: print_debug == true
-
-
 - name: Copy Sysctl for Weka
   template: src=98-weka-sysctl.conf.j2 dest=/etc/sysctl.d/98-weka-sysctl.conf mode=0644 owner=root group=root
   register: copy_sysctl_conf
