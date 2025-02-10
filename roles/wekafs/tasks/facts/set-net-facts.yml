@@ -25,32 +25,40 @@
   when: inventory_hostname in groups['workers']
 
 
+- name: Weka Admin Login
+  shell: |
+    weka user login {{ _weka.admin_user }} {{ _weka.admin_change_pass }}
+  register: weka_admin_login
+  when: inventory_hostname in groups['control']
+- debug: msg={{ weka_admin_login }}
+
+
 - name: Get IP Address of Frontend who has most Lowest CPU Usage
   shell: |
     weka cluster container | grep frontend | grep `weka cluster process | grep $(weka stats realtime --sort cpu -F role=FRONTEND \
     | sed 1d | awk '{print $1" "$11 }' | sort -k2,2 | head -1 | awk '{print $1}') | awk '{print $2}'` | awk '{print $4}'
   register: feip_high_cpu_mcb
-  when: ( client is defined and client == true ) and _weka.backend.mcb == true and inventory_hostname in groups['control']
+  when: _weka.backend.mcb == true and inventory_hostname in groups['control']
 
 
 - set_fact:
     feip_high_cpu: "{{ feip_high_cpu_mcb.stdout }}"
-  when: ( client is defined and client == true ) and _weka.backend.mcb == true and inventory_hostname in groups['control']
+  when: _weka.backend.mcb == true and inventory_hostname in groups['control']
 
 
 # Management IP Address in case of SCB
 - name: Get IP Address of Frontend who has most Lowest CPU usage in Weka SCB Cluster
   shell: |
     weka cluster container | \
-    grep `weka cluster process | sed 1d | grep DPDK | awk '{print $1","$2}' | grep -e ^$(weka stats realtime --sort cpu -F role=FRONTEND | awk '{print $1" "$2 }' | sed 1d | sort -k2,2 | head -1 | awk '{print $1}'), | cut -d , -f 2` \
+    grep -e ^`weka cluster process | sed 1d | grep DPDK | awk '{print $1","$2}' | grep -e ^$(weka stats realtime --sort cpu -F role=FRONTEND | awk '{print $1" "$2 }' | sed 1d | sort -k2,2 | head -1 | awk '{print $1}'), | cut -d , -f 2` \
     | awk '{print $4}'
   register: feip_high_cpu_scb
-  when: ( client is defined and client == true ) and _weka.backend.scb == true and inventory_hostname in groups['control']
+  when: _weka.backend.scb == true and inventory_hostname in groups['control']
 
 
 - set_fact:
     feip_high_cpu: "{{ feip_high_cpu_scb.stdout }}"
-  when: ( client is defined and client == true ) and _weka.backend.scb == true and inventory_hostname in groups['control']
+  when: _weka.backend.scb == true and inventory_hostname in groups['control']
 
 
 - name: Set Null Facts of Frontend IP Address

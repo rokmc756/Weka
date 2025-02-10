@@ -11,28 +11,18 @@
   import_tasks: facts/set-net-facts.yml
   tags: create, setup, install, uninstall, remove, delete
   when: inventory_hostname in groups['clients'] or inventory_hostname in groups['control']
-  # when: ( fs is defined and fs == true ) and ( inventory_hostname in groups['clients'] or inventory_hostname in groups['control'] )
-  # when: _weka.client.wekafs == true and ( inventory_hostname in groups['clients'] or inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] )
-
-
-#- name: Set Facts for Setup and Remove Weka File Sysetm and Clients
-#  import_tasks: set-wekafs-facts.yml
-#  tags: install, uninstall
-#  when: inventory_hostname in groups['workers']
 
 
 - name: Set Facts for Setup WekaFS and POSIX Clients
   import_tasks: facts/set-clients-facts.yml
   tags: create, setup, install
   when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
-  # when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
 
 
 - name: Set facts for WekaFS POSIX Clients at Virtualization such as VMware and Public Cloud
   import_tasks: facts/set-virt-clients-facts.yml
   tags: create, setup, install
   when: (( client is defined and client == true ) and ( _weka.client.net.type == "virtual" )) and inventory_hostname in groups['clients']
-  # when: _weka.client.wekafs == true and _weka.client.net.type == "virtual" and inventory_hostname in groups['clients']
 
 
 - name: Create WekaFS
@@ -47,8 +37,8 @@
   when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
 
 
-- name: Remove WekaFS
-  import_tasks: remove-fs.yml
+- name: Delete WekaFS
+  import_tasks: delete-fs.yml
   tags: delete, remove, uninstall
   when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
 
@@ -63,5 +53,4 @@
   import_tasks: ext/force-destroy-client.yml
   tags: destroy, uninstall
   when: (( client is defined and client == true ) and ( force is defined and force == true )) and inventory_hostname in groups['clients']
-
 

@@ -90,6 +90,16 @@
   when: print_debug == true
 
 
+# From Weka 4.3.x to Weka 4.4.4 from now on ( 2025.02.11 )
+- name: Disable NFS Locks
+  shell: |
+    weka nfs global-config set --locks "false"
+  register: disable_nfs_locks
+  ignore_errors: true
+- debug: msg={{ disable_nfs_locks }}
+  when: print_debug == true
+
+
 - name: Unset Global Config for NFS
   shell: |
     weka nfs global-config set --config-fs ""

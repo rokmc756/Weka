@@ -1,7 +1,7 @@
 ---
 - name: Get SSH Key Sscan
   shell: |
-    ssh-keyscan -t rsa,dsa {{ ipaddr }} >> {{ _weka.base_path }}/.ssh/known_hosts
+    ssh-keyscan -t rsa,dsa {{ ipaddr }} >> {{ _weka.root_path }}/.ssh/known_hosts
   register: ssh_key_scan
   ignore_errors: true
 - debug: msg={{ ssh_key_scan }}
@@ -10,7 +10,7 @@
 
 - name: Destroy Weka Software Binary
   shell: |
-    {{ _weka.base_path }}/tools/install/wekadestroy -f -y -u {{ ipaddr }}
+    {{ _weka.root_path }}/tools/install/wekadestroy -f -y -u {{ ipaddr }}
   register: destroy_weka_clu
   ignore_errors: true
 - debug: msg={{ destroy_weka_clu }}

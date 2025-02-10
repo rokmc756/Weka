@@ -2,7 +2,7 @@
 # shell: yum-config-manager --enable devel
 # export PDSH_RCMD_TYPE='ssh'
 
-# It's not working although default container is OK
+
 - name: Create SCB Container
   shell: |
     weka local setup container --name {{ container.default.name }}
@@ -17,7 +17,7 @@
 
 - name: Create Weka Cluster With All Hosts and Management IP Addresses
   shell: |
-    weka cluster create {{ all_mgmt_ipaddrs }}
+    weka cluster create {{ _all_mgmt_ipaddrs }}
   register: create_weka_cluster
   environment:
     WEKA_USERNAME: "{{ _weka.admin_user }}"
@@ -25,7 +25,7 @@
   when: inventory_hostname in groups['control']
 - debug: msg={{ create_weka_cluster }}
   when: print_debug == true and inventory_hostname in groups['control']
-  #  weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_mgmt_ipaddrs }} -T infinite
+  # weka cluster create {{ all_ext1_hostnames }} --host-ips={{ all_mgmt_ipaddrs }} -T infinite
 
 
 - name: Validate if Weka Cluster is still creating

@@ -3,7 +3,6 @@
   shell: |
     weka user login {{ _weka.admin_user }} {{ _weka.admin_change_pass }}
   register: weka_admin_login
-  when: inventory_hostname in groups['control']
 - debug: msg={{ weka_admin_login }}
 
 

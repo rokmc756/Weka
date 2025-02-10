@@ -294,6 +294,21 @@ $ make weka r=start s=io
 $ make weka r=stop s=io
 ~~~
 
+### Deploy and Destroy Weka SCB Cluster
+~~~
+$ make weka r=destroy s=bin
+$ make weka r=setup   s=bin
+$ make weka r=remove  s=default
+$ make weka r=deploy  s=scb
+$ make weka r=change s=passwd
+
+
+$ make weka r=destroy s=scb
+or
+$ make weka r=destroy s=scb c=force
+~~~
+
+
 ## Planning
 - [ ] Configuring WekaFS Persistent and Stateless Clients both
 - [ ] Disable Numa Balancing

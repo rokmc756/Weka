@@ -1,0 +1,11 @@
+for i in `ps -ef | grep weka_init | grep -v grep | awk '{print $2}'`
+do
+
+    kill -9 $i
+
+done
+
+weka local disable default && weka local rm -f default
+
+# weka local stop default && weka local disable default && weka local rm -f default
+

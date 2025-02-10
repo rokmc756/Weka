@@ -13,6 +13,13 @@
   when: inventory_hostname in groups['control']
 
 
+- name: Weka Admin Login
+  shell: |
+    weka user login {{ _weka.admin_user }} {{ _weka.admin_change_pass }}
+  register: weka_admin_login
+- debug: msg={{ weka_admin_login }}
+
+
 - name: Stop Weka IO
   shell: |
     {{ _weka.base_path }}/weka-stop-io.sh
@@ -40,20 +47,21 @@
 #when: print_debug == true
 
 
-- name: Copy Force Destroy MCB Script
-  template: src=force-destroy-mcb.sh.j2 dest={{ _weka.base_path }}/force-destroy-mcb.sh owner=root group=root mode=755 force=yes
+#- name: Copy Force Destroy MCB Script
+#  template: src=force-destroy-mcb.sh.j2 dest={{ _weka.base_path }}/force-destroy-mcb.sh owner=root group=root mode=755 force=yes
 
 
-- name: Force Destroy MCB
-  shell: |
-    {{ _weka.base_path }}/force-destroy-mcb.sh 2>&1 | wc -l
-  register: force_destroy_mcb
-  until: force_destroy_mcb.stdout|int == 3
-  retries: 50
-  delay: 10
+#- name: Force Destroy MCB
+#  shell: |
+#    {{ _weka.base_path }}/force-destroy-mcb.sh 2>&1 | wc -l
+#  register: force_destroy_mcb
+#  until: force_destroy_mcb.stdout|int == 3
+#  retries: 50
+#  delay: 10
 
 
-- meta: end_play
+# - meta: end_play
+
 
 # weka local stop {{ item }} && weka local disable {{ item }} && weka local rm -f {{ item }}
 - name: Stop MCB Containers
@@ -65,12 +73,12 @@
     WEKA_USERNAME: "{{ _weka.admin_user }}"
     WEKA_PASSWORD: "{{ _weka.admin_default_pass }}"
   with_items:
+    - "{{ container.envoy.name }}"
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
 - debug: msg={{ stop_mcb_containers }}
   when: print_debug == true
-# - "{{ container.envoy.name }}"
 
 
 - name: Disable MCB Containers
@@ -82,12 +90,12 @@
     WEKA_USERNAME: "{{ _weka.admin_user }}"
     WEKA_PASSWORD: "{{ _weka.admin_default_pass }}"
   with_items:
+    - "{{ container.envoy.name }}"
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
 - debug: msg={{ disable_mcb_containers }}
   when: print_debug == true
-# - "{{ container.envoy.name }}"
 
 
 - name: Remove MCB Containers
@@ -99,10 +107,11 @@
     WEKA_USERNAME: "{{ _weka.admin_user }}"
     WEKA_PASSWORD: "{{ _weka.admin_default_pass }}"
   with_items:
+    - "{{ container.envoy.name }}"
     - "{{ container.frontend.name }}"
     - "{{ container.compute.name }}"
     - "{{ container.drives.name }}"
 - debug: msg={{ remove_mcb_containers }}
   when: print_debug == true
-# - "{{ container.envoy.name }}"
+
 
