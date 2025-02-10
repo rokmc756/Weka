@@ -41,26 +41,22 @@
   when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
 
 
+- name: Setup WekaFS Client
+  import_tasks: setup-clients.yml
+  tags: setup, create, install
+  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
+
+
 - name: Remove WekaFS
   import_tasks: remove-fs.yml
   tags: delete, remove, uninstall
   when: ( fs is defined and fs == true ) and inventory_hostname in groups['control']
 
 
-- name: Setup WekaFS Client
-  import_tasks: setup-clients.yml
-  tags: setup, create, install
-  when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
-  # when: (( client is defined and client == true ) and ( fs is defined and fs == true ))_and inventory_hostname in groups['clients']
-  # when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
-
-
 - name: Remove WekaFS Clients
   import_tasks: remove-clients.yml
   tags: delete, remove, uninstall
   when: ( client is defined and client == true ) and inventory_hostname in groups['clients']
-  # when: (( client is defined and client == true ) and ( fs is defined and fs == true ))_and inventory_hostname in groups['clients']
-  # when: _weka.client.wekafs == true and inventory_hostname in groups['clients']
 
 
 - name: Force Destroy WekaFs Client Containers

@@ -256,9 +256,17 @@ $ make nfs r=destroy s=backend
 [![YouTube](http://i.ytimg.com/vi/9uob3-jG1u8/hqdefault.jpg)](https://www.youtube.com/watch?v=9uob3-jG1u8)
 
 ### 08 - Create SMB Backends Cluster
+~~~
+$ make smb r=deploy s=backend
+$ make smb r=setup s=client
+~~~
 [![YouTube](http://i.ytimg.com/vi/-teDTpbS3bI/hqdefault.jpg)](https://www.youtube.com/watch?v=-teDTpbS3bI)
 
 ### 09 - Destroy SMB Backend Cluster
+~~~
+$ make smb r=remove s=client
+$ make smb r=destroy s=backend
+~~~
 [![YouTube](http://i.ytimg.com/vi/SwoobVV5Ess/hqdefault.jpg)](https://www.youtube.com/watch?v=SwoobVV5Ess)
 
 ### 10 - Deploy Object Store
