@@ -58,13 +58,16 @@ $ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Libr
 $ sudo yum install ansible
 ```
 
-## Prepareing OS
+## Prepareing OS Environment
 * Configure Yum / Local & EPEL Repostiory
 * CPU Number : 10
 * RAM : 32GiB
 * Disk : /dev/sda (150GiB), /dev/sdb (150GiB), /dev/nvme0n1(20GiB), /dev/nvme0n2 (20GiB)
-* Network : 7 vNICs ( Configure with scripts/weka-netconfig.sh with hostname is xx-node0x
+* Network : 6 vNICs ( Configure with scripts/weka-netconfig.sh with hostname is xx-node0x
+* IPs : 192.168.0.171-5, 192.168.1.171-5, 192.168.1.181-5, 192.168.1.191-5, 192.168.1.201-5, 192.168.1.211-5
+* Netmask: 255.255.255.0
 * Gateway : 192.168.0.17x, 192.168.1.21x
+
 
 ## Download / configure / run Weka Data Platform
 #### 1) Clone Ansible Playbook of Weka
@@ -149,11 +152,11 @@ $ vi group_vars/all.yml
 ```
 ~~ snip
 _weka:
-  cluster_name: jack-kr-weka-mcb
+  cluster_name: jack-kr-weka
   major_version: "4"
-  minor_version: "4"
-  build_version: "3"
-  patch_version: "" # ".28"
+  minor_version: "2"
+  build_version: "9"
+  patch_version: ".28"
   download_url: "get.weka.io/dist/v1/pkg"
   download: false
   base_path: /root
