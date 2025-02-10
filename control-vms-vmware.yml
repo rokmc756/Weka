@@ -11,6 +11,7 @@
         state: "{{ power_state }}"
       loop:
         - "rk9-freeipa"
+        - "minio"
         - "rk9-node01"
         - "rk9-node02"
         - "rk9-node03"
