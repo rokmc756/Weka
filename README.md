@@ -68,17 +68,15 @@ ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
-
 [control]
-rk9-node01 ansible_ssh_host=192.168.0.211
-
+rk9-node01 ansible_ssh_host=192.168.1.211
 
 [workers]
-rk9-node01 ansible_ssh_host=192.168.0.171
-rk9-node02 ansible_ssh_host=192.168.0.172
-rk9-node03 ansible_ssh_host=192.168.0.173
-rk9-node04 ansible_ssh_host=192.168.0.174
-rk9-node05 ansible_ssh_host=192.168.0.175
+rk9-node01 ansible_ssh_host=192.168.1.211
+rk9-node02 ansible_ssh_host=192.168.1.212
+rk9-node03 ansible_ssh_host=192.168.1.213
+rk9-node04 ansible_ssh_host=192.168.1.214
+rk9-node05 ansible_ssh_host=192.168.1.215
 
 
 [clients]
