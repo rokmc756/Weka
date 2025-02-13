@@ -398,11 +398,11 @@ $ make weka r=destroy s=bin
 ~~~
 
 ## Planning
+- [x] Configure NTP
 - [ ] Configuring WekaFS Persistent and Stateless Clients both
 - [ ] Disable Numa Balancing
 - [ ] Enable Swap
 - [ ] Configure to Disable SELinux and Firewalld
-- [ ] Configure NTP
 - [ ] Need to imporove algorithm which network adapters should be allocated into drives,compute,frontend containers in set-virt-net-facts.yml
 - [ ] Need to modify and add weka role for Baremetal
 

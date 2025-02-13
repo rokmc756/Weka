@@ -97,6 +97,12 @@
   when: ( swap is defined and swap == true ) and inventory_hostname in groups['workers']
 
 
+- name: Setup NTP Service
+  import_tasks: ext/setup-chrony.yml
+  tags: setup, install
+  when: ( ntp is defined and ntp == true ) and inventory_hostname in groups['workers']
+
+
 - name: Start Weka IO
   import_tasks: ext/start-weka-io.yml
   tags: start, uninstall
