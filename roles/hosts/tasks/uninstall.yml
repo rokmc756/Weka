@@ -53,12 +53,18 @@
     - "nohup fuser -k /home/"
 
 
-- name: Delete "{{ sudo_user }}" user and group
+- name: Delete "{{ sudo_user }}" User and Group
   user:
     name: "{{ sudo_user }}"
     group: "{{ sudo_group }}"
     state: absent
     remove: true
+
+
+- name: Delete "{{ sudo_user }}" User Home Directory
+  file:
+    path: "/home/{{ sudo_user }}"
+    state: absent
 
 
 - name: Uninstall Prerequest Software Packages
